@@ -35,4 +35,41 @@
 #define DS_OK 100
 #define DS_ABORT 200
 
+/******* typedefs *******/
+// request header
+typedef struct request_header{
+    time_t time;
+    uint64_t request_handle;
+    uint64_t time_duration;
+    char* endpoint;
+    // ADDITIONAL_HEADER reserved
+} request_header;
+// response header
+typedef struct response_header{
+    time_t time;
+    uint64_t request_handle;
+    uint64_t status_code;
+    // ADDITIONAL_HEADER reserved
+} response_header;
+// datagram
+typedef struct datagram {
+    request_header  requestHeader;
+    char*           data;
+} datagram;
+// response datagram
+typedef struct configuration {
+    char*   ip_security;
+    int     port_security;
+    char*   ip_registration;
+    int     port_registration;
+    char*   ip_resolution;
+    int     port_resolution;
+    char*   ip_search;
+    int     port_search;
+    char*   ip_database;
+    int     port_database;
+    char*   user_database;
+    char*   passw_database;
+} configuration;
+
 #endif //DISTRIBUTEDDISCOVERYSERVER_SERVICES_H

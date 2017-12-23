@@ -1,30 +1,21 @@
-#include <iostream>
-#include <string>
-#include <mysql.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <netdb.h>
 #include <pthread.h>
-#include <signal.h>
 #include <arpa/inet.h>
-#include <time.h>
-#include <stdlib.h>
-#include "DiscoveryServer/services.h"
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include "DiscoveryServer/types.h"
+#include "ds_database.h"
 
 // TODO: doxygen documentation
 // TODO: config file
 // TODO: memory check
 
-using std::cerr;
-using std::cout;
-using std::string;
-using std::endl;
-using std::to_string;
-
 // define global variables
-bool sig_flag;
+int sig_flag;
 
 /******* defines (MAX_THREAD not used at the moment) *******/
 #define MAX_DATA 2048
@@ -36,90 +27,70 @@ bool sig_flag;
 typedef struct thread_data{
     int socketfd;
     MYSQL* handle;
-    sockaddr_in client_info;
+    struct sockaddr_in client_info;
 } thread_data;
-// request header
-typedef struct request_header{
-    time_t time;
-    uint64_t request_handle;
-    uint64_t time_duration;
-    char* endpoint;
-    // ADDITIONAL_HEADER reserved
-} request_header;
-// response header
-typedef struct response_header{
-    time_t time;
-    uint64_t request_handle;
-    uint64_t status_code;
-    // ADDITIONAL_HEADER reserved
-} response_header;
-// datagram
-typedef struct datagram {
-    request_header  requestHeader;
-    char*           data;
-} datagram;
-// response datagram
 
 /******* helper functions (will be moved to separate header) *******/
+void skip_comment(FILE* file) {
+    while(fgetc(file) == '#') {
+        fscanf(file, "%*[^\n]\n", NULL);
+    }
+}
+
+int get_config(const char* config_file, configuration* config) {
+    FILE* file;
+    if((file = fopen(config_file, "r")) == NULL) {
+        fprintf(stderr, "error: could not open config file");
+        return 0;
+    }
+    else {
+        char* tmp = (char*)malloc(sizeof(char*)*100);
+        // check for comment
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        strcpy(config->ip_security,strtok(fgets(tmp, 200, file),"\n"));
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        config->port_security = atoi(fgets(tmp, 200, file));
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        config->ip_registration = strtok(fgets(tmp, 200, file), "\n");
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        fscanf(file, tmp);
+        config->port_registration = atoi(tmp);
+        while(fgetc(file) != '=') {}
+        config->ip_resolution = strtok(fgets(tmp, 200, file),"\n");
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        fscanf(file, tmp);
+        config->port_resolution = atoi(tmp);
+        while(fgetc(file) != '=') {}
+        config->ip_resolution = strtok(fgets(tmp, 200, file),"\n");
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        fscanf(file, tmp);
+        config->port_search = atoi(tmp);
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        config->ip_resolution = strtok(fgets(tmp, 200, file),"\n");
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        fscanf(file, tmp);
+        config->port_database = atoi(tmp);
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        config->ip_resolution = strtok(fgets(tmp, 200, file),"\n");
+        skip_comment(file);
+        while(fgetc(file) != '=') {}
+        config->ip_resolution = fgets(tmp, 200, file);
+        fclose(file);
+        return 1;
+    }
+}
+
 void signal_handler(int sig) {
-    sig_flag = true;
-}
-
-// TODO: table needs to be variable
-/// wrapper to insert data into table tester
-/// @param handle MYSQL structure to handle database
-/// @param data String holding values for insertion "val1, val2, val3, ..."
-/// @return true if query could be executed
-bool insert_into_table(MYSQL* handle, const char* data) {
-    // build query
-    string query = "INSERT INTO tester VALUES (";
-    query += string(data);
-    query +=");";
-    // execute query
-    if(mysql_query(handle, query.c_str())) {
-        cerr << mysql_error(handle) << endl;
-        mysql_close(handle);
-        return false;
-    }
-    return true;
-}
-
-// TODO: possible to select database
-// in the future it should be possible to select database
-bool show_table(MYSQL* handle) {
-    // save result
-    MYSQL_RES *result;
-
-    if(mysql_query(handle, "SELECT * FROM tester;")) {
-        cerr << mysql_error(handle) << endl;
-        mysql_close(handle);
-        return false;
-    }
-
-    result = mysql_store_result(handle);
-    cout << "rows: " << result->row_count << endl;
-
-    int number_of_fields = mysql_num_fields(result);
-    MYSQL_ROW row;
-
-    while((row = mysql_fetch_row(result))) {
-        for(int i = 0; i < number_of_fields; i++) {
-            cout << row[i] << " ";
-        }
-        cout << endl;
-    }
-    mysql_free_result(result);
-    return true;
-}
-
-bool connect_to_database(string host, string user, string passw, MYSQL* handle) {
-    if(mysql_real_connect(handle, host.c_str(), user.c_str(), passw.c_str(),
-                          NULL, 3306, NULL, 0) == NULL) {
-        cerr << mysql_error(handle) << endl;
-        mysql_close(handle);
-        return false;
-    }
-    return true;
+    sig_flag = 1;
 }
 
 datagram* parse_data(char* data) {
@@ -156,13 +127,11 @@ char* receive_data(int socket) {
     // buffer for reading 
     char* data;
     data = (char*)calloc(MAX_DATA, sizeof(char));
-    // new request header
-    request_header req_h;
     // bytes read and number of total bytes read
     int len, total_len;
     len = total_len = 0;
     // receive data
-    while(true) {
+    while(1) {
         if(total_len + CHUNK > MAX_DATA) {
             realloc(data, CHUNK);
         }
@@ -175,20 +144,17 @@ char* receive_data(int socket) {
     return data;
 }
 
-bool check_certificate(char* certificate) {
-    return true;
+int check_certificate(char* certificate) {
+    return 1;
 }
 
-bool AUT_KESEC(datagram* packet, thread_data* thr_data) {
+int AUT_KESEC(datagram* packet, thread_data* thr_data) {
     if(check_certificate(packet->data)) {
-        // TODO: generate with mysql hash?
-        long ds_key = random();
         // build string representing values
-        string query_values;
-        query_values += string(packet->requestHeader.endpoint) + ", ";
-        query_values += to_string(ds_key);
+        char* query_values;
+        strcat(query_values, packet->requestHeader.endpoint);
         // insert values into database
-        insert_into_table(thr_data->handle, query_values.c_str());
+        insert_into_table(thr_data->handle, query_values);
         // send response with ds_key
         response_header* responseHeader;
         responseHeader->request_handle = packet->requestHeader.request_handle;
@@ -201,30 +167,30 @@ bool AUT_KESEC(datagram* packet, thread_data* thr_data) {
             responseHeader->status_code = DS_OK;
         }
         // build message string
-        string msg;
+        char* msg;
         // TODO: build message string...
-        return true;
+        return 1;
     }
     else {
-        cout << "bad certificate" << endl;
-        return false;
+        fprintf(stderr, "bad certificate\n");
+        return 0;
     }
 }
 
-bool RELEASE_KEY_KESEC(datagram* packet, thread_data* thr_data) {
+int RELEASE_KEY_KESEC(datagram* packet, thread_data* thr_data) {
     // TODO: release key
-    return true;
+    return 1;
 }
 
 void *thread_function(void *arg) {
     // get data
     thread_data* thr_data = (thread_data*)arg;
     // display client id for debugging
-    cout << "connected to: " << inet_ntoa(thr_data->client_info.sin_addr) << endl;
+    fprintf(stdout, "connected to: %s\n", inet_ntoa(thr_data->client_info.sin_addr));
     // if bad request let's abort
     char* data;
     if((data = receive_data(thr_data->socketfd)) == NULL) {
-        cout << "packet could not be read" << endl;
+        fprintf(stderr, "packet could not be read\n");
         close(thr_data->socketfd);
         pthread_exit(NULL);
     }
@@ -239,14 +205,12 @@ void *thread_function(void *arg) {
 
     close(thr_data->socketfd);
     pthread_exit(NULL);
-    /* new database entry with insert
-    insert_into_table(handle, thread_buffer);*/
 }
 
 int shutdown_server(MYSQL* handle, int socket) {
     // close socket
     if(close(socket) == -1) {
-        cerr << "socket could not be closed" << endl;
+        fprintf(stderr, "socket could not be closed\n");
         return -1;
     }
     // free and close handle
@@ -255,23 +219,25 @@ int shutdown_server(MYSQL* handle, int socket) {
 }
 
 int main(int argc, char* argv[]) {
-    // save command line arguments
-    string host, user, passw, port;
+    // get config file and save it in configuration struct
+    const char* config_file;
+    configuration* config = malloc(sizeof(configuration));
 
     // check for command line arguments
-    if(argc == 5) {
-        host = string(argv[1]);
-        user = string(argv[2]);
-        passw = string(argv[3]);
-        port = string(argv[4]);
+    if(argc == 2) {
+        config_file = (char*)malloc(sizeof(argv[1]));
+        strcpy(config_file, argv[1]);
     }
     else {
-        cerr << "usage: ./sec <host> <user> <password> <port>" << endl;
+        fprintf(stderr, "usage: ./sec <config_file>\n");
         return -1;
     }
 
+    // read config file
+    get_config(config_file, config);
+
     // init sig_flag to false. Check sig_flag in while loop to stop program
-    sig_flag = false;
+    sig_flag = 0;
 
     // register signal handler
     signal(SIGINT, signal_handler);
@@ -280,23 +246,23 @@ int main(int argc, char* argv[]) {
     MYSQL* handle = mysql_init(NULL);
 
     if(handle == NULL) {
-        cout << mysql_error(handle) << endl;
-        return false;
+        fprintf(stderr, "%s\n", mysql_error(handle));
+        return 0;
     }
     // connect to database
-    if(!connect_to_database(host, user, passw, handle)) {
-        cerr << "could not connect to database" << endl;
+    if(!connect_to_database(config->ip_database, config->user_database, config->passw_database, handle)) {
+        fprintf(stderr, "could not connect to database\n");
         return -1;
     }
-    cout << "connected to database..." << endl;
+    fprintf(stdout, "connected to database\n");
 
     // we need to choose correct database
     if(mysql_query(handle, "USE test;")) {
-        cerr << mysql_error(handle) << endl;
+        fprintf(stderr, "%s\n", mysql_error(handle));
         mysql_close(handle);
         return -1;
     }
-    cout << "selected test database..." << endl;
+    fprintf(stdout, "selected database\n");
 
     // do the networking stuff
     int sockfd;
@@ -307,41 +273,41 @@ int main(int argc, char* argv[]) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(NULL, port.c_str(), &hints, &res);
+    getaddrinfo(NULL, config->port_security, &hints, &res);
 
     // create socket
     if(!(sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol))) {
-        cerr << "could not create socket" << endl;
+        fprintf(stderr, "could not create socket\n");
         return -1;
     }
     // bind socket to specific port
     if(bind(sockfd, res->ai_addr, res->ai_addrlen) == -1) {
-        cout << "could not bind to port" << endl;
+        fprintf(stderr, "failed to bind\n");
         return -1;
     }
     // listen to incoming connections
     // TODO: is MAX_THREAD good idea?
     if(listen(sockfd, MAX_THREADS) == -1) {
-        cout << "listen failed" << endl;
+        fprintf(stderr, "listen failed");
         return -1;
     }
-    cout << "server is up... waiting for connections..." << endl;
-    
+    fprintf(stdout, "server is up... waiting for connections...\n");
+
     // accept incoming connection (one thread per connection)
-    sockaddr_in client;
+    struct sockaddr_in client;
     socklen_t client_legnth = sizeof(client);
-    while(true) {
+    while(1) {
         // check if we want to shutdown server
         if(sig_flag) {
             shutdown_server(handle, sockfd);
             return -1;
         }
         int new_socketfd;
-        new_socketfd = accept(sockfd, (sockaddr* )&client, &client_legnth);
+        new_socketfd = accept(sockfd, (struct sockaddr* )&client, &client_legnth);
         // if socket could not be created, close connection to database and close socket
         // TODO: eig. nicht notwendig. Hat client halt Pech.
         if (new_socketfd == -1) {
-            cout << "failed to create new socket" << endl;
+            fprintf(stderr, "failed to create new socket\n");
             shutdown_server(handle, sockfd);
             return -1;
         }
