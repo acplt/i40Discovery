@@ -10,6 +10,7 @@
 #define DISTRIBUTEDDISCOVERYSERVER_DS_DATABASE_H
 
 int connect_to_database(char* host, char* user, char* passw, MYSQL* handle);
+int select_database(MYSQL* handle, char* database);
 int show_table(MYSQL* handle);
 int insert_into_table(MYSQL* handle, const char* data);
 

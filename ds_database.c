@@ -7,10 +7,27 @@ int connect_to_database(char* host, char* user, char* passw, MYSQL* handle) {
     if(mysql_real_connect(handle, host, user, passw,
                           NULL, 3306, NULL, 0) == NULL) {
         fprintf(stdout, "%s\n", mysql_error(handle));
+        fprintf(stderr, "could not connect to database\n");
         mysql_close(handle);
-        return 0;
+        return -1;
+    } else {
+        fprintf(stdout, "connected to database\n");
+        return 1;
     }
-    return 1;
+}
+
+int select_database(MYSQL* handle, char* database) {
+    // TODO: check database string size
+    char command[30] = "USE ";
+    if(mysql_query(handle, strcat(command, database))) {
+        fprintf(stderr, "%s\n", mysql_error(handle));
+        mysql_close(handle);
+        fprintf(stderr, "could not select database");
+        return -1;
+    } else {
+        fprintf(stdout, "selected database %s\n", database);
+        return 1;
+    }
 }
 
 int show_table(MYSQL* handle) {
@@ -44,9 +61,12 @@ int show_table(MYSQL* handle) {
 /// @param handle MYSQL structure to handle database
 /// @param data String holding values for insertion "val1, val2, val3, ..."
 /// @return true if query could be executed
-int insert_into_table(MYSQL* handle, const char* data) {
+int insert_into_table(MYSQL* handle, const char* data, const char* table) {
     // build query
-    char* query = "INSERT INTO tester VALUES (";
+    // INSERT INTO table VALUES ( dat1, dat2, dat3 );
+    char* query = "INSERT INTO ";
+    strcat(query, table);
+    strcat(query, " VALUES (");
     strcat(query, data);
     strcat(query, ");");
     // execute query

@@ -10,29 +10,29 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-int authenticate(int socket, int* ds_key) {
-    // first build packet. Then send
+#include "types.h"
+#include "../network.h"
 
-    return 1;
-}
+#define OFFSET 5
+#define BUFFER_SIZE 1024
 
 
 int main(int argc, char* argv[]) {
     char* ip_adress;
     char* port;
-    int* ds_key;
 
     if(argc == 3) {
-        ip_adress = (char*)malloc(sizeof(argv[1]));
-        memcpy(ip_adress, argv[1], sizeof(argv[1]));
-        port = (char*)malloc(sizeof(argv[2]));
-        memcpy(port, argv[2], sizeof(argv[2]));
+        ip_adress = malloc(sizeof(argv[1]) + OFFSET);
+        strcpy(ip_adress, argv[1]);
+        port = malloc(sizeof(argv[2]) + OFFSET);
+        strcpy(port, argv[2]);
     }
     else {
         fprintf(stderr, "error: usage <ip> <port>");
+        return -1;
     }
 
-    printf("connecting to: ip::%s, port::%s", ip_adress, port);
+    printf("connecting to:\n ip: %s\n port: %s\n", ip_adress, port);
 
     int sock_fd;
     struct addrinfo hints, *res;
@@ -63,11 +63,23 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    for(;;) {
-        // first authenticate and request DS_KEY
-        authenticate(sock_fd, ds_key);
-        break;
-    }
+    char* my_ip = "127.0.0.1#";
+    char* my_cert = "foo#";
+    // fill request struct
+    request_header* request_cert = get_request_header(my_ip, my_cert, GET_CERTIFICATE_KESEC_Request);
+    request_datagram* packet = malloc(sizeof(request_datagram));
+
+    packet->requestHeader request_cert;
+    packet->data = "$";
+
+    serialize_info* info = serialize_request_packet(packet);
+    // write to socket
+    write(sock_fd, info->data, info->length);
+
+    char* data = malloc(1024*sizeof(char));
+    data = receive_data(sock_fd);
+
+
     free(ip_adress);
     free(port);
 
