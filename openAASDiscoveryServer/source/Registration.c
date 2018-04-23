@@ -3,11 +3,11 @@
 *
 *   FILE
 *   ----
-*   OVDataForAAS.c
+*   Registration.c
 *
 *   History
 *   -------
-*   2017-01-26   File created
+*   2018-04-23   File created
 *
 *******************************************************************************
 *
@@ -25,7 +25,7 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAAS_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Registration_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -33,7 +33,6 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAAS_getaccess(
     /*    
     *   local variables
     */
-
 	switch(pelem->elemtype) {
 		case OV_ET_VARIABLE:
 			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
@@ -57,5 +56,25 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAAS_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_constructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*    
+    *   local variables
+    */
+    //OV_INSTPTR_openAASDiscoveryServer_Registration pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Registration, pobj);
+    OV_RESULT    result;
+
+    /* do what the base class does first */
+    result = openAASDiscoveryServer_Part_constructor(pobj);
+    if(Ov_Fail(result))
+         return result;
+
+    /* do what */
+
+
+    return OV_ERR_OK;
 }
 

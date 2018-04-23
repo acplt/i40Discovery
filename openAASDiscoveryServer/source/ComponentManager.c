@@ -218,163 +218,163 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_typemethod(
 	plistParameter= ov_string_split(parameter, ",", &len2);
 	ov_string_setvalue(&parameter, NULL);
 	free(messageContent);
-	if (ov_string_compare(plistReq[0], "RegisterAASReq") == OV_STRCMP_EQUAL){ // register Request
-		if (len2 == 7){
-			// TODO: Check of parameter format
-
-			OV_STRING tmpHexStringAAS = NULL;
-			ov_string_print(&tmpHexStringAAS, "%x", *plistParameter[0]);
-
-			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[1]); i++){
-				OV_STRING tmpHexString2 = NULL;
-				ov_string_print(&tmpHexString2, "%x", plistParameter[1][i]);
-				ov_string_append(&tmpHexStringAAS, tmpHexString2);
-				ov_string_setvalue(&tmpHexString2, NULL);
-			}
-
-			OV_STRING tmpHexStringAsset = NULL;
-			ov_string_print(&tmpHexStringAsset, "%x", *plistParameter[2]);
-
-			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[3]); i++){
-				OV_STRING tmpHexString2 = NULL;
-				ov_string_print(&tmpHexString2, "%x", plistParameter[3][i]);
-				ov_string_append(&tmpHexStringAsset, tmpHexString2);
-				ov_string_setvalue(&tmpHexString2, NULL);
-			}
-
-			OV_RESULT result;
-			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
-			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = NULL;
-			pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
-
-			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
-			if(!pOvDataForAAS){
-				OV_INSTPTR_openAASDiscoveryServer_OVDataForAssetID pOvDataForAsset = NULL;
-				pOvDataForAsset = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAssetID, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset));
-				if(!pOvDataForAsset){
-					result = Ov_CreateObject(openAASDiscoveryServer_OVDataForAAS, pOvDataForAAS, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS);
-					if (result){
-						Ov_DeleteObject(pOvDataForAAS);
-						ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Internal");
-						ov_logfile_info("ComponentManager:Could not create OvDataForAAS object");
-					}else{
-						result = Ov_CreateObject(openAASDiscoveryServer_OVDataForAssetID, pOvDataForAsset, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset);
-						if (result){
-							ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Internal");
-							resultOV = Ov_DeleteObject(pOvDataForAAS);
-							ov_logfile_info("ComponentManager:Could not create OvDataForAsset object");
-						}else{
-							pOvDataForAsset->v_AASIDType = atoi(plistParameter[0]);
-							ov_string_setvalue(&pOvDataForAsset->v_AASIDString, plistParameter[1]);
-							ov_string_setvalue(&pOvDataForAAS->v_ServerHost, plistParameter[4]);
-							ov_string_setvalue(&pOvDataForAAS->v_ServerName, plistParameter[5]);
-							ov_string_setvalue(&pOvDataForAAS->v_Path, plistParameter[6]);
-							ov_string_setvalue(&answerMessage, "RegisterAASRes:OK");
-						}
-					}
-				}else{
-					resultOV = Ov_DeleteObject(pOvDataForAAS);
-					ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed, Asset-ID already exist");
-				}
-			}else{
-				ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed, AAS-ID already exist");
-			}
-			ov_string_setvalue(&tmpHexStringAAS, NULL);
-			ov_string_setvalue(&tmpHexStringAsset, NULL);
-		}else{// Error Parameter have to be: AASIdString, AASIdType, IP, ServerName, PathToComponentManager
-			ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Incorrect parameter size for RegisterAASReq");
-			ov_logfile_info("ComponentManager:Incorrect parameter size for RegisterAASReq");
-		}
-
-	}else if (ov_string_compare(plistReq[0], "UnregisterAASReq") == OV_STRCMP_EQUAL){ // unregister Request
-		if (len2 == 4){
-			// TODO: Check of parameter format
-			OV_STRING tmpHexStringAAS = NULL;
-			ov_string_print(&tmpHexStringAAS, "%x", *plistParameter[0]);
-
-			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[1]); i++){
-				OV_STRING tmpHexString2 = NULL;
-				ov_string_print(&tmpHexString2, "%x", plistParameter[1][i]);
-				ov_string_append(&tmpHexStringAAS, tmpHexString2);
-				ov_string_setvalue(&tmpHexString2, NULL);
-			}
-
-			OV_STRING tmpHexStringAsset = NULL;
-			ov_string_print(&tmpHexStringAsset, "%x", *plistParameter[2]);
-
-			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[3]); i++){
-				OV_STRING tmpHexString2 = NULL;
-				ov_string_print(&tmpHexString2, "%x", plistParameter[3][i]);
-				ov_string_append(&tmpHexStringAsset, tmpHexString2);
-				ov_string_setvalue(&tmpHexString2, NULL);
-			}
-
-			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
-			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = NULL;
-			pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
-
-			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
-			if(!pOvDataForAAS){
-				OV_INSTPTR_openAASDiscoveryServer_OVDataForAssetID pOvDataForAsset = NULL;
-				resultOV = Ov_DeleteObject(pOvDataForAAS);
-				if (resultOV){
-					ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed, Internal");
-					ov_logfile_info("ComponentManager:Could not delete pOvDataForAAS object");
-				}
-				pOvDataForAsset = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAssetID, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset));
-				if(!pOvDataForAsset){
-					resultOV = Ov_DeleteObject(pOvDataForAsset);
-					if (resultOV){
-						ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed, Internal");
-						ov_logfile_info("ComponentManager:Could not delete OvDataForAsset object");
-					}
-				}
-			}else{
-				ov_string_setvalue(&answerMessage, "UnregisterAASRes:Sucessfull");
-			}
-			ov_string_setvalue(&tmpHexStringAAS, NULL);
-			ov_string_setvalue(&tmpHexStringAsset, NULL);
-		}else{// Error Parameter have to be: AASIdString, AASIdType, AssetIDString, AssetIdType
-			ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed,Incorrect parameter size for UnregisterAASReq");
-			ov_logfile_info("ComponentManager:Incorrect parameter size for UnregisterAASReq");
-		}
-	}else if (ov_string_compare(plistReq[0], "GetAASReq") == OV_STRCMP_EQUAL){ // get Request
-		if (len2 == 2){ // Error Parameter have to be: AASIdString, AASIdType
-			// TODO: Check of parameter format
-			OV_STRING tmpHexString = NULL;
-			ov_string_print(&tmpHexString, "%x", *plistParameter[1]);
-
-			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[0]); i++){
-				OV_STRING tmpHexString2 = NULL;
-				ov_string_print(&tmpHexString2, "%x", plistParameter[0][i]);
-				ov_string_append(&tmpHexString, tmpHexString2);
-				ov_string_setvalue(&tmpHexString2, NULL);
-			}
-
-			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
-			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
-			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, &pDiscoveryServer->p_AASIDs, tmpHexString));
-			ov_string_setvalue(&tmpHexString, NULL);
-			if(pOvDataForAAS){
-				ov_string_setvalue(&answerMessage, "GetAASRes:OK,");
-				ov_string_append(&answerMessage, pOvDataForAAS->v_ServerHost);
-				ov_string_append(&answerMessage, ",");
-				ov_string_append(&answerMessage, pOvDataForAAS->v_ServerName);
-				ov_string_append(&answerMessage, ",");
-				ov_string_append(&answerMessage, pOvDataForAAS->v_Path);
-			}else{
-				ov_string_setvalue(&answerMessage, "GetAASRes:Failed,AASId not registered");
-				ov_logfile_info("ComponentManager:AASId not found");
-			}
-		}else{
-			ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed,Incorrect parameter size for GetAASReq");
-			ov_logfile_info("ComponentManager:Incorrect parameter size for GetAASReq");
-		}
-	}else{ // Error
-		Ov_DeleteObject((OV_INSTPTR_ov_object) message);
-		ov_logfile_info("ComponentManager: Request unknown or not implemented yet");
-		return;
-	}
+//	if (ov_string_compare(plistReq[0], "RegisterAASReq") == OV_STRCMP_EQUAL){ // register Request
+//		if (len2 == 7){
+//			// TODO: Check of parameter format
+//
+//			OV_STRING tmpHexStringAAS = NULL;
+//			ov_string_print(&tmpHexStringAAS, "%x", *plistParameter[0]);
+//
+//			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[1]); i++){
+//				OV_STRING tmpHexString2 = NULL;
+//				ov_string_print(&tmpHexString2, "%x", plistParameter[1][i]);
+//				ov_string_append(&tmpHexStringAAS, tmpHexString2);
+//				ov_string_setvalue(&tmpHexString2, NULL);
+//			}
+//
+//			OV_STRING tmpHexStringAsset = NULL;
+//			ov_string_print(&tmpHexStringAsset, "%x", *plistParameter[2]);
+//
+//			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[3]); i++){
+//				OV_STRING tmpHexString2 = NULL;
+//				ov_string_print(&tmpHexString2, "%x", plistParameter[3][i]);
+//				ov_string_append(&tmpHexStringAsset, tmpHexString2);
+//				ov_string_setvalue(&tmpHexString2, NULL);
+//			}
+//
+//			OV_RESULT result;
+//			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
+//			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = NULL;
+//			pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
+//
+//			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
+//			if(!pOvDataForAAS){
+//				OV_INSTPTR_openAASDiscoveryServer_OVDataForAssetID pOvDataForAsset = NULL;
+//				pOvDataForAsset = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAssetID, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset));
+//				if(!pOvDataForAsset){
+//					result = Ov_CreateObject(openAASDiscoveryServer_OVDataForAAS, pOvDataForAAS, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS);
+//					if (result){
+//						Ov_DeleteObject(pOvDataForAAS);
+//						ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Internal");
+//						ov_logfile_info("ComponentManager:Could not create OvDataForAAS object");
+//					}else{
+//						result = Ov_CreateObject(openAASDiscoveryServer_OVDataForAssetID, pOvDataForAsset, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset);
+//						if (result){
+//							ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Internal");
+//							resultOV = Ov_DeleteObject(pOvDataForAAS);
+//							ov_logfile_info("ComponentManager:Could not create OvDataForAsset object");
+//						}else{
+//							pOvDataForAsset->v_AASIDType = atoi(plistParameter[0]);
+//							ov_string_setvalue(&pOvDataForAsset->v_AASIDString, plistParameter[1]);
+//							ov_string_setvalue(&pOvDataForAAS->v_ServerHost, plistParameter[4]);
+//							ov_string_setvalue(&pOvDataForAAS->v_ServerName, plistParameter[5]);
+//							ov_string_setvalue(&pOvDataForAAS->v_Path, plistParameter[6]);
+//							ov_string_setvalue(&answerMessage, "RegisterAASRes:OK");
+//						}
+//					}
+//				}else{
+//					resultOV = Ov_DeleteObject(pOvDataForAAS);
+//					ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed, Asset-ID already exist");
+//				}
+//			}else{
+//				ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed, AAS-ID already exist");
+//			}
+//			ov_string_setvalue(&tmpHexStringAAS, NULL);
+//			ov_string_setvalue(&tmpHexStringAsset, NULL);
+//		}else{// Error Parameter have to be: AASIdString, AASIdType, IP, ServerName, PathToComponentManager
+//			ov_string_setvalue(&answerMessage, "RegisterAASRes:Failed,Incorrect parameter size for RegisterAASReq");
+//			ov_logfile_info("ComponentManager:Incorrect parameter size for RegisterAASReq");
+//		}
+//
+//	}else if (ov_string_compare(plistReq[0], "UnregisterAASReq") == OV_STRCMP_EQUAL){ // unregister Request
+//		if (len2 == 4){
+//			// TODO: Check of parameter format
+//			OV_STRING tmpHexStringAAS = NULL;
+//			ov_string_print(&tmpHexStringAAS, "%x", *plistParameter[0]);
+//
+//			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[1]); i++){
+//				OV_STRING tmpHexString2 = NULL;
+//				ov_string_print(&tmpHexString2, "%x", plistParameter[1][i]);
+//				ov_string_append(&tmpHexStringAAS, tmpHexString2);
+//				ov_string_setvalue(&tmpHexString2, NULL);
+//			}
+//
+//			OV_STRING tmpHexStringAsset = NULL;
+//			ov_string_print(&tmpHexStringAsset, "%x", *plistParameter[2]);
+//
+//			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[3]); i++){
+//				OV_STRING tmpHexString2 = NULL;
+//				ov_string_print(&tmpHexString2, "%x", plistParameter[3][i]);
+//				ov_string_append(&tmpHexStringAsset, tmpHexString2);
+//				ov_string_setvalue(&tmpHexString2, NULL);
+//			}
+//
+//			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
+//			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = NULL;
+//			pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
+//
+//			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
+//			if(!pOvDataForAAS){
+//				OV_INSTPTR_openAASDiscoveryServer_OVDataForAssetID pOvDataForAsset = NULL;
+//				resultOV = Ov_DeleteObject(pOvDataForAAS);
+//				if (resultOV){
+//					ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed, Internal");
+//					ov_logfile_info("ComponentManager:Could not delete pOvDataForAAS object");
+//				}
+//				pOvDataForAsset = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAssetID, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset));
+//				if(!pOvDataForAsset){
+//					resultOV = Ov_DeleteObject(pOvDataForAsset);
+//					if (resultOV){
+//						ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed, Internal");
+//						ov_logfile_info("ComponentManager:Could not delete OvDataForAsset object");
+//					}
+//				}
+//			}else{
+//				ov_string_setvalue(&answerMessage, "UnregisterAASRes:Sucessfull");
+//			}
+//			ov_string_setvalue(&tmpHexStringAAS, NULL);
+//			ov_string_setvalue(&tmpHexStringAsset, NULL);
+//		}else{// Error Parameter have to be: AASIdString, AASIdType, AssetIDString, AssetIdType
+//			ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed,Incorrect parameter size for UnregisterAASReq");
+//			ov_logfile_info("ComponentManager:Incorrect parameter size for UnregisterAASReq");
+//		}
+//	}else if (ov_string_compare(plistReq[0], "GetAASReq") == OV_STRCMP_EQUAL){ // get Request
+//		if (len2 == 2){ // Error Parameter have to be: AASIdString, AASIdType
+//			// TODO: Check of parameter format
+//			OV_STRING tmpHexString = NULL;
+//			ov_string_print(&tmpHexString, "%x", *plistParameter[1]);
+//
+//			for (OV_UINT i = 0; i < ov_string_getlength(plistParameter[0]); i++){
+//				OV_STRING tmpHexString2 = NULL;
+//				ov_string_print(&tmpHexString2, "%x", plistParameter[0][i]);
+//				ov_string_append(&tmpHexString, tmpHexString2);
+//				ov_string_setvalue(&tmpHexString2, NULL);
+//			}
+//
+//			OV_INSTPTR_openAASDiscoveryServer_OVDataForAAS pOvDataForAAS = NULL;
+//			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
+//			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, &pDiscoveryServer->p_AASIDs, tmpHexString));
+//			ov_string_setvalue(&tmpHexString, NULL);
+//			if(pOvDataForAAS){
+//				ov_string_setvalue(&answerMessage, "GetAASRes:OK,");
+//				ov_string_append(&answerMessage, pOvDataForAAS->v_ServerHost);
+//				ov_string_append(&answerMessage, ",");
+//				ov_string_append(&answerMessage, pOvDataForAAS->v_ServerName);
+//				ov_string_append(&answerMessage, ",");
+//				ov_string_append(&answerMessage, pOvDataForAAS->v_Path);
+//			}else{
+//				ov_string_setvalue(&answerMessage, "GetAASRes:Failed,AASId not registered");
+//				ov_logfile_info("ComponentManager:AASId not found");
+//			}
+//		}else{
+//			ov_string_setvalue(&answerMessage, "UnregisterAASRes:Failed,Incorrect parameter size for GetAASReq");
+//			ov_logfile_info("ComponentManager:Incorrect parameter size for GetAASReq");
+//		}
+//	}else{ // Error
+//		Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+//		ov_logfile_info("ComponentManager: Request unknown or not implemented yet");
+//		return;
+//	}
 
 	ov_string_freelist(plistReq);
 	ov_string_freelist(plistParameter);

@@ -1,6 +1,5 @@
 #include "ov.ovm"
 #include "fb.ovm"
-#include "identification.ovm"
 #include "MessageSys.ovm"
 
 LIBRARY openAASDiscoveryServer
@@ -14,34 +13,128 @@ LIBRARY openAASDiscoveryServer
 		@note Javadoc syntax is allowed here.
 		@attention Changes in this file will only generate new code in ./source/sourcetemplates/. Code in ./source/ is not overwritten. 
 	*/
-	
-	
-	CLASS OVDataForAAS : CLASS ov/domain
+	CLASS Database : CLASS ov/domain
 		IS_INSTANTIABLE;
-		VARIABLES
-			ServerHost   :   STRING  
-                COMMENT         =   "Host (or IP Address or whatever type of address) of target machine."
-                INITIALVALUE    =   "";
-            ServerName  :   STRING
-                COMMENT         =   "KS-Name of the target ks-server. (This may not be necessarry for all types of communication.)"
-                INITIALVALUE    =   ""; 
-            Path        :   STRING
-                COMMENT         =   "Target Path"
-                INITIALVALUE    =   "";
-		END_VARIABLES;
-		OPERATIONS
-			getaccess        :    C_FUNCTION    <OV_FNC_GETACCESS>;
-		END_OPERATIONS;
-	END_CLASS;
-	
-	CLASS OVDataForAssetID : CLASS ov/object
-        IS_INSTANTIABLE;
         VARIABLES
-            AASIDString        :   STRING  COMMENT =   "ASS-ID String" INITIALVALUE    =   "";
-            AASIDType          :   UINT INITIALVALUE = 0;
+            endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+        END_VARIABLES; 
+        OPERATIONS 
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            readData    : C_FUNCTION <DS_FNC_READDATA>;
+            writeData   : C_FUNCTION <DS_FNC_WRITEDATA>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+	
+	CLASS Algorithm : CLASS ov/domain
+        VARIABLES
+            DatabasesUsed[] : STRING FLAGS = "i" COMMENT="spath to Database-Object";
         END_VARIABLES;
         OPERATIONS
-            getaccess        :    C_FUNCTION    <OV_FNC_GETACCESS>;
+        	startAlgorithm     : C_FUNCTION <DS_FNC_STARTALGORITHM>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS SecurityAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+        VARIABLES
+            URMSsUsed[] : STRING FLAGS = "i" COMMENT="paths to URMS-Object";
+            CAsUsed[]   : STRING FLAGS = "i" COMMENT="paths to CA-Object";
+        END_VARIABLES;
+        OPERATIONS
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS RegistrationAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+        VARIABLES
+            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
+        END_VARIABLES;
+        OPERATIONS
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS UnRegistrationAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+        VARIABLES
+            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
+        END_VARIABLES;
+        OPERATIONS
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS SearchAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+        VARIABLES
+            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
+        END_VARIABLES;
+        OPERATIONS
+        END_OPERATIONS;
+    END_CLASS;
+    
+	CLASS Part : CLASS ov/domain
+        VARIABLES            
+            databaseToAdd     : STRING    FLAGS = "i" COMMENT="path to Database-Object to add";
+            databaseToDelete  : STRING    FLAGS = "i" COMMENT="path to Database-Object to delete";
+            databaseAdd       : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add Database";
+            databaseDelete    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Delete Database";
+            algorithmToAdd    : STRING    FLAGS = "i" COMMENT="path to Algorithm-Object to add";
+            algorithmToDelete : STRING    FLAGS = "i" COMMENT="path to Algorithm-Object to delete";
+            algorithmAdd      : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add Algorithm";
+            algorithmDelete   : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Delete Algorithm";
+            algorithmsToUse[] : STRING    FLAGS = "i" COMMENT="paths to Algorithm-Object";
+            algorithmsUse     : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Use Algorithms";
+            databaseSize      : UINT      FLAGS = "o" INITIALVALUE = 0;
+            databases[]       : STRING    FLAGS = "o" COMMENT="paths to Database-Object";
+            algorithmSize     : UINT      FLAGS = "o" INITIALVALUE = 0;
+            algoithms[]       : STRING    FLAGS = "o" COMMENT="paths to Algorithm-Object";
+            algoithmsUsed[]   : STRING    FLAGS = "o" COMMENT="paths to Algorithm-Object that are used";
+        END_VARIABLES;
+        OPERATIONS
+            getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            addDBInterface      : C_FUNCTION <DS_FNC_ADDDBINTERFACE>;
+            deleteDBInterface   : C_FUNCTION <DS_FNC_DELETEDBINTERFACE>;
+            addAlgorithm        : C_FUNCTION <DS_FNC_ADDALGORITHM>;
+            deleteAlgorithm     : C_FUNCTION <DS_FNC_DELETEALGORITHM>;
+            useAlgorithms       : C_FUNCTION <DS_FNC_USEALGORITHMS>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS Security : CLASS openAASDiscoveryServer/Part
+    	IS_INSTANTIABLE;
+    	VARIABLES
+    		URMSInterfaceSize   : UINT    FLAGS = "o" INITIALVALUE = 0;
+            URMSInterface[]     : STRING  FLAGS = "o" COMMENT="path to URMSInterface-Object";
+            CAInterfaceSize     : UINT    FLAGS = "o" INITIALVALUE = 0;
+            CAInterface[]       : STRING  FLAGS = "o" COMMENT="path to CAInterface-Object";
+    	END_VARIABLES;
+        OPERATIONS
+            getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            addURMSInterface    : C_FUNCTION <DS_FNC_ADDURMSINTERFACE>;
+            deleteURMSInterface : C_FUNCTION <DS_FNC_DELETEURMSINTERFACE>;
+            addCAInterface      : C_FUNCTION <DS_FNC_ADDCAINTERFACE>;
+            deleteCAInterface   : C_FUNCTION <DS_FNC_DELETECAINTERFACE>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS Registration : CLASS openAASDiscoveryServer/Part
+        IS_INSTANTIABLE;
+        VARIABLES
+        END_VARIABLES;
+        OPERATIONS
+            getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS Search : CLASS openAASDiscoveryServer/Part
+        IS_INSTANTIABLE;
+        VARIABLES
+        END_VARIABLES;
+        OPERATIONS
+            getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
         END_OPERATIONS;
     END_CLASS;
 	
@@ -69,8 +162,9 @@ LIBRARY openAASDiscoveryServer
 		END_VARIABLES;
 		PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManager;
-            AASIDs : CLASS ov/domain;
-            AssetIDs : CLASS ov/domain;
+            Security         : CLASS openAASDiscoveryServer/Security;
+        	Registration     : CLASS openAASDiscoveryServer/Registration;
+    		Search           : CLASS openAASDiscoveryServer/Search;
         END_PARTS;
 		OPERATIONS
 			getaccess        :    C_FUNCTION    <OV_FNC_GETACCESS>;

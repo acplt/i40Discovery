@@ -3,7 +3,7 @@
 *
 *   FILE
 *   ----
-*   DiscoveryServer.c
+*   Security.c
 *
 *   History
 *   -------
@@ -25,7 +25,7 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Security_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -56,5 +56,45 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_constructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*    
+    *   local variables
+    */
+    //OV_INSTPTR_openAASDiscoveryServer_Security pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Security, pobj);
+    OV_RESULT    result;
+
+    /* do what the base class does first */
+    result = openAASDiscoveryServer_Part_constructor(pobj);
+    if(Ov_Fail(result))
+         return result;
+
+    /* do what */
+
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addURMSInterface(void) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_deleteURMSInterface(void) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addCAInterface(void) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_deleteCAInterface(void) {
+
+    return OV_ERR_OK;
 }
 

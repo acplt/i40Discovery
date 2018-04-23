@@ -3,11 +3,11 @@
 *
 *   FILE
 *   ----
-*   OVDataForAssetID.c
+*   Database.c
 *
 *   History
 *   -------
-*   2018-01-16   File created
+*   2018-04-23   File created
 *
 *******************************************************************************
 *
@@ -25,7 +25,7 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAssetID_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Database_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -33,7 +33,6 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAssetID_getaccess(
     /*    
     *   local variables
     */
-
 	switch(pelem->elemtype) {
 		case OV_ET_VARIABLE:
 			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
@@ -57,5 +56,45 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_OVDataForAssetID_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_constructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*    
+    *   local variables
+    */
+    //OV_INSTPTR_openAASDiscoveryServer_Database pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Database, pobj);
+    OV_RESULT    result;
+
+    /* do what the base class does first */
+    result = ov_object_constructor(pobj);
+    if(Ov_Fail(result))
+         return result;
+
+    /* do what */
+
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_connect(void) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_disconnect(void) {
+
+	return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_readData(void) {
+
+	return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_writeData(void) {
+
+	return OV_ERR_OK;
 }
 

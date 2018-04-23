@@ -3,7 +3,7 @@
 *
 *   FILE
 *   ----
-*   DiscoveryServer.c
+*   Search.c
 *
 *   History
 *   -------
@@ -25,7 +25,7 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Search_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -56,5 +56,25 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_constructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*    
+    *   local variables
+    */
+    //OV_INSTPTR_openAASDiscoveryServer_Search pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Search, pobj);
+    OV_RESULT    result;
+
+    /* do what the base class does first */
+    result = openAASDiscoveryServer_Part_constructor(pobj);
+    if(Ov_Fail(result))
+         return result;
+
+    /* do what */
+
+
+    return OV_ERR_OK;
 }
 
