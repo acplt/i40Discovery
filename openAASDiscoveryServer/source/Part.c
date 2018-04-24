@@ -194,6 +194,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_algorithmAdd_set(
 
 		}else if(Ov_CanCastTo(openAASDiscoveryServer_SearchAlgorithm, pAlgorithm) == TRUE && Ov_CanCastTo(openAASDiscoveryServer_Security, pobj) == TRUE){
 
+		}else{
+			return OV_ERR_BADOBJTYPE;
 		}
 
 		if (pobj->v_algorithmSize != 0){
@@ -276,4 +278,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_algorithmsUse_set(
 
     return OV_ERR_OK;
 }
+
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_call(OV_STRING JsonInput) {
+
+    return OV_ERR_OK;
+}
+
 

@@ -218,6 +218,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_typemethod(
 	plistParameter= ov_string_split(parameter, ",", &len2);
 	ov_string_setvalue(&parameter, NULL);
 	free(messageContent);
+	// TODO: Check Request Type => start Thread mit Funktion callGetXXXMessage
 //	if (ov_string_compare(plistReq[0], "RegisterAASReq") == OV_STRCMP_EQUAL){ // register Request
 //		if (len2 == 7){
 //			// TODO: Check of parameter format
@@ -247,7 +248,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_typemethod(
 //			OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer = NULL;
 //			pDiscoveryServer = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject);
 //
-//			pOvDataForAAS = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
+//			pOvDataForAAS = Ov_StaticPtrCreturn OV_ERR_OK;ast(openAASDiscoveryServer_OVDataForAAS, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AASIDs), tmpHexStringAAS));
 //			if(!pOvDataForAAS){
 //				OV_INSTPTR_openAASDiscoveryServer_OVDataForAssetID pOvDataForAsset = NULL;
 //				pOvDataForAsset = Ov_StaticPtrCast(openAASDiscoveryServer_OVDataForAssetID, Ov_SearchChild(ov_containment, Ov_StaticPtrCast(ov_domain, &pDiscoveryServer->p_AssetIDs), tmpHexStringAsset));

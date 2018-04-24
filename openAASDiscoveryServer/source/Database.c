@@ -98,3 +98,13 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_writeData(void) {
 	return OV_ERR_OK;
 }
 
+
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Database_StartConnect_set(
+    OV_INSTPTR_openAASDiscoveryServer_Database          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_StartConnect = value;
+
+    return OV_ERR_OK;
+}

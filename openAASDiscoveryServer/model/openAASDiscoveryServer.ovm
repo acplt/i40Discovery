@@ -14,9 +14,11 @@ LIBRARY openAASDiscoveryServer
 		@attention Changes in this file will only generate new code in ./source/sourcetemplates/. Code in ./source/ is not overwritten. 
 	*/
 	CLASS Database : CLASS ov/domain
-		IS_INSTANTIABLE;
         VARIABLES
             endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+            user     :  STRING FLAGS = "i" INITIALVALUE = "";
+            password :  STRING FLAGS = "i" INITIALVALUE = "";
+            StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
         END_VARIABLES; 
         OPERATIONS 
             getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
@@ -97,6 +99,7 @@ LIBRARY openAASDiscoveryServer
             addAlgorithm        : C_FUNCTION <DS_FNC_ADDALGORITHM>;
             deleteAlgorithm     : C_FUNCTION <DS_FNC_DELETEALGORITHM>;
             useAlgorithms       : C_FUNCTION <DS_FNC_USEALGORITHMS>;
+            call                : C_FUNCTION <DS_FNC_CALL>;
         END_OPERATIONS;
     END_CLASS;
     
