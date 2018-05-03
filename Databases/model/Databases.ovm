@@ -31,13 +31,21 @@ LIBRARY Databases
 		END_OPERATIONS;
 	END_CLASS;
 	
-	/**
-		Add associations and their documentation here.
-		Association syntax is:
-	*/
-	//ASSOCIATION assocName : ONE_TO_MANY
-	//	PARENT parentVarName : CLASS ov/object;
-	//	CHILD  childVarName : CLASS ov/object;
-	//END_ASSOCIATION;
+	CLASS SQLite3 : CLASS openAASDiscoveryServer/Database
+		IS_INSTANTIABLE;
+		VARIABLES
+			table : STRING FLAGS = "i" INITIALVALUE = "";
+			ip	  : STRING FLAGS = "i" INITIALVALUE = "";
+			cert  : STRING FLAGS = "i" INITIALVALUE = "";
+			io	  : BOOL HAS_SET_ACCESSOR FLAGS = "i"   INITIALVALUE = FALSE;
+		END_VARIABLES;
+		OPERATIONS
+			connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            readData    : C_FUNCTION <DS_FNC_READDATA>;
+            writeData   : C_FUNCTION <DS_FNC_WRITEDATA>;
+			constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+		END_OPERATIONS;
+	END_CLASS;
 	
 END_LIBRARY;

@@ -4,3 +4,4 @@
 /* 
 	Define your data types here. 
 */
+typedef sqlite3* SQLITE3_db_ptr; 
