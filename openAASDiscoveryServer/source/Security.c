@@ -98,3 +98,10 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_deleteCAInterface(void
     return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_databaseAdd2(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_databaseAdd = value;
+    return OV_ERR_OK;
+}

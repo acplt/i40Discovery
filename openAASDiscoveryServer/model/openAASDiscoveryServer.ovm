@@ -13,131 +13,243 @@ LIBRARY openAASDiscoveryServer
 		@note Javadoc syntax is allowed here.
 		@attention Changes in this file will only generate new code in ./source/sourcetemplates/. Code in ./source/ is not overwritten. 
 	*/
-	CLASS Database : CLASS ov/domain
+	CLASS DBWrapper : CLASS ov/domain
         VARIABLES
-            endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
-            user     :  STRING FLAGS = "i" INITIALVALUE = "";
-            password :  STRING FLAGS = "i" INITIALVALUE = "";
+            Endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+            User     :  STRING FLAGS = "i" INITIALVALUE = "";
+            Password :  STRING FLAGS = "i" INITIALVALUE = "";
             StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
-        END_VARIABLES; 
-        OPERATIONS 
+        END_VARIABLES;  
+        OPERATIONS  
             getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
             connect     : C_FUNCTION <DS_FNC_CONNECT>;
             disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
-            readData    : C_FUNCTION <DS_FNC_READDATA>;
-            writeData   : C_FUNCTION <DS_FNC_WRITEDATA>;
+            insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
+            selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS URMSWrapper : CLASS ov/domain
+        VARIABLES
+            Endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+            User     :  STRING FLAGS = "i" INITIALVALUE = "";
+            Password :  STRING FLAGS = "i" INITIALVALUE = "";
+            StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
+        END_VARIABLES;  
+        OPERATIONS  
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            checkUserRights : C_FUNCTION <DS_FNC_CHECKUSERRIGHTS>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS CAWrapper : CLASS ov/domain
+        VARIABLES
+            Endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+            User     :  STRING FLAGS = "i" INITIALVALUE = "";
+            Password :  STRING FLAGS = "i" INITIALVALUE = "";
+            StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
+        END_VARIABLES;  
+        OPERATIONS  
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            checkCertificate  : C_FUNCTION <DS_FNC_CHECKCERTIFICATE>;
+        END_OPERATIONS;
+    END_CLASS;
+    
+    CLASS SEWrapper : CLASS ov/domain
+        VARIABLES
+            Endpoint :  STRING FLAGS = "i" INITIALVALUE = "";
+            User     :  STRING FLAGS = "i" INITIALVALUE = "";
+            Password :  STRING FLAGS = "i" INITIALVALUE = "";
+            StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
+        END_VARIABLES;  
+        OPERATIONS  
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            storeData   : C_FUNCTION <DS_FNC_STOREDATA>;
+            searchData  : C_FUNCTION <DS_FNC_SEARCHDATA>;
         END_OPERATIONS;
     END_CLASS;
     
 	
-	CLASS Algorithm : CLASS ov/domain
+	CLASS DSService : CLASS ov/domain
         VARIABLES
-            DatabasesUsed[] : STRING FLAGS = "i" COMMENT="spath to Database-Object";
+            DBWrapperUsed[] : STRING FLAGS = "o" COMMENT="spath to Database-Object";
         END_VARIABLES;
         OPERATIONS
-        	startAlgorithm     : C_FUNCTION <DS_FNC_STARTALGORITHM>;
+        	startService     : C_FUNCTION <DS_FNC_STARTSERVICE>;
+        	stopService      : C_FUNCTION <DS_FNC_STOPSERVICE>;
+        	configureService : C_FUNCTION <DS_FNC_CONFIGURESERVICE> IS_ABSTRACT;
         END_OPERATIONS;
     END_CLASS;
     
-    CLASS SecurityAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+    CLASS DSSecurityService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            URMSsUsed[] : STRING FLAGS = "i" COMMENT="paths to URMS-Object";
-            CAsUsed[]   : STRING FLAGS = "i" COMMENT="paths to CA-Object";
+            URMSWrapperUsed[]  : STRING FLAGS = "o" COMMENT="paths to UserRightManagementeSystemWrapper-Object";
+            CAWrapperUsed[]    : STRING FLAGS = "o" COMMENT="paths to CertificateAuthorityWrapper-Object";
         END_VARIABLES;
         OPERATIONS
+        	configureService : C_FUNCTION <DS_FNC_CONFIGURESERVICE>;
+        END_OPERATIONS;
+    END_CLASS;
+     
+    CLASS DSRegistrationService : CLASS openAASDiscoveryServer/DSService
+        VARIABLES
+            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+        END_VARIABLES;
+        OPERATIONS
+        	configureService : C_FUNCTION <DS_FNC_CONFIGURESERVICE>;
         END_OPERATIONS;
     END_CLASS;
     
-    CLASS RegistrationAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+    CLASS DSUnRegistrationService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
+            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
         END_VARIABLES;
         OPERATIONS
+        	configureService : C_FUNCTION <DS_FNC_CONFIGURESERVICE>;
         END_OPERATIONS;
     END_CLASS;
     
-    CLASS UnRegistrationAlgorithm : CLASS openAASDiscoveryServer/Algorithm
+    CLASS DSSearchService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
+            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
         END_VARIABLES;
         OPERATIONS
-        END_OPERATIONS;
-    END_CLASS;
-    
-    CLASS SearchAlgorithm : CLASS openAASDiscoveryServer/Algorithm
-        VARIABLES
-            SEUsed[] : STRING FLAGS = "i" COMMENT="paths to SE-Object";
-        END_VARIABLES;
-        OPERATIONS
+        	configureService : C_FUNCTION <DS_FNC_CONFIGURESERVICE>;
         END_OPERATIONS;
     END_CLASS;
     
 	CLASS Part : CLASS ov/domain
         VARIABLES            
-            databaseToAdd     : STRING    FLAGS = "i" COMMENT="path to Database-Object to add";
-            databaseToDelete  : STRING    FLAGS = "i" COMMENT="path to Database-Object to delete";
-            databaseAdd       : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add Database";
-            databaseDelete    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Delete Database";
-            algorithmToAdd    : STRING    FLAGS = "i" COMMENT="path to Algorithm-Object to add";
-            algorithmToDelete : STRING    FLAGS = "i" COMMENT="path to Algorithm-Object to delete";
-            algorithmAdd      : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add Algorithm";
-            algorithmDelete   : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Delete Algorithm";
-            algorithmsToUse[] : STRING    FLAGS = "i" COMMENT="paths to Algorithm-Object";
-            algorithmsUse     : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Use Algorithms";
-            databaseSize      : UINT      FLAGS = "o" INITIALVALUE = 0;
-            databases[]       : STRING    FLAGS = "o" COMMENT="paths to Database-Object";
-            algorithmSize     : UINT      FLAGS = "o" INITIALVALUE = 0;
-            algoithms[]       : STRING    FLAGS = "o" COMMENT="paths to Algorithm-Object";
-            algoithmsUsed[]   : STRING    FLAGS = "o" COMMENT="paths to Algorithm-Object that are used";
-        END_VARIABLES;
+            DBWrapperPath               : STRING    FLAGS = "i" COMMENT="path to DatabaseWrapper-Object to add/remove";
+            AddDBWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DatabaseWrapper";
+            RemoveDBWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DatabaseWrapper";
+            DBWrapperSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
+            DBWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to DatabaseWrapper-Object";
+            
+            DSServicePath               : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object to add/remove";
+            AddDSService                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DSxxxService";
+            RemoveDSService             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DSxxxService";
+            DSServiceSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
+            DSService[]                 : STRING    FLAGS = "o" COMMENT="paths to DSxxxService-Object";
+            
+            DSServicePaths[]            : STRING    FLAGS = "i" COMMENT="paths to DSxxxService-Object which the part have to use";
+            UseDSServices               : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="use the listed DSServices";
+            
+            DBWrapperPaths[]            : STRING    FLAGS = "i" COMMENT="paths to DatabaseWrapper-Object which have to be used by service";
+            DSServicePathForConfig      : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object which have to use the DatabaseWrapper-Objects";
+            ConfigDSServices            : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="configures the DSServices with the right DatabaseWrapper-Objects";
+        END_VARIABLES; 
         OPERATIONS
             getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
-            addDBInterface      : C_FUNCTION <DS_FNC_ADDDBINTERFACE>;
-            deleteDBInterface   : C_FUNCTION <DS_FNC_DELETEDBINTERFACE>;
-            addAlgorithm        : C_FUNCTION <DS_FNC_ADDALGORITHM>;
-            deleteAlgorithm     : C_FUNCTION <DS_FNC_DELETEALGORITHM>;
-            useAlgorithms       : C_FUNCTION <DS_FNC_USEALGORITHMS>;
-            call                : C_FUNCTION <DS_FNC_CALL>;
+            addDBWrapper        : C_FUNCTION <DS_FNC_ADDDBWRAPPER>;
+            removeDBWrapper     : C_FUNCTION <DS_FNC_REMOVEDBWRAPPER>;
+            addDSService        : C_FUNCTION <DS_FNC_ADDDSSERVICE> IS_ABSTRACT;
+            removeDSService     : C_FUNCTION <DS_FNC_REMOVEDSSERVICE> IS_ABSTRACT;
+            useDSServices       : C_FUNCTION <DS_FNC_USEDSSERVICES>;
+            configureDSService  : C_FUNCTION <DS_FNC_CONFIGUREDSSERVICE> IS_ABSTRACT;
         END_OPERATIONS;
     END_CLASS;
     
     CLASS Security : CLASS openAASDiscoveryServer/Part
     	IS_INSTANTIABLE;
     	VARIABLES
-    		URMSInterfaceSize   : UINT    FLAGS = "o" INITIALVALUE = 0;
-            URMSInterface[]     : STRING  FLAGS = "o" COMMENT="path to URMSInterface-Object";
-            CAInterfaceSize     : UINT    FLAGS = "o" INITIALVALUE = 0;
-            CAInterface[]       : STRING  FLAGS = "o" COMMENT="path to CAInterface-Object";
+    		URMSWrapperPath             : STRING    FLAGS = "i" COMMENT="path to UserRightManagementSystemWrapper-Object to add/remove";
+            AddURMSWrapper              : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add UserRightManagementSystemWrapper";
+            RemoveURMSWrapper           : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove UserRightManagementSystemWrapper";
+            URMSWrapperSize             : UINT      FLAGS = "o" INITIALVALUE = 0;
+            URMSWrapper[]               : STRING    FLAGS = "o" COMMENT="paths to UserRightManagementSystemWrapper-Object";
+            
+            CAWrapperPath               : STRING    FLAGS = "i" COMMENT="path to CertifcateAuthorityWrapper-Object to add/remove";
+            AddCAWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add CertifcateAuthorityWrapper";
+            RemoveCAWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove CertifcateAuthorityWrapper";
+            CAWrapperSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
+            CAWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to CertifcateAuthorityWrapper-Object";
+            
+            URMSWrapperPaths[]          : STRING    FLAGS = "i" COMMENT="paths to UserRightManagementSystemWrapper-Object which have to be used by service";
+            CAWrapperPaths[]            : STRING    FLAGS = "i" COMMENT="paths to CertifcateAuthorityWrapper-Object which have to be used by service";
+            
+    		SecurityMessage             : STRING    FLAGS = "i" COMMENT="Security-Message which have to be processed";
+            ProcessSecurityMessage      : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Process Security Message";
     	END_VARIABLES;
         OPERATIONS
             getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
-            addURMSInterface    : C_FUNCTION <DS_FNC_ADDURMSINTERFACE>;
-            deleteURMSInterface : C_FUNCTION <DS_FNC_DELETEURMSINTERFACE>;
-            addCAInterface      : C_FUNCTION <DS_FNC_ADDCAINTERFACE>;
-            deleteCAInterface   : C_FUNCTION <DS_FNC_DELETECAINTERFACE>;
+            addURMSWrapper      : C_FUNCTION <DS_FNC_ADDURMSWRAPPER>;
+            removeURMSWrapper   : C_FUNCTION <DS_FNC_REMOVEURMSWRAPPER>;
+            addCAWrapper        : C_FUNCTION <DS_FNC_ADDCAWRAPPER>;
+            removeCAWrapper     : C_FUNCTION <DS_FNC_REMOVECAWRAPPER>;
+            addDSService        : C_FUNCTION <DS_FNC_ADDDSSERVICE>;
+            removeDSService     : C_FUNCTION <DS_FNC_REMOVEDSSERVICE>;
+            configureDSService  : C_FUNCTION <DS_FNC_CONFIGUREDSSERVICE>;
+            getSecurityMessage  : C_FUNCTION <DS_FNC_GETSECURITYMESSAGE>;
         END_OPERATIONS;
     END_CLASS;
     
     CLASS Registration : CLASS openAASDiscoveryServer/Part
         IS_INSTANTIABLE;
         VARIABLES
+            SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
+            AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
+            RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
+            SEWrapperSize                   : UINT      FLAGS = "o" INITIALVALUE = 0;
+            SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+                        
+            SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";
+            
+            RegistrationMessage             : STRING    FLAGS = "i" COMMENT="Registration-Message which have to be processed";
+            ProcessRegistrationMessage      : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Process Registration Message";
+            
+            UnregistrationMessage           : STRING    FLAGS = "i" COMMENT="Unregistration-Message which have to be processed";
+            ProcessUnregistrationMessage    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Process Unregistration Message";
         END_VARIABLES;
         OPERATIONS
             getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            addSEWrapper        : C_FUNCTION <DS_FNC_ADDSEWRAPPER>;
+            removeSEWrapper     : C_FUNCTION <DS_FNC_REMOVESEWRAPPER>;
+            addDSService        : C_FUNCTION <DS_FNC_ADDDSSERVICE>;
+            removeDSService     : C_FUNCTION <DS_FNC_REMOVEDSSERVICE>;
+            configureDSService  : C_FUNCTION <DS_FNC_CONFIGUREDSSERVICE>;
+            getRegistrationMessage      : C_FUNCTION <DS_FNC_GETREGISTRATIONMESSAGE>;
+            getUnregistrationMessage    : C_FUNCTION <DS_FNC_GETUNREGISTRATIONMESSAGE>;
         END_OPERATIONS;
     END_CLASS;
+    
     
     CLASS Search : CLASS openAASDiscoveryServer/Part
         IS_INSTANTIABLE;
         VARIABLES
+            SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
+            AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
+            RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
+            SEWrapperSize                   : UINT      FLAGS = "o" INITIALVALUE = 0;
+            SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+                        
+            SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";
+            
+            SearchMessage                   : STRING    FLAGS = "i" COMMENT="Search-Message which have to be processed";
+            ProcessSearchMessage            : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Process Search Message";
         END_VARIABLES;
         OPERATIONS
             getaccess           : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor         : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            addSEWrapper        : C_FUNCTION <DS_FNC_ADDSEWRAPPER>;
+            removeSEWrapper     : C_FUNCTION <DS_FNC_REMOVESEWRAPPER>;
+            addDSService        : C_FUNCTION <DS_FNC_ADDDSSERVICE>;
+            removeDSService     : C_FUNCTION <DS_FNC_REMOVEDSSERVICE>;
+            configureDSService  : C_FUNCTION <DS_FNC_CONFIGUREDSSERVICE>;
+            getSearchMessage    : C_FUNCTION <DS_FNC_GETSEARCHMESSAGE>;
         END_OPERATIONS;
     END_CLASS;
 	
@@ -170,7 +282,9 @@ LIBRARY openAASDiscoveryServer
     		Search           : CLASS openAASDiscoveryServer/Search;
         END_PARTS;
 		OPERATIONS
-			getaccess        :    C_FUNCTION    <OV_FNC_GETACCESS>;
+			getaccess        : C_FUNCTION <OV_FNC_GETACCESS>;
+			getMessage       : C_FUNCTION <DS_FNC_GETMESSAGE>;
+			sendMessage      : C_FUNCTION <DS_FNC_SENDMESSAGE>;
 		END_OPERATIONS;		
 	END_CLASS;
 	

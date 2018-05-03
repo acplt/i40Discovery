@@ -78,3 +78,10 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_constructor(
     return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_databaseAdd2(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_databaseAdd = value;
+    return OV_ERR_OK;
+}

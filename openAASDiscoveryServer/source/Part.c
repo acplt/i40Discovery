@@ -110,6 +110,18 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_databaseAdd_set(
     OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
     const OV_BOOL  value
 ) {
+
+	OV_VTBLPTR_openAASDiscoveryServer_Part 	pvtable = NULL;
+
+	// Get Pointer to vtable of generic FielbusChannel
+	//
+	Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+	if (!pvtable){
+		return OV_ERR_GENERIC;
+	}
+	pvtable->m_databaseAdd2(pobj, value);
+	return OV_ERR_OK;
+
 	OV_RESULT result = 0;
     pobj->v_databaseAdd = value;
 
