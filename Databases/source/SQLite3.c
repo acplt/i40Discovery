@@ -90,6 +90,25 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_writeData(void) {
     return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_query_set(
+    OV_INSTPTR_Databases_SQLite3          pobj,
+    const OV_STRING  value
+) {
+	const char* data = "Callback funtion called";
+	char* err_msg;
+
+    ov_string_setvalue(&pobj->v_query,value);
+    ov_logfile_info("%s", pobj->v_query);
+	rc = sqlite3_exec(db, pobj->v_query, callback, (void*)data, &err_msg);
+
+	if( rc != SQLITE_DONE ) {
+		ov_logfile_info("SQL error: %s", err_msg);
+		return OV_ERR_GENERIC;
+	}
+
+    return OV_ERR_OK;
+}
+
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_io_set(
     OV_INSTPTR_Databases_SQLite3          pobj,
     const OV_BOOL  value

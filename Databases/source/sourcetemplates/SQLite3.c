@@ -25,6 +25,13 @@
 #include "libov/ov_macros.h"
 
 
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_query_set(
+    OV_INSTPTR_Databases_SQLite3          pobj,
+    const OV_STRING  value
+) {
+    return ov_string_setvalue(&pobj->v_query,value);
+}
+
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_io_set(
     OV_INSTPTR_Databases_SQLite3          pobj,
     const OV_BOOL  value
