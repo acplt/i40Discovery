@@ -73,9 +73,29 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Security_getaccess(
     /*    
     *   local variables
     */
-    //OV_INSTPTR_openAASDiscoveryServer_Security pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Security, pobj);
+	switch(pelem->elemtype) {
+		case OV_ET_VARIABLE:
+			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
+				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
+					return OV_AC_NONE;
+				else{
+					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
+						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
+							return OV_AC_READWRITE;
+						} else {
+							return OV_AC_READ;
+						}
+					} else {
+						return OV_AC_READWRITE;
+					}
+				}
+			}
+		break;
+		default:
+		break;
+	}
 
-    return (OV_ACCESS)0;
+	return ov_object_getaccess(pobj, pelem, pticket);
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_constructor(

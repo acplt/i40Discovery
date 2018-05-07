@@ -57,9 +57,29 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Search_getaccess(
     /*    
     *   local variables
     */
-    //OV_INSTPTR_openAASDiscoveryServer_Search pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Search, pobj);
+	switch(pelem->elemtype) {
+		case OV_ET_VARIABLE:
+			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
+				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
+					return OV_AC_NONE;
+				else{
+					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
+						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
+							return OV_AC_READWRITE;
+						} else {
+							return OV_AC_READ;
+						}
+					} else {
+						return OV_AC_READWRITE;
+					}
+				}
+			}
+		break;
+		default:
+		break;
+	}
 
-    return (OV_ACCESS)0;
+	return ov_object_getaccess(pobj, pelem, pticket);
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_constructor(
@@ -78,6 +98,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_constructor(
 
     /* do what */
 
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addSEWrapper(OV_STRING *SEWrapper) {
 
     return OV_ERR_OK;
 }
@@ -111,7 +136,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_ST
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_getSearchMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessages) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_getSearchMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
 
     return OV_ERR_OK;
 }

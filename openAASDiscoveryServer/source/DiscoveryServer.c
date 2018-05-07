@@ -141,16 +141,18 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_I
 	ov_string_setvalue(&pthreadData->message, JsonInput);
 
 	OV_UINT threadResult = 0;
+	Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen + 1, INT);
+	pinst->v_threadDataHndl.value[pinst->v_threadDataHndl.veclen-1] = (OV_UINT) pthreadData;
 	threadResult = pthread_create(&pthreadData->thread, NULL, thread_fcn, (void*) pthreadData);
 
 	if (threadResult){
 		ov_logfile_info("Could not create a thread for getting Message. ErrorCode: %i", threadResult);
 		ov_string_print(errorMessage, "Could not create a thread for getting Message. ErrorCode: %i", threadResult);
+		Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen-1, INT);
+		ov_string_setvalue(&pthreadData->message, NULL);
+		Ov_HeapFree(pthreadData);
 		return OV_ERR_GENERIC;
 	}
-
-	Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen + 1, INT);
-	pinst->v_threadDataHndl.value[pinst->v_threadDataHndl.veclen-1] = (OV_UINT) pthreadData;
 
 	return OV_ERR_OK;
 }
