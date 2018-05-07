@@ -43,7 +43,7 @@ static int callback(void* data, int argc, char **argv, char **col_name) {
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
-	rc = sqlite3_open(SQLITE3_pinst->v_endpoint , &db);
+	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &db);
 
 	if( rc != SQLITE_OK ) {
 		ov_logfile_info("failed to open db!");

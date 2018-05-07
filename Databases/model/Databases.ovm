@@ -12,7 +12,7 @@ LIBRARY Databases
 		@note Javadoc syntax is allowed here.
 		@attention Changes in this file will only generate new code in ./source/sourcetemplates/. Code in ./source/ is not overwritten. 
 	*/
-	CLASS MySQLDatabase : CLASS openAASDiscoveryServer/Database
+	CLASS MySQLDatabase : CLASS openAASDiscoveryServer/DBWrapper
 		IS_INSTANTIABLE;
 		VARIABLES
 			// Add variables here. The syntax is:
@@ -23,15 +23,16 @@ LIBRARY Databases
 			// inputNAme : UINT HAS_SET_ACCESSOR FLAGS = "i" COMMENT = "Input of type UINT" INITIALVALUE = 5;
 		END_VARIABLES;
 		OPERATIONS
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
             connect     : C_FUNCTION <DS_FNC_CONNECT>;
             disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
-            readData    : C_FUNCTION <DS_FNC_READDATA>;
-            writeData   : C_FUNCTION <DS_FNC_WRITEDATA>;
-			constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
+            selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
 		END_OPERATIONS;
 	END_CLASS;
 	
-	CLASS SQLite3 : CLASS openAASDiscoveryServer/Database
+	CLASS SQLite3 : CLASS openAASDiscoveryServer/DBWrapper
 		IS_INSTANTIABLE;
 		VARIABLES
 			table : STRING FLAGS = "i" INITIALVALUE = "";
@@ -41,11 +42,12 @@ LIBRARY Databases
 			io	  : BOOL HAS_SET_ACCESSOR FLAGS = "i"   INITIALVALUE = FALSE;
 		END_VARIABLES;
 		OPERATIONS
-			connect     : C_FUNCTION <DS_FNC_CONNECT>;
+			getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
             disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
-            readData    : C_FUNCTION <DS_FNC_READDATA>;
-            writeData   : C_FUNCTION <DS_FNC_WRITEDATA>;
-			constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
+            selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
 		END_OPERATIONS;
 	END_CLASS;
 	
