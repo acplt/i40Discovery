@@ -3,11 +3,11 @@
 *
 *   FILE
 *   ----
-*   Algorithm.c
+*   DSRegistrationService.c
 *
 *   History
 *   -------
-*   2018-04-23   File created
+*   2018-05-04   File created
 *
 *******************************************************************************
 *
@@ -25,7 +25,10 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Algorithm_startAlgorithm(OV_STRING JsonInput, OV_STRING *JsonOutput) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DSRegistrationService_configureService(OV_STRING *Wrapper) {
+    /*    
+    *   local variables
+    */
 
     return OV_ERR_OK;
 }

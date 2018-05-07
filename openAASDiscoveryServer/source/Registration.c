@@ -7,7 +7,7 @@
 *
 *   History
 *   -------
-*   2018-04-23   File created
+*   2018-05-04   File created
 *
 *******************************************************************************
 *
@@ -25,6 +25,38 @@
 #include "libov/ov_macros.h"
 
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_AddSEWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Registration          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_AddSEWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_RemoveSEWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Registration          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_RemoveSEWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_ProcessRegistrationMessage_set(
+    OV_INSTPTR_openAASDiscoveryServer_Registration          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_ProcessRegistrationMessage = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_ProcessUnregistrationMessage_set(
+    OV_INSTPTR_openAASDiscoveryServer_Registration          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_ProcessUnregistrationMessage = value;
+    return OV_ERR_OK;
+}
+
 OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Registration_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
@@ -33,29 +65,9 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Registration_getaccess(
     /*    
     *   local variables
     */
-	switch(pelem->elemtype) {
-		case OV_ET_VARIABLE:
-			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
-				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
-					return OV_AC_NONE;
-				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
-						return OV_AC_READWRITE;
-					}
-				}
-			}
-		break;
-		default:
-		break;
-	}
+    //OV_INSTPTR_openAASDiscoveryServer_Registration pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Registration, pobj);
 
-	return ov_object_getaccess(pobj, pelem, pticket);
+    return (OV_ACCESS)0;
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_constructor(
@@ -78,10 +90,42 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_databaseAdd2(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-    pobj->v_databaseAdd = value;
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_removeSEWrapper(OV_STRING *SEWrapper) {
+
     return OV_ERR_OK;
 }
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_addDSService(OV_STRING *DSService) {
+    /*    
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_removeDSService(OV_STRING *DSService) {
+    /*    
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_configureDSService(OV_STRING *DBWrapper, OV_STRING *URMSWrapper, OV_STRING *CAWrapper, OV_STRING *SEWrapper, OV_STRING DSService) {
+    /*    
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getRegistrationMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getUnregistrationMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+
+    return OV_ERR_OK;
+}
+

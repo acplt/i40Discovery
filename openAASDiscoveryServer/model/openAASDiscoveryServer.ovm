@@ -158,7 +158,7 @@ LIBRARY openAASDiscoveryServer
             removeDSService     : C_FUNCTION <DS_FNC_REMOVEDSSERVICE> IS_ABSTRACT;
             useDSServices       : C_FUNCTION <DS_FNC_USEDSSERVICES>;
             configureDSService  : C_FUNCTION <DS_FNC_CONFIGUREDSSERVICE> IS_ABSTRACT;
-        END_OPERATIONS;
+        END_OPERATIONS; 
     END_CLASS;
     
     CLASS Security : CLASS openAASDiscoveryServer/Part
@@ -274,14 +274,18 @@ LIBRARY openAASDiscoveryServer
 	CLASS DiscoveryServer : CLASS ov/domain
 		IS_INSTANTIABLE;
 		VARIABLES
+			/* handle thread variables */
+            threadDataHndl[] : INT FLAGS = "n";
 		END_VARIABLES;
 		PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManager;
             Security         : CLASS openAASDiscoveryServer/Security;
         	Registration     : CLASS openAASDiscoveryServer/Registration;
     		Search           : CLASS openAASDiscoveryServer/Search;
-        END_PARTS;
+        END_PARTS; 
 		OPERATIONS
+			constructor      : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+			destructor       : C_FUNCTION <OV_FNC_DESTRUCTOR>;
 			getaccess        : C_FUNCTION <OV_FNC_GETACCESS>;
 			getMessage       : C_FUNCTION <DS_FNC_GETMESSAGE>;
 			sendMessage      : C_FUNCTION <DS_FNC_SENDMESSAGE>;

@@ -7,7 +7,7 @@
 *
 *   History
 *   -------
-*   2018-04-23   File created
+*   2018-05-04   File created
 *
 *******************************************************************************
 *
@@ -23,8 +23,55 @@
 
 #include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
-#include "libov/ov_path.h"
 
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDBWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_AddDBWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDBWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_RemoveDBWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDSService_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_AddDSService = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDSService_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_RemoveDSService = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_UseDSServices_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_UseDSServices = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_ConfigDSServices_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_ConfigDSServices = value;
+    return OV_ERR_OK;
+}
 
 OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Part_getaccess(
 	OV_INSTPTR_ov_object	pobj,
@@ -34,29 +81,9 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Part_getaccess(
     /*    
     *   local variables
     */
-	switch(pelem->elemtype) {
-		case OV_ET_VARIABLE:
-			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
-				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
-					return OV_AC_NONE;
-				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
-						return OV_AC_READWRITE;
-					}
-				}
-			}
-		break;
-		default:
-		break;
-	}
+    //OV_INSTPTR_openAASDiscoveryServer_Part pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Part, pobj);
 
-	return ov_object_getaccess(pobj, pelem, pticket);
+    return (OV_ACCESS)0;
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_constructor(
@@ -79,222 +106,18 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_addDBInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_addDBWrapper(OV_STRING *DBWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_deleteDBInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_removeDBWrapper(OV_STRING *DBWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_addAlgorithm(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_useDSServices(OV_STRING *DSService) {
 
     return OV_ERR_OK;
 }
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_deleteAlgorithm(void) {
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_useAlgorithms(void) {
-
-    return OV_ERR_OK;
-}
-
-
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_databaseAdd_set(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-
-	OV_VTBLPTR_openAASDiscoveryServer_Part 	pvtable = NULL;
-
-	// Get Pointer to vtable of generic FielbusChannel
-	//
-	Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
-	if (!pvtable){
-		return OV_ERR_GENERIC;
-	}
-	pvtable->m_databaseAdd2(pobj, value);
-	return OV_ERR_OK;
-
-	OV_RESULT result = 0;
-    pobj->v_databaseAdd = value;
-
-    if (pobj->v_databaseAdd == TRUE){
-    	OV_INSTPTR_ov_object ptr = ov_path_getobjectpointer(pobj->v_databaseToAdd, 2);
-    	if (!ptr){
-    		return OV_ERR_BADPATH;
-    	}
-    	OV_INSTPTR_openAASDiscoveryServer_Database pDatabase = Ov_StaticPtrCast(openAASDiscoveryServer_Database, ptr);
-    	if (!pDatabase){
-    		return OV_ERR_BADTYPE;
-    	}
-    	if (pobj->v_databaseSize != 0){
-    		for (OV_UINT i = 0; i < pobj->v_databaseSize; i++){
-    			if (ov_string_compare(pobj->v_databases.value[i], pobj->v_databaseToAdd) == OV_STRCMP_EQUAL){
-    				return OV_ERR_ALREADYEXISTS;
-    			}
-    		}
-    	}
-
-    	result = Ov_SetDynamicVectorLength(&pobj->v_databases, pobj->v_databaseSize + 1, STRING);
-    	if (result){
-    		return result;
-    	}
-    	ov_string_setvalue(&pobj->v_databases.value[pobj->v_databaseSize], pobj->v_databaseToAdd);
-    	pobj->v_databaseSize = pobj->v_databaseSize + 1;
-    }
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_databaseDelete_set(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-    OV_RESULT result = 0;
-	pobj->v_databaseDelete = value;
-
-	if (pobj->v_databaseAdd == TRUE){
-		if (pobj->v_databaseSize != 0){
-			for (OV_UINT i = 0; i < pobj->v_databaseSize; i++){
-				if (ov_string_compare(pobj->v_databases.value[i], pobj->v_databaseToDelete) == OV_STRCMP_EQUAL){
-					for (OV_UINT j = i; j < pobj->v_databaseSize; j++){
-						ov_string_setvalue(&pobj->v_databases.value[j], pobj->v_databases.value[j+1]);
-					}
-					pobj->v_databaseSize = pobj->v_databaseSize - 1;
-					result = Ov_SetDynamicVectorLength(&pobj->v_databases, pobj->v_databaseSize, STRING);
-					if (result){
-						return result;
-					}
-				}
-			}
-		}
-	}
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_algorithmAdd_set(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-	OV_RESULT result = OV_ERR_OK;
-
-    pobj->v_algorithmAdd = value;
-
-    if (pobj->v_algorithmAdd == TRUE){
-		OV_INSTPTR_ov_object ptr = ov_path_getobjectpointer(pobj->v_algorithmToAdd, 2);
-		if (!ptr){
-			return OV_ERR_BADPATH;
-		}
-		OV_INSTPTR_openAASDiscoveryServer_Algorithm pAlgorithm = Ov_StaticPtrCast(openAASDiscoveryServer_Algorithm, ptr);
-		if (!pAlgorithm){
-			return OV_ERR_BADTYPE;
-		}
-
-		if (Ov_CanCastTo(openAASDiscoveryServer_SecurityAlgorithm, pAlgorithm) == TRUE && Ov_CanCastTo(openAASDiscoveryServer_Security, pobj) == TRUE){
-
-		}else if(Ov_CanCastTo(openAASDiscoveryServer_RegistrationAlgorithm, pAlgorithm) == TRUE && Ov_CanCastTo(openAASDiscoveryServer_Registration, pobj) == TRUE){
-
-		}else if(Ov_CanCastTo(openAASDiscoveryServer_UnRegistrationAlgorithm, pAlgorithm) == TRUE && Ov_CanCastTo(openAASDiscoveryServer_Registration, pobj) == TRUE){
-
-		}else if(Ov_CanCastTo(openAASDiscoveryServer_SearchAlgorithm, pAlgorithm) == TRUE && Ov_CanCastTo(openAASDiscoveryServer_Security, pobj) == TRUE){
-
-		}else{
-			return OV_ERR_BADOBJTYPE;
-		}
-
-		if (pobj->v_algorithmSize != 0){
-			for (OV_UINT i = 0; i < pobj->v_algorithmSize; i++){
-				if (ov_string_compare(pobj->v_algoithms.value[i], pobj->v_algorithmToAdd) == OV_STRCMP_EQUAL){
-					return OV_ERR_ALREADYEXISTS;
-				}
-			}
-		}
-
-		result = Ov_SetDynamicVectorLength(&pobj->v_algoithms, pobj->v_algorithmSize + 1, STRING);
-		if (result){
-			return result;
-		}
-		ov_string_setvalue(&pobj->v_algoithms.value[pobj->v_databaseSize], pobj->v_algorithmToAdd);
-		pobj->v_algorithmSize = pobj->v_algorithmSize + 1;
-
-	}
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_algorithmDelete_set(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-	OV_RESULT result = OV_ERR_OK;
-
-    pobj->v_algorithmDelete = value;
-
-	if (pobj->v_algorithmDelete == TRUE){
-		if (pobj->v_algorithmSize != 0){
-			for (OV_UINT i = 0; i < pobj->v_algorithmSize; i++){
-				if (ov_string_compare(pobj->v_algoithms.value[i], pobj->v_algorithmToDelete) == OV_STRCMP_EQUAL){
-					for (OV_UINT j = i; j < pobj->v_algorithmSize; j++){
-						ov_string_setvalue(&pobj->v_algoithms.value[j], pobj->v_algoithms.value[j+1]);
-					}
-					pobj->v_algorithmSize = pobj->v_algorithmSize - 1;
-					result = Ov_SetDynamicVectorLength(&pobj->v_algoithms, pobj->v_algorithmSize, STRING);
-					if (result){
-						return result;
-					}
-				}
-			}
-		}
-	}
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_algorithmsUse_set(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-	OV_RESULT result = OV_ERR_OK;
-
-    pobj->v_algorithmsUse = value;
-
-    OV_STRING_VEC tmpStringVec;
-    tmpStringVec.value = NULL;
-    tmpStringVec.veclen = 0;
-
-	if (pobj->v_algorithmsUse == TRUE){
-		if (pobj->v_algorithmSize != 0){
-			for (OV_UINT i = 0; i < pobj->v_algorithmsToUse.veclen; i++){
-				for (OV_UINT j = 0; j < pobj->v_algorithmSize; j++){
-					if (ov_string_compare(pobj->v_algoithms.value[j], pobj->v_algorithmsToUse.value[i]) == OV_STRCMP_EQUAL){
-						result = Ov_SetDynamicVectorLength(&tmpStringVec, tmpStringVec.veclen + 1, STRING);
-						if (result){
-							return result;
-						}
-						ov_string_setvalue(&tmpStringVec.value[tmpStringVec.veclen-1], pobj->v_algorithmsToUse.value[i]);
-					}
-				}
-			}
-		}
-	}
-
-	Ov_SetDynamicVectorValue(&pobj->v_algoithmsUsed, tmpStringVec.value, tmpStringVec.veclen, STRING);
-	Ov_SetDynamicVectorLength(&tmpStringVec, 0, STRING);
-
-    return OV_ERR_OK;
-}
-
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_call(OV_STRING JsonInput) {
-
-    return OV_ERR_OK;
-}
-
 

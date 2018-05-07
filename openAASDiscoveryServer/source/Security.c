@@ -7,7 +7,7 @@
 *
 *   History
 *   -------
-*   2018-04-23   File created
+*   2018-05-04   File created
 *
 *******************************************************************************
 *
@@ -25,6 +25,46 @@
 #include "libov/ov_macros.h"
 
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_AddURMSWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_AddURMSWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_RemoveURMSWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_RemoveURMSWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_AddCAWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_AddCAWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_RemoveCAWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_RemoveCAWrapper = value;
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_ProcessSecurityMessage_set(
+    OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_ProcessSecurityMessage = value;
+    return OV_ERR_OK;
+}
+
 OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Security_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
@@ -33,29 +73,9 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Security_getaccess(
     /*    
     *   local variables
     */
-	switch(pelem->elemtype) {
-		case OV_ET_VARIABLE:
-			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
-				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
-					return OV_AC_NONE;
-				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
-						return OV_AC_READWRITE;
-					}
-				}
-			}
-		break;
-		default:
-		break;
-	}
+    //OV_INSTPTR_openAASDiscoveryServer_Security pinst = Ov_StaticPtrCast(openAASDiscoveryServer_Security, pobj);
 
-	return ov_object_getaccess(pobj, pelem, pticket);
+    return (OV_ACCESS)0;
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_constructor(
@@ -78,30 +98,52 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addURMSInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addURMSWrapper(OV_STRING *URMSWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_deleteURMSInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeURMSWrapper(OV_STRING *URMSWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addCAInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addCAWrapper(OV_STRING *CAWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_deleteCAInterface(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeCAWrapper(OV_STRING *CAWrapper) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_databaseAdd2(
-    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
-    const OV_BOOL  value
-) {
-    pobj->v_databaseAdd = value;
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addDSService(OV_STRING *DSService) {
+    /*    
+    *   local variables
+    */
+
     return OV_ERR_OK;
 }
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_STRING *DSService) {
+    /*    
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_STRING *DBWrapper, OV_STRING *URMSWrapper, OV_STRING *CAWrapper, OV_STRING *SEWrapper, OV_STRING DSService) {
+    /*    
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_getSecurityMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+
+    return OV_ERR_OK;
+}
+

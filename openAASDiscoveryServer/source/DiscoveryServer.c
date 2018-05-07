@@ -23,7 +23,78 @@
 
 #include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
+#include <pthread.h>
+#include "MessageSys_helpers.h"
 
+#if OV_SYSTEM_NT
+#include <windows.h>
+#endif
+
+#define MUTEX_LOCK(MUTEX)\
+		pthread_mutex_lock(MUTEX);\
+
+#define MUTEX_UNLOCK(MUTEX)\
+		pthread_mutex_unlock(MUTEX);\
+
+typedef struct thread_data{
+	pthread_mutex_t mutex;
+	pthread_t thread;
+	OV_STRING message;
+	OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer;
+}thread_data;
+
+/* thread function */
+static void* thread_fcn(void*ptr){
+	thread_data* pthreadData = ptr;
+
+	OV_VTBLPTR_openAASDiscoveryServer_Registration pvtableRegistration = NULL;
+	OV_VTBLPTR_openAASDiscoveryServer_Security pvtableSecurity = NULL;
+	OV_VTBLPTR_openAASDiscoveryServer_Search pvtableSearch = NULL;
+
+	OV_STRING JsonOutput = NULL;
+	OV_STRING errorMessage = NULL;
+	OV_UINT messageType = 0;
+
+	// TODO JSON Encoding => Search for MessageType
+
+	switch(messageType){
+		case 1: // SecurityMessage
+			Ov_GetVTablePtr(openAASDiscoveryServer_Security, pvtableSecurity, &pthreadData->pDiscoveryServer->p_Security);
+			pvtableSecurity->m_getSecurityMessage(pthreadData->message, &JsonOutput, &errorMessage);
+		break;
+		case 2: // RegistrationMessage
+			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
+			pvtableRegistration->m_getRegistrationMessage(pthreadData->message, &JsonOutput, &errorMessage);
+		break;
+		case 3: // UnregistrationMessage
+			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
+			pvtableRegistration->m_getUnregistrationMessage(pthreadData->message, &JsonOutput, &errorMessage);
+		break;
+		case 4: // SearchMessage
+			Ov_GetVTablePtr(openAASDiscoveryServer_Search, pvtableSearch, &pthreadData->pDiscoveryServer->p_Search);
+			pvtableSearch->m_getSearchMessage(pthreadData->message, &JsonOutput, &errorMessage);
+		break;
+		default:
+		break;
+	}
+	// freeMemory and delete thread from list
+	for (OV_UINT i = 0; i < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen; i++){
+		if ((OV_UINT)pthreadData == pthreadData->pDiscoveryServer->v_threadDataHndl.value[i]){
+			pthreadData->pDiscoveryServer->v_threadDataHndl.value[i] = 0;
+			// Copy each value to the index before
+			for (OV_UINT j = i; j < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1; j++){
+				pthreadData->pDiscoveryServer->v_threadDataHndl.value[j] = pthreadData->pDiscoveryServer->v_threadDataHndl.value[j+1];
+			}
+			Ov_SetDynamicVectorLength(&pthreadData->pDiscoveryServer->v_threadDataHndl, pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1, INT);
+		}
+	}
+
+	ov_string_setvalue(&pthreadData->message, NULL);
+	Ov_HeapFree(pthreadData);
+
+	pthread_exit(0);
+	return 0;
+}
 
 OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
 	OV_INSTPTR_ov_object	pobj,
@@ -56,5 +127,157 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage) {
+
+	thread_data *pthreadData = NULL;
+	pthreadData = Ov_HeapMalloc(sizeof(thread_data));
+	if(!pthreadData){
+		return OV_ERR_GENERIC;
+	}
+	pthreadData->thread = 0;
+	pthreadData->pDiscoveryServer = pinst;
+	ov_string_setvalue(&pthreadData->message, JsonInput);
+
+	OV_UINT threadResult = 0;
+	threadResult = pthread_create(&pthreadData->thread, NULL, thread_fcn, (void*) pthreadData);
+
+	if (threadResult){
+		ov_logfile_info("Could not create a thread for getting Message. ErrorCode: %i", threadResult);
+		ov_string_print(errorMessage, "Could not create a thread for getting Message. ErrorCode: %i", threadResult);
+		return OV_ERR_GENERIC;
+	}
+
+	Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen + 1, INT);
+	pinst->v_threadDataHndl.value[pinst->v_threadDataHndl.veclen-1] = (OV_UINT) pthreadData;
+
+	return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage) {
+/*
+	OV_STRING tmpString = NULL;
+	OV_INSTPTR_MessageSys_Message panswerMessage = NULL;
+	OV_RESULT resultOV = 0;
+	OV_UINT protocollType = 0;
+	*errorMessage = NULL;
+
+	switch (protocollType){
+		case 1: // MessageSys
+			// Create MessageObject in Outbox
+			ov_string_setvalue(&tmpString, NULL);
+			ov_string_setvalue(&tmpString, "answerMessageTo");
+			// TODO adding number for responsing message ov_string_append(&tmpString, xxx);
+			resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pinst->p_ComponentManager.p_OUTBOX, tmpString);
+			ov_string_setvalue(&tmpString, NULL);
+			if(Ov_Fail(resultOV)){
+				ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+				ov_string_print(errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+				return OV_ERR_GENERIC;
+			}
+
+			// TODO: Sender = Receiver of old message
+			//MessageSys_Message_senderAddress_set(panswerMessage, message->v_receiverAddress);
+			//MessageSys_Message_senderName_set(panswerMessage, message->v_receiverName);
+			//MessageSys_Message_senderComponent_set(panswerMessage, message->v_receiverComponent);
+
+			// TODO: Receiver = Sender of old message
+			//MessageSys_Message_receiverAddress_set(panswerMessage, message->v_senderAddress);
+			//MessageSys_Message_receiverName_set(panswerMessage, message->v_senderName);
+			//MessageSys_Message_receiverComponent_set(panswerMessage, message->v_senderComponent);
+
+			// TODO: reference Msg
+			// ov_string_setvalue(&panswerMessage->v_refMsgID, message->v_msgID);
+
+			// Body
+			// XML Encoding
+			OV_STRING answerBody = NULL;
+			ov_string_setvalue(&answerBody, "<bdy>");
+			ov_string_append(&answerBody, JsonInput);
+			ov_string_append(&answerBody, "</bdy>");
+			ov_string_setvalue(&panswerMessage->v_msgBody, answerBody);
+			ov_string_setvalue(&answerBody, NULL);
+
+			// Message ready for sending
+			panswerMessage->v_msgStatus = MSGREADYFORSENDING;
+
+
+			// Search for MsgDelivery object
+			OV_INSTPTR_MessageSys_MsgDelivery pmsgDelivery = NULL;
+			Ov_ForEachChildEx(ov_instantiation, pclass_MessageSys_MsgDelivery, pmsgDelivery, MessageSys_MsgDelivery){
+				if(ov_string_compare(pmsgDelivery->v_identifier, "MessageSys") == OV_STRCMP_EQUAL){
+					break;
+				}
+			}
+			if (!pmsgDelivery){
+				Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
+				ov_logfile_error("Could not find MessageSys");
+				ov_string_setvalue(errorMessage, "Could not find MessageSys");
+				return OV_ERR_GENERIC;
+			}
+
+			// send Message
+			if (MessageSys_MsgDelivery_sendMessage(pmsgDelivery, panswerMessage) == FALSE){
+				Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
+				ov_logfile_error("Could not send Message");
+				ov_string_setvalue(errorMessage, "Could not send Message");
+				return OV_ERR_GENERIC;
+			}
+		break;
+		case 2: // OPC UA
+		break;
+		case 3: // KS http
+		break;
+	}
+*/
+    return OV_ERR_OK;
+}
+
+
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_constructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*
+    *   local variables
+    */
+    //OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pobj);
+    OV_RESULT    result;
+
+    /* do what the base class does first */
+    result = ov_object_constructor(pobj);
+    if(Ov_Fail(result))
+         return result;
+
+    /* do what */
+
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT void openAASDiscoveryServer_DiscoveryServer_destructor(
+	OV_INSTPTR_ov_object 	pobj
+) {
+    /*
+    *   local variables
+    */
+    OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pobj);
+
+    /* do what */
+    for (OV_UINT i = 0; i < pinst->v_threadDataHndl.veclen; i++){
+		thread_data * pthreadData = (thread_data *) pinst->v_threadDataHndl.value[i];
+		pthread_cancel(pthreadData->thread);
+		pthread_join(pthreadData->thread,NULL);
+		ov_string_setvalue(&pthreadData->message, NULL);
+		Ov_HeapFree(pthreadData);
+		pinst->v_threadDataHndl.value[i] = 0;
+    }
+    Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, 0, INT);
+
+    /* destroy object */
+    ov_object_destructor(pobj);
+
+    return;
 }
 
