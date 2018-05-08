@@ -39,23 +39,23 @@ typedef OV_RESULT DS_FNC_STOPSERVICE(void);
 typedef OV_RESULT DS_FNC_CONFIGURESERVICE(OV_STRING *Wrapper);
  
 // PART		
-typedef OV_RESULT DS_FNC_ADDDBWRAPPER(OV_STRING *DBWrapper);
-typedef OV_RESULT DS_FNC_REMOVEDBWRAPPER(OV_STRING *DBWrapper);
-typedef OV_RESULT DS_FNC_ADDDSSERVICE(OV_STRING *DSService);
-typedef OV_RESULT DS_FNC_REMOVEDSSERVICE(OV_STRING *DSService);
-typedef OV_RESULT DS_FNC_USEDSSERVICES(OV_STRING *DSService);
-typedef OV_RESULT DS_FNC_CONFIGUREDSSERVICE(OV_STRING *DBWrapper, OV_STRING *URMSWrapper, OV_STRING *CAWrapper, OV_STRING *SEWrapper, OV_STRING DSService);
+typedef OV_RESULT DS_FNC_ADDDBWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_REMOVEDBWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_ADDDSSERVICE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_REMOVEDSSERVICE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_USEDSSERVICES(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_CONFIGUREDSSERVICE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclenDBWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper, OV_STRING DSService);
 	
 // SECURITY, REGISTRATION and SEARCH
-typedef OV_RESULT DS_FNC_ADDURMSWRAPPER(OV_STRING *URMSWrapper);
-typedef OV_RESULT DS_FNC_REMOVEURMSWRAPPER(OV_STRING *URMSWrapper);
-typedef OV_RESULT DS_FNC_ADDCAWRAPPER(OV_STRING *CAWrapper);
-typedef OV_RESULT DS_FNC_REMOVECAWRAPPER(OV_STRING *CAWrapper);
-typedef OV_RESULT DS_FNC_ADDSEWRAPPER(OV_STRING *SEWrapper);
-typedef OV_RESULT DS_FNC_REMOVESEWRAPPER(OV_STRING *SEWrapper);
-typedef OV_RESULT DS_FNC_GETSECURITYMESSAGE(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETREGISTRATIONMESSAGE(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETUNREGISTRATIONMESSAGE(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETSEARCHMESSAGE(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_ADDURMSWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *URMSWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_REMOVEURMSWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *URMSWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_ADDCAWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *CAWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_REMOVECAWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *CAWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_ADDSEWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_REMOVESEWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen);
+typedef OV_RESULT DS_FNC_GETSECURITYMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETUNREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETSEARCHMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
 
 #endif

@@ -23,6 +23,7 @@
 
 #include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
+#include "libov/ov_path.h"
 
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDBWrapper_set(
@@ -30,6 +31,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDBWrapper_set(
     const OV_BOOL  value
 ) {
     pobj->v_AddDBWrapper = value;
+    if (pobj->v_AddDBWrapper == TRUE){
+    	OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+    	Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+    	if (!pvtable){
+    		return OV_ERR_GENERIC;
+    	}
+    	pvtable->m_addDBWrapper(pobj, &pobj->v_DBWrapperPath, 1);
+    }
+    pobj->v_AddDBWrapper = FALSE;
     return OV_ERR_OK;
 }
 
@@ -38,6 +48,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDBWrapper_set(
     const OV_BOOL  value
 ) {
     pobj->v_RemoveDBWrapper = value;
+    if (pobj->v_RemoveDBWrapper == TRUE){
+		OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+		if (!pvtable){
+			return OV_ERR_GENERIC;
+		}
+		pvtable->m_removeDBWrapper(pobj, &pobj->v_DBWrapperPath, 1);
+	}
+    pobj->v_RemoveDBWrapper = FALSE;
     return OV_ERR_OK;
 }
 
@@ -46,6 +65,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDSService_set(
     const OV_BOOL  value
 ) {
     pobj->v_AddDSService = value;
+    if (pobj->v_AddDSService == TRUE){
+		OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+		if (!pvtable){
+			return OV_ERR_GENERIC;
+		}
+		pvtable->m_addDSService(pobj, &pobj->v_DSServicePath, 1);
+	}
+    pobj->v_AddDSService = FALSE;
     return OV_ERR_OK;
 }
 
@@ -54,6 +82,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDSService_set(
     const OV_BOOL  value
 ) {
     pobj->v_RemoveDSService = value;
+    if (pobj->v_RemoveDSService == TRUE){
+		OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+		if (!pvtable){
+			return OV_ERR_GENERIC;
+		}
+		pvtable->m_removeDSService(pobj, &pobj->v_DSServicePath, 1);
+	}
+    pobj->v_RemoveDSService = FALSE;
     return OV_ERR_OK;
 }
 
@@ -62,6 +99,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_UseDSServices_set(
     const OV_BOOL  value
 ) {
     pobj->v_UseDSServices = value;
+    if (pobj->v_UseDSServices == TRUE){
+		OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+		if (!pvtable){
+			return OV_ERR_GENERIC;
+		}
+		pvtable->m_useDSServices(pobj, pobj->v_DSServicePaths.value, pobj->v_DSServicePaths.veclen);
+	}
+	pobj->v_UseDSServices = FALSE;
     return OV_ERR_OK;
 }
 
@@ -70,6 +116,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_ConfigDSServices_set(
     const OV_BOOL  value
 ) {
     pobj->v_ConfigDSServices = value;
+    if (pobj->v_ConfigDSServices == TRUE){
+		OV_VTBLPTR_openAASDiscoveryServer_Part pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_Part, pvtable, pobj);
+		if (!pvtable){
+			return OV_ERR_GENERIC;
+		}
+		pvtable->m_configureDSService(pobj, pobj->v_DBWrapperPaths.value, pobj->v_DBWrapperPaths.veclen, NULL, 0, NULL, 0, NULL, 0, pobj->v_DSServicePathForConfig);
+	}
+	pobj->v_ConfigDSServices = FALSE;
     return OV_ERR_OK;
 }
 
@@ -126,18 +181,56 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_addDBWrapper(OV_STRING *DBWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_addDBWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclen) {
+	OV_INSTPTR_ov_object pobj = NULL;
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(DBWrapper[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_DBWrapper, pobj) == FALSE){
+			return OV_ERR_BADOBJTYPE;
+		}
+		if (pinst->v_DBWrapper.veclen == 0){
+			Ov_SetDynamicVectorLength(&pinst->v_DBWrapper, pinst->v_DBWrapper.veclen + 1, STRING);
+			ov_string_setvalue(&pinst->v_DBWrapper.value[pinst->v_DBWrapper.veclen - 1], DBWrapper[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pinst->v_DBWrapper.veclen; j++){
+			if (ov_string_compare(DBWrapper[i], pinst->v_DBWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pinst->v_DBWrapper.veclen - 1){
+				Ov_SetDynamicVectorLength(&pinst->v_DBWrapper, pinst->v_DBWrapper.veclen + 1, STRING);
+				ov_string_setvalue(&pinst->v_DBWrapper.value[pinst->v_DBWrapper.veclen - 1], DBWrapper[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_removeDBWrapper(OV_STRING *DBWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_removeDBWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclen) {
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pinst->v_DBWrapper.veclen; j++){
+			if (ov_string_compare(DBWrapper[i], pinst->v_DBWrapper.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pinst->v_DBWrapper.veclen-1; k++){
+					ov_string_setvalue(&pinst->v_DBWrapper.value[k], pinst->v_DBWrapper.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pinst->v_DBWrapper, pinst->v_DBWrapper.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_useDSServices(OV_STRING *DSService) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_useDSServices(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen) {
+	Ov_SetDynamicVectorLength(&pinst->v_UsedDSServicePaths, 0, STRING);
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pinst->v_DSService.veclen; j++){
+			if (ov_string_compare(DSService[i], pinst->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+				Ov_SetDynamicVectorLength(&pinst->v_UsedDSServicePaths, pinst->v_UsedDSServicePaths.veclen+1, STRING);
+				ov_string_setvalue(&pinst->v_UsedDSServicePaths.value[pinst->v_UsedDSServicePaths.veclen-1], DSService[i]);
+				break;
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 

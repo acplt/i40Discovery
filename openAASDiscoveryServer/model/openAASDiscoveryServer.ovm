@@ -133,17 +133,16 @@ LIBRARY openAASDiscoveryServer
             DBWrapperPath               : STRING    FLAGS = "i" COMMENT="path to DatabaseWrapper-Object to add/remove";
             AddDBWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DatabaseWrapper";
             RemoveDBWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DatabaseWrapper";
-            DBWrapperSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
             DBWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to DatabaseWrapper-Object";
             
             DSServicePath               : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object to add/remove";
             AddDSService                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DSxxxService";
             RemoveDSService             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DSxxxService";
-            DSServiceSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
             DSService[]                 : STRING    FLAGS = "o" COMMENT="paths to DSxxxService-Object";
             
             DSServicePaths[]            : STRING    FLAGS = "i" COMMENT="paths to DSxxxService-Object which the part have to use";
             UseDSServices               : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="use the listed DSServices";
+            UsedDSServicePaths[]        : STRING    FLAGS = "o" COMMENT="paths to DSxxxService-Object which the part actual use";
             
             DBWrapperPaths[]            : STRING    FLAGS = "i" COMMENT="paths to DatabaseWrapper-Object which have to be used by service";
             DSServicePathForConfig      : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object which have to use the DatabaseWrapper-Objects";
@@ -167,13 +166,11 @@ LIBRARY openAASDiscoveryServer
     		URMSWrapperPath             : STRING    FLAGS = "i" COMMENT="path to UserRightManagementSystemWrapper-Object to add/remove";
             AddURMSWrapper              : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add UserRightManagementSystemWrapper";
             RemoveURMSWrapper           : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove UserRightManagementSystemWrapper";
-            URMSWrapperSize             : UINT      FLAGS = "o" INITIALVALUE = 0;
             URMSWrapper[]               : STRING    FLAGS = "o" COMMENT="paths to UserRightManagementSystemWrapper-Object";
             
             CAWrapperPath               : STRING    FLAGS = "i" COMMENT="path to CertifcateAuthorityWrapper-Object to add/remove";
             AddCAWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add CertifcateAuthorityWrapper";
             RemoveCAWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove CertifcateAuthorityWrapper";
-            CAWrapperSize               : UINT      FLAGS = "o" INITIALVALUE = 0;
             CAWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to CertifcateAuthorityWrapper-Object";
             
             URMSWrapperPaths[]          : STRING    FLAGS = "i" COMMENT="paths to UserRightManagementSystemWrapper-Object which have to be used by service";
@@ -202,7 +199,6 @@ LIBRARY openAASDiscoveryServer
             SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
             AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
             RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
-            SEWrapperSize                   : UINT      FLAGS = "o" INITIALVALUE = 0;
             SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
                         
             SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";
@@ -233,7 +229,6 @@ LIBRARY openAASDiscoveryServer
             SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
             AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
             RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
-            SEWrapperSize                   : UINT      FLAGS = "o" INITIALVALUE = 0;
             SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
                         
             SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";

@@ -23,7 +23,7 @@
 
 #include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
-
+#include "libov/ov_path.h"
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_AddURMSWrapper_set(
     OV_INSTPTR_openAASDiscoveryServer_Security          pobj,
@@ -118,27 +118,105 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addURMSWrapper(OV_STRING *URMSWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addURMSWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *URMSWrapper, OV_UINT veclen) {
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(URMSWrapper[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_CAWrapper, pobj) == FALSE){
+			return OV_ERR_BADOBJTYPE;
+		}
+		if (pSecurity->v_URMSWrapper.veclen == 0){
+			Ov_SetDynamicVectorLength(&pSecurity->v_URMSWrapper, pSecurity->v_URMSWrapper.veclen + 1, STRING);
+			ov_string_setvalue(&pSecurity->v_URMSWrapper.value[pSecurity->v_URMSWrapper.veclen - 1], URMSWrapper[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pSecurity->v_URMSWrapper.veclen; j++){
+			if (ov_string_compare(URMSWrapper[i], pSecurity->v_URMSWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_URMSWrapper.veclen - 1){
+				Ov_SetDynamicVectorLength(&pSecurity->v_URMSWrapper, pSecurity->v_URMSWrapper.veclen + 1, STRING);
+				ov_string_setvalue(&pSecurity->v_URMSWrapper.value[pSecurity->v_URMSWrapper.veclen - 1], URMSWrapper[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeURMSWrapper(OV_STRING *URMSWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeURMSWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *URMSWrapper, OV_UINT veclen) {
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_URMSWrapper.veclen; j++){
+			if (ov_string_compare(URMSWrapper[i], pSecurity->v_URMSWrapper.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pSecurity->v_URMSWrapper.veclen-1; k++){
+					ov_string_setvalue(&pSecurity->v_URMSWrapper.value[k], pSecurity->v_URMSWrapper.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pSecurity->v_URMSWrapper, pSecurity->v_URMSWrapper.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addCAWrapper(OV_STRING *CAWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addCAWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *CAWrapper, OV_UINT veclen) {
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(CAWrapper[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_CAWrapper, pobj) == FALSE){
+			return OV_ERR_BADOBJTYPE;
+		}
+		if (pSecurity->v_CAWrapper.veclen == 0){
+			Ov_SetDynamicVectorLength(&pSecurity->v_CAWrapper, pSecurity->v_CAWrapper.veclen + 1, STRING);
+			ov_string_setvalue(&pSecurity->v_CAWrapper.value[pSecurity->v_CAWrapper.veclen - 1], CAWrapper[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pSecurity->v_CAWrapper.veclen; j++){
+			if (ov_string_compare(CAWrapper[i], pSecurity->v_CAWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_CAWrapper.veclen - 1){
+				Ov_SetDynamicVectorLength(&pSecurity->v_CAWrapper, pSecurity->v_CAWrapper.veclen + 1, STRING);
+				ov_string_setvalue(&pSecurity->v_CAWrapper.value[pSecurity->v_CAWrapper.veclen - 1], CAWrapper[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeCAWrapper(OV_STRING *CAWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeCAWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *CAWrapper, OV_UINT veclen) {
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_CAWrapper.veclen; j++){
+			if (ov_string_compare(CAWrapper[i], pSecurity->v_CAWrapper.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pSecurity->v_CAWrapper.veclen-1; k++){
+					ov_string_setvalue(&pSecurity->v_CAWrapper.value[k], pSecurity->v_CAWrapper.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pSecurity->v_CAWrapper, pSecurity->v_CAWrapper.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addDSService(OV_STRING *DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen) {
     /*    
     *   local variables
     */
@@ -146,7 +224,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addDSService(OV_STRING
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_STRING *DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen) {
     /*    
     *   local variables
     */
@@ -154,7 +232,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_STR
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_STRING *DBWrapper, OV_STRING *URMSWrapper, OV_STRING *CAWrapper, OV_STRING *SEWrapper, OV_STRING DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclenBDWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper, OV_STRING DSService) {
     /*    
     *   local variables
     */
@@ -162,7 +240,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_getSecurityMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_getSecurityMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
 
     return OV_ERR_OK;
 }

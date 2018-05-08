@@ -23,6 +23,7 @@
 
 #include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
+#include "libov/ov_path.h"
 
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_AddSEWrapper_set(
@@ -102,17 +103,56 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addSEWrapper(OV_STRING *SEWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addSEWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen) {
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Search pSearch = NULL;
+	pSearch = Ov_DynamicPtrCast(openAASDiscoveryServer_Search, pinst);
+	if (!pSearch){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(SEWrapper[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_SEWrapper, pobj) == FALSE){
+			return OV_ERR_BADOBJTYPE;
+		}
+		if (pSearch->v_SEWrapper.veclen == 0){
+			Ov_SetDynamicVectorLength(&pSearch->v_SEWrapper, pSearch->v_SEWrapper.veclen + 1, STRING);
+			ov_string_setvalue(&pSearch->v_SEWrapper.value[pSearch->v_SEWrapper.veclen - 1], SEWrapper[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pSearch->v_SEWrapper.veclen; j++){
+			if (ov_string_compare(SEWrapper[i], pSearch->v_SEWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSearch->v_SEWrapper.veclen - 1){
+				Ov_SetDynamicVectorLength(&pSearch->v_SEWrapper, pSearch->v_SEWrapper.veclen + 1, STRING);
+				ov_string_setvalue(&pSearch->v_SEWrapper.value[pSearch->v_SEWrapper.veclen - 1], SEWrapper[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_removeSEWrapper(OV_STRING *SEWrapper) {
-
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_removeSEWrapper(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen) {
+	OV_INSTPTR_openAASDiscoveryServer_Search pSearch = NULL;
+	pSearch = Ov_DynamicPtrCast(openAASDiscoveryServer_Search, pinst);
+	if (!pSearch){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pSearch->v_SEWrapper.veclen; j++){
+			if (ov_string_compare(SEWrapper[i], pSearch->v_SEWrapper.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pSearch->v_SEWrapper.veclen-1; k++){
+					ov_string_setvalue(&pSearch->v_SEWrapper.value[k], pSearch->v_SEWrapper.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pSearch->v_SEWrapper, pSearch->v_SEWrapper.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addDSService(OV_STRING *DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen) {
     /*    
     *   local variables
     */
@@ -120,7 +160,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_addDSService(OV_STRING *
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_removeDSService(OV_STRING *DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_removeDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DSService, OV_UINT veclen) {
     /*    
     *   local variables
     */
@@ -128,7 +168,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_removeDSService(OV_STRIN
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_STRING *DBWrapper, OV_STRING *URMSWrapper, OV_STRING *CAWrapper, OV_STRING *SEWrapper, OV_STRING DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclenDBWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper, OV_STRING DSService) {
     /*    
     *   local variables
     */
@@ -136,7 +176,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_ST
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_getSearchMessage(const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_getSearchMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
 
     return OV_ERR_OK;
 }

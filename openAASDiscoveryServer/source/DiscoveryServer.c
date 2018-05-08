@@ -69,28 +69,28 @@ static void* thread_fcn(void*ptr){
 		case 1: // SecurityMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Security, pvtableSecurity, &pthreadData->pDiscoveryServer->p_Security);
 			if (pvtableSecurity)
-				resultOV = pvtableSecurity->m_getSecurityMessage(pthreadData->message, &JsonOutput, &errorMessage);
+				resultOV = pvtableSecurity->m_getSecurityMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Security), pthreadData->message, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of Security-Object");
 		break;
 		case 2: // RegistrationMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
 			if (pvtableRegistration)
-				resultOV = pvtableRegistration->m_getRegistrationMessage(pthreadData->message, &JsonOutput, &errorMessage);
+				resultOV = pvtableRegistration->m_getRegistrationMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Registration), pthreadData->message, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of Registration-Object");
 		break;
 		case 3: // UnregistrationMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
 			if (pvtableRegistration)
-				resultOV = pvtableRegistration->m_getUnregistrationMessage(pthreadData->message, &JsonOutput, &errorMessage);
+				resultOV = pvtableRegistration->m_getUnregistrationMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Registration), pthreadData->message, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of pvtableRegistration-Object");
 		break;
 		case 4: // SearchMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Search, pvtableSearch, &pthreadData->pDiscoveryServer->p_Search);
 			if (pvtableSearch)
-				resultOV = pvtableSearch->m_getSearchMessage(pthreadData->message, &JsonOutput, &errorMessage);
+				resultOV = pvtableSearch->m_getSearchMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Search), pthreadData->message, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of Search-Object");
 		break;
@@ -243,13 +243,13 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			MessageSys_Message_senderAddress_set(panswerMessage, pListIntern[0]);
 			MessageSys_Message_senderName_set(panswerMessage, pListIntern[1]);
 			MessageSys_Message_senderComponent_set(panswerMessage, pListIntern[2]);
-			ov_string_freelist(&pListIntern);
+			ov_string_freelist(pListIntern);
 
 			// Receiver = Sender of old message
 			MessageSys_Message_receiverAddress_set(panswerMessage, pListExtern[0]);
 			MessageSys_Message_receiverName_set(panswerMessage, pListExtern[1]);
 			MessageSys_Message_receiverComponent_set(panswerMessage, pListExtern[2]);
-			ov_string_freelist(&pListExtern);
+			ov_string_freelist(pListExtern);
 
 			// TODO: reference Msg
 			ov_string_setvalue(&panswerMessage->v_refMsgID, responseData.messageID);
