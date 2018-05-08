@@ -4,6 +4,11 @@
 /* 
 	Define your data types here. 
 */
-
+typedef struct response_data {
+    OV_UINT     protocolType;
+    OV_STRING   endpointExtern;
+    OV_STRING   endpointIntern;
+    OV_STRING   messageID;
+}response_data;
 
 #endif

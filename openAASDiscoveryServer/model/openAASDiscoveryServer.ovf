@@ -1,6 +1,7 @@
 #ifndef openAASDiscoveryServer_OVF_INCLUDED
 #define openAASDiscoveryServer_OVF_INCLUDED
 
+#include "openAASDiscoveryServer.ovt"
 /* 
 	Declare your C functions here. 
 	Example:
@@ -12,7 +13,7 @@ typedef void DS_FNC_CLEANUPMESSAGEBOX(OV_INSTPTR_openAASDiscoveryServer_Componen
 	
 // DISCOVERYSERVER
 typedef OV_RESULT DS_FNC_GETMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_SENDMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_SENDMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage, const response_data responseData);
 
 // WRAPPER
 typedef OV_RESULT DS_FNC_CONNECT(void);
