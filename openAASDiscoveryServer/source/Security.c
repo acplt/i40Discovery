@@ -220,7 +220,32 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_addDSService(OV_INSTPT
     /*    
     *   local variables
     */
-
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(DSService[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_DSSecurityService, pobj) == FALSE){
+			return OV_ERR_BADOBJTYPE;
+		}
+		if (pSecurity->v_DSService.veclen == 0){
+			Ov_SetDynamicVectorLength(&pSecurity->v_DSService, pSecurity->v_DSService.veclen + 1, STRING);
+			ov_string_setvalue(&pSecurity->v_DSService.value[pSecurity->v_DSService.veclen - 1], DSService[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pSecurity->v_DSService.veclen; j++){
+			if (ov_string_compare(DSService[i], pSecurity->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_DSService.veclen - 1){
+				Ov_SetDynamicVectorLength(&pSecurity->v_DSService, pSecurity->v_DSService.veclen + 1, STRING);
+				ov_string_setvalue(&pSecurity->v_DSService.value[pSecurity->v_DSService.veclen - 1], DSService[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
@@ -228,7 +253,21 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_INS
     /*    
     *   local variables
     */
-
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_DSService.veclen; j++){
+			if (ov_string_compare(DSService[i], pSecurity->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pSecurity->v_DSService.veclen-1; k++){
+					ov_string_setvalue(&pSecurity->v_DSService.value[k], pSecurity->v_DSService.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pSecurity->v_DSService, pSecurity->v_DSService.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 

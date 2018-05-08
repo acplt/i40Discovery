@@ -163,7 +163,34 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_addDSService(OV_IN
     /*    
     *   local variables
     */
-
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Registration pRegistration = NULL;
+	pRegistration = Ov_DynamicPtrCast(openAASDiscoveryServer_Registration, pinst);
+	if (!pRegistration){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		pobj = ov_path_getobjectpointer(DSService[i], 2);
+		if (Ov_CanCastTo(openAASDiscoveryServer_DSRegistrationService, pobj) == FALSE){
+			if (Ov_CanCastTo(openAASDiscoveryServer_DSUnRegistrationService, pobj) == FALSE){
+				return OV_ERR_BADOBJTYPE;
+			}
+		}
+		if (pRegistration->v_DSService.veclen == 0){
+			Ov_SetDynamicVectorLength(&pRegistration->v_DSService, pRegistration->v_DSService.veclen + 1, STRING);
+			ov_string_setvalue(&pRegistration->v_DSService.value[pRegistration->v_DSService.veclen - 1], DSService[i]);
+			continue;
+		}
+		for (OV_UINT j = 0; j < pRegistration->v_DSService.veclen; j++){
+			if (ov_string_compare(DSService[i], pRegistration->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pRegistration->v_DSService.veclen - 1){
+				Ov_SetDynamicVectorLength(&pRegistration->v_DSService, pRegistration->v_DSService.veclen + 1, STRING);
+				ov_string_setvalue(&pRegistration->v_DSService.value[pRegistration->v_DSService.veclen - 1], DSService[i]);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
@@ -171,7 +198,21 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_removeDSService(OV
     /*    
     *   local variables
     */
-
+	OV_INSTPTR_openAASDiscoveryServer_Registration pRegistration = NULL;
+	pRegistration = Ov_DynamicPtrCast(openAASDiscoveryServer_Registration, pinst);
+	if (!pRegistration){
+		return OV_ERR_BADOBJTYPE;
+	}
+	for (OV_UINT i = 0; i < veclen; i++){
+		for (OV_UINT j = 0; j < pRegistration->v_DSService.veclen; j++){
+			if (ov_string_compare(DSService[i], pRegistration->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+				for(OV_UINT k = j; k < pRegistration->v_DSService.veclen-1; k++){
+					ov_string_setvalue(&pRegistration->v_DSService.value[k], pRegistration->v_DSService.value[k+1]);
+				}
+				Ov_SetDynamicVectorLength(&pRegistration->v_DSService, pRegistration->v_DSService.veclen - 1, STRING);
+			}
+		}
+	}
     return OV_ERR_OK;
 }
 
