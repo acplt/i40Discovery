@@ -25,7 +25,7 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DSRegistrationService_configureService(OV_STRING *Wrapper) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DSRegistrationService_configureService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, OV_STRING *DBWrapper, OV_UINT veclenDBWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper) {
     /*    
     *   local variables
     */

@@ -36,7 +36,7 @@ typedef OV_RESULT DS_FNC_SEARCHDATA(void);
 // SERVICE
 typedef OV_RESULT DS_FNC_STARTSERVICE(OV_STRING JsonInput, OV_STRING *JsonOutput);
 typedef OV_RESULT DS_FNC_STOPSERVICE(void);
-typedef OV_RESULT DS_FNC_CONFIGURESERVICE(OV_STRING *Wrapper);
+typedef OV_RESULT DS_FNC_CONFIGURESERVICE(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, OV_STRING *DBWrapper, OV_UINT veclenDBWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper);
  
 // PART		
 typedef OV_RESULT DS_FNC_ADDDBWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclen);

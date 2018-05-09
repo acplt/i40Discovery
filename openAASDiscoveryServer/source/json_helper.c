@@ -13,7 +13,7 @@ jsmntok_t* findTag(const char* js, jsmntok_t *tokens, const char* tag) {
 	for(int i=0; i < sizeof(tokens)/sizeof(jsmntok_t); i++) {
 		char* tokStr = (char *)malloc(tokens[i].size);
 
-		strncpy(tokStr, js[tokens[i].start], (size_t)tokens[i].size);
+		strncpy(tokStr, &js[tokens[i].start], (size_t)tokens[i].size);
 
 		if(!scmp(tokStr, (char*)tag)) {
 			return &tokens[i];

@@ -211,6 +211,64 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_IN
     /*    
     *   local variables
     */
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Search pSearch = NULL;
+	pSearch = Ov_DynamicPtrCast(openAASDiscoveryServer_Search, pinst);
+	if (!pSearch){
+		return OV_ERR_BADOBJTYPE;
+	}
+	// Is Service registered?
+	OV_BOOL foundDSService = FALSE;
+	for (OV_UINT j = 0; j < pSearch->v_DSService.veclen; j++){
+		if (ov_string_compare(DSService, pSearch->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+			foundDSService = TRUE;
+			break;
+		}
+	}
+	if(foundDSService == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+
+	pobj = ov_path_getobjectpointer(DSService, 2);
+	if (!pobj){
+		return OV_ERR_NOACCESS;
+	}
+	OV_INSTPTR_openAASDiscoveryServer_DSSearchService pDSSearch = NULL;
+	pDSSearch = Ov_DynamicPtrCast(openAASDiscoveryServer_DSSearchService, pobj);
+	if (!pDSSearch){
+		return OV_ERR_BADOBJTYPE;
+	}
+	OV_BOOL foundDBWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenDBWrapper; i++){
+		for (OV_UINT j = 0; j < pSearch->v_DBWrapper.veclen; j++){
+			if (ov_string_compare(DBWrapper[i], pSearch->v_DBWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSearch->v_DBWrapper.veclen - 1){
+				foundDBWrapper = FALSE;
+			}
+		}
+	}
+	if (foundDBWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	Ov_SetDynamicVectorValue(&pDSSearch->v_DBWrapperUsed, DBWrapper, veclenDBWrapper, STRING);
+
+	OV_BOOL foundSEWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenSEWrapper; i++){
+		for (OV_UINT j = 0; j < pSearch->v_SEWrapper.veclen; j++){
+			if (ov_string_compare(SEWrapper[i], pSearch->v_SEWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSearch->v_SEWrapper.veclen - 1){
+				foundSEWrapper = FALSE;
+			}
+		}
+	}
+	if (foundSEWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	Ov_SetDynamicVectorValue(&pDSSearch->v_SEWrapperUsed, SEWrapper, veclenSEWrapper, STRING);
 
     return OV_ERR_OK;
 }
