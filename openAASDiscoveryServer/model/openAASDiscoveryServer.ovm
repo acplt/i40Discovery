@@ -78,7 +78,6 @@ LIBRARY openAASDiscoveryServer
             searchData  : C_FUNCTION <DS_FNC_SEARCHDATA>;
         END_OPERATIONS;
     END_CLASS;
-    
 	
 	CLASS DSService : CLASS ov/domain
         VARIABLES

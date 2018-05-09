@@ -220,6 +220,81 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_configureDSService
     /*    
     *   local variables
     */
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Registration pRegistration = NULL;
+	pRegistration = Ov_DynamicPtrCast(openAASDiscoveryServer_Registration, pinst);
+	if (!pRegistration){
+		return OV_ERR_BADOBJTYPE;
+	}
+	// Is Service registered?
+	OV_BOOL foundDSService = FALSE;
+	for (OV_UINT j = 0; j < pRegistration->v_DSService.veclen; j++){
+		if (ov_string_compare(DSService, pRegistration->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+			foundDSService = TRUE;
+			break;
+		}
+	}
+	if(foundDSService == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+
+	pobj = ov_path_getobjectpointer(DSService, 2);
+	if (!pobj){
+		return OV_ERR_NOACCESS;
+	}
+	OV_INSTPTR_openAASDiscoveryServer_DSRegistrationService pDSRegistration = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_DSUnRegistrationService pDSUnregistration = NULL;
+	pDSRegistration = Ov_DynamicPtrCast(openAASDiscoveryServer_DSRegistrationService, pobj);
+	pDSUnregistration = Ov_DynamicPtrCast(openAASDiscoveryServer_DSUnRegistrationService, pobj);
+	if (!pDSRegistration && !pDSUnregistration){
+		return OV_ERR_BADOBJTYPE;
+	}
+	OV_BOOL foundDBWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenDBWrapper; i++){
+		for (OV_UINT j = 0; j < pRegistration->v_DBWrapper.veclen; j++){
+			if (ov_string_compare(DBWrapper[i], pRegistration->v_DBWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pRegistration->v_DBWrapper.veclen - 1){
+				foundDBWrapper = FALSE;
+			}
+		}
+	}
+	if (foundDBWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	if (pDSRegistration)
+		Ov_SetDynamicVectorValue(&pDSRegistration->v_DBWrapperUsed, DBWrapper, veclenDBWrapper, STRING);
+	else
+		Ov_SetDynamicVectorValue(&pDSUnregistration->v_DBWrapperUsed, DBWrapper, veclenDBWrapper, STRING);
+
+	OV_BOOL foundSEWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenSEWrapper; i++){
+		for (OV_UINT j = 0; j < pRegistration->v_SEWrapper.veclen; j++){
+			if (ov_string_compare(SEWrapper[i], pRegistration->v_SEWrapper.value[j]) == OV_STRCMP_EQUAL){
+				if (pDSRegistration){
+					if (Ov_CanCastTo(openAASDiscoveryServer_DSRegistrationService, ov_path_getobjectpointer(SEWrapper[i], 2))){
+						break;
+					}
+				}else{
+					if (Ov_CanCastTo(openAASDiscoveryServer_DSUnRegistrationService, ov_path_getobjectpointer(SEWrapper[i], 2))){
+						break;
+					}
+				}
+				break;
+			}
+			if (j == pRegistration->v_SEWrapper.veclen - 1){
+				foundSEWrapper = FALSE;
+			}
+		}
+	}
+	if (foundSEWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	if (pDSRegistration)
+		Ov_SetDynamicVectorValue(&pDSRegistration->v_SEWrapperUsed, SEWrapper, veclenSEWrapper, STRING);
+	else
+		Ov_SetDynamicVectorValue(&pDSUnregistration->v_SEWrapperUsed, SEWrapper, veclenSEWrapper, STRING);
 
     return OV_ERR_OK;
 }

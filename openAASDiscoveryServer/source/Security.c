@@ -271,10 +271,85 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_removeDSService(OV_INS
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclenBDWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper, OV_STRING DSService) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_configureDSService(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *DBWrapper, OV_UINT veclenDBWrapper, OV_STRING *URMSWrapper, OV_UINT veclenURMSWrapper, OV_STRING *CAWrapper, OV_UINT veclenCAWrapper, OV_STRING *SEWrapper, OV_UINT veclenSEWrapper, OV_STRING DSService) {
     /*    
     *   local variables
     */
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_Security pSecurity = NULL;
+	pSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_Security, pinst);
+	if (!pSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	// Is Service registered?
+	OV_BOOL foundDSService = FALSE;
+	for (OV_UINT j = 0; j < pSecurity->v_DSService.veclen; j++){
+		if (ov_string_compare(DSService, pSecurity->v_DSService.value[j]) == OV_STRCMP_EQUAL){
+			foundDSService = TRUE;
+			break;
+		}
+	}
+	if(foundDSService == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+
+	pobj = ov_path_getobjectpointer(DSService, 2);
+	if (!pobj){
+		return OV_ERR_NOACCESS;
+	}
+	OV_INSTPTR_openAASDiscoveryServer_DSSecurityService pDSSecurity = NULL;
+	pDSSecurity = Ov_DynamicPtrCast(openAASDiscoveryServer_DSSecurityService, pobj);
+	if (!pDSSecurity){
+		return OV_ERR_BADOBJTYPE;
+	}
+	OV_BOOL foundDBWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenDBWrapper; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_DBWrapper.veclen; j++){
+			if (ov_string_compare(DBWrapper[i], pSecurity->v_DBWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_DBWrapper.veclen - 1){
+				foundDBWrapper = FALSE;
+			}
+		}
+	}
+	if (foundDBWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	Ov_SetDynamicVectorValue(&pDSSecurity->v_DBWrapperUsed, DBWrapper, veclenDBWrapper, STRING);
+
+	OV_BOOL foundCAWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenCAWrapper; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_CAWrapper.veclen; j++){
+			if (ov_string_compare(SEWrapper[i], pSecurity->v_CAWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_CAWrapper.veclen - 1){
+				foundCAWrapper = FALSE;
+			}
+		}
+	}
+	if (foundCAWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	Ov_SetDynamicVectorValue(&pDSSecurity->v_CAWrapperUsed, CAWrapper, veclenCAWrapper, STRING);
+
+	OV_BOOL foundURMSWrapper = TRUE;
+	for (OV_UINT i = 0; i < veclenURMSWrapper; i++){
+		for (OV_UINT j = 0; j < pSecurity->v_URMSWrapper.veclen; j++){
+			if (ov_string_compare(URMSWrapper[i], pSecurity->v_URMSWrapper.value[j]) == OV_STRCMP_EQUAL){
+				break;
+			}
+			if (j == pSecurity->v_URMSWrapper.veclen - 1){
+				foundURMSWrapper = FALSE;
+			}
+		}
+	}
+	if (foundURMSWrapper == FALSE){
+		return OV_ERR_BADSELECTOR;
+	}
+	Ov_SetDynamicVectorValue(&pDSSecurity->v_URMSWrapperUsed, URMSWrapper, veclenURMSWrapper, STRING);
+
 
     return OV_ERR_OK;
 }
