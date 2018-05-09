@@ -43,14 +43,20 @@ static int callback(void* data, int argc, char **argv, char **col_name) {
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
+	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
+	ov_logfile_info("%s", SQLITE3_pinst->v_Endpoint);
 	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &db);
-
 	if( rc != SQLITE_OK ) {
 		ov_logfile_info("failed to open db!");
 		sqlite3_close(db);
 		return OV_ERR_GENERIC;
 	}
-
+	// TEST
+	OV_STRING table = "register";
+	OV_STRING fields[] = {"ip", "cert"};
+	OV_STRING values[] = {"\"192.168.0.1\"", "\"blub\""};
+	Databases_SQLite3_insertData(table, fields, values);
+	// TEST
     return OV_ERR_OK;
 }
 
@@ -61,7 +67,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_disconnect(void) {
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_readData(void) {
+/*OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_readData(void) {
 	const char* data = "Callback funtion called";
 	char* err_msg;
 	rc = sqlite3_exec(db, "select * from register", callback, (void*)data, &err_msg);
@@ -72,20 +78,83 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_readData(void) {
 		return OV_ERR_GENERIC;
 	}
     return OV_ERR_OK;
-}
+}*/
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_writeData(void) {
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
+    // length of fields
+	int len = sizeof(fields)/2;
+	// build up INSERT query
+	char* query = "INSERT INTO ";
+	asprintf(&query, "%s%s ", query, table);
+	asprintf(&query, "%s%s", query, "(");
+	for(int i = 0; i < len; i++) {
+		if(i == len-1) {
+			asprintf(&query, "%s%s) ", query, fields[i]);
+		} else {
+			asprintf(&query, "%s%s, ", query, fields[i]);
+		}
+	}
+	asprintf(&query, "%s%s", query, "VALUES (");
+	for(int i = 0; i < len; i++) {
+		if(i == len-1) {
+			asprintf(&query, "%s%s); ", query, values[i]);
+		} else {
+			asprintf(&query, "%s%s, ", query, values[i]);
+		}
+	}
+	ov_logfile_info("%s", query);
+
 	sqlite3_stmt *stmt;
-	sqlite3_prepare_v2(db, "insert into register (ip, cert) values (?1, ?2)", -1,  &stmt, NULL);
-
-	sqlite3_bind_text(stmt, 1, SQLITE3_pinst->v_ip, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, SQLITE3_pinst->v_cert, -1, SQLITE_STATIC);
+	sqlite3_prepare_v2(db, query, -1,  &stmt, NULL);
 
 	rc = sqlite3_step(stmt);
 	if( rc != SQLITE_DONE ) {
-		ov_logfile_info("failed to write db!");
+		ov_logfile_info("error: failed to insert into %s", table);
 		return OV_ERR_GENERIC;
 	}
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* whereFields, OV_STRING* whereValues) {
+    // length of fields
+	int len = sizeof(fields)/2;
+	// build up INSERT query
+	char* query = "SELECT ";
+	asprintf(&query, "%s%s ", query, table);
+	asprintf(&query, "%s%s", query, "WHERE ");
+	for(int i = 0; i < len; i++) {
+		if(i == len-1) {
+			asprintf(&query, "%s%s = ", query, whereFields[i]);
+			asprintf(&query, "%s%s) ", query, whereValues[i]);
+		} else {
+			asprintf(&query, "%s%s = ", query, whereFields[i]);
+			asprintf(&query, "%s%s, ", query, whereValues[i]);
+		}
+	}
+	ov_logfile_info("%s", query);
+
+	sqlite3_stmt *stmt;
+	sqlite3_prepare_v2(db, query, -1,  &stmt, NULL);
+
+	rc = sqlite3_step(stmt);
+	if( rc != SQLITE_DONE ) {
+		ov_logfile_info("error: failed to insert into %s", table);
+		return OV_ERR_GENERIC;
+	}
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
+    /*
+    *   local variables
+    */
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_execQuery(const OV_STRING query) {
 
     return OV_ERR_OK;
 }
@@ -114,13 +183,13 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_io_set(
     const OV_BOOL  value
 ) {
 	pobj->v_io = value;
-
+/*
 	if(pobj->v_io) {
 		Databases_SQLite3_readData();
 	}
 	else {
 		Databases_SQLite3_writeData();
-	}
+	}*/
 
 	return OV_ERR_OK;
 }
@@ -135,14 +204,12 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_constructor(
     OV_RESULT    result;
 
     /* do what the base class does first */
-    result = openAASDiscoveryServer_Database_constructor(pobj);
+    result = openAASDiscoveryServer_DBWrapper_constructor(pobj);
     if(Ov_Fail(result))
          return result;
 
-    SQLITE3_pinst = pinst;
     /* do what */
-
-
+    SQLITE3_pinst = pinst;
     return OV_ERR_OK;
 }
 
