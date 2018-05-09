@@ -27,7 +27,7 @@
 #include "fb_database.h"
 #include "libov/ov_result.h"
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_ComponentManager_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_ComponentManagerDS_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -61,13 +61,13 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_ComponentManager_getaccess(
 	return ov_object_getaccess(pobj, pelem, pticket);
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_ComponentManager_constructor(
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_ComponentManagerDS_constructor(
 	OV_INSTPTR_ov_object 	pobj
 ) {
     /*    
     *   local variables
     */
-    OV_INSTPTR_openAASDiscoveryServer_ComponentManager pinst = Ov_StaticPtrCast(openAASDiscoveryServer_ComponentManager, pobj);
+    OV_INSTPTR_openAASDiscoveryServer_ComponentManagerDS pinst = Ov_StaticPtrCast(openAASDiscoveryServer_ComponentManagerDS, pobj);
     OV_RESULT    result;
 
     /* do what the base class does first */
@@ -94,7 +94,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_ComponentManager_constructor(
 }
 
 
-static OV_INSTPTR_MessageSys_Message getNextMessage(OV_INSTPTR_openAASDiscoveryServer_ComponentManager this) {
+static OV_INSTPTR_MessageSys_Message getNextMessage(OV_INSTPTR_openAASDiscoveryServer_ComponentManagerDS this) {
 	OV_INSTPTR_ov_object child = NULL;
 
 	//Check if we have a Message if(FiFo) else(Stack)
@@ -119,7 +119,7 @@ static OV_INSTPTR_MessageSys_Message getNextMessage(OV_INSTPTR_openAASDiscoveryS
 	return (OV_INSTPTR_MessageSys_Message) child;
 }
 
-OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_cleanupMessageBox(OV_INSTPTR_openAASDiscoveryServer_ComponentManager this) {
+OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerDS_cleanupMessageBox(OV_INSTPTR_openAASDiscoveryServer_ComponentManagerDS this) {
 	int nMessagesToDelete = 0;
 	int nMessagesDeleted = 0;
 	OV_INSTPTR_ov_object pChild = NULL;
@@ -161,18 +161,18 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_cleanupMessageBox(O
 
 
 
-OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_typemethod(
+OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerDS_typemethod(
 	OV_INSTPTR_fb_functionblock	pfb,
 	OV_TIME						*pltc
 ) {
     /*    
     *   local variables
     */
-	OV_INSTPTR_openAASDiscoveryServer_ComponentManager pinst = Ov_StaticPtrCast(openAASDiscoveryServer_ComponentManager, pfb);
+	OV_INSTPTR_openAASDiscoveryServer_ComponentManagerDS pinst = Ov_StaticPtrCast(openAASDiscoveryServer_ComponentManagerDS, pfb);
 	OV_INSTPTR_MessageSys_Message message = NULL;
 
 	// First clean message box, so only up-to-date messages are handled.
-	openAASDiscoveryServer_ComponentManager_cleanupMessageBox(pinst);
+	openAASDiscoveryServer_ComponentManagerDS_cleanupMessageBox(pinst);
 	// Get the next message, if any.
 	message = getNextMessage(pinst);
 	if (message == NULL) {
@@ -208,6 +208,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManager_typemethod(
 	Ov_HeapFree(messageContent);
 	// delete all used memory
 	Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+
 	return;
 }
 

@@ -241,7 +241,7 @@ LIBRARY openAASDiscoveryServer
         END_OPERATIONS;
     END_CLASS;
 	
-	CLASS ComponentManager : CLASS fb/functionblock 
+	CLASS ComponentManagerDS : CLASS fb/functionblock 
         IS_INSTANTIABLE;
         VARIABLES
             messageBoxSize : UINT FLAGS = "n" COMMENT="Determines the size of the messageBox, default size == 1";
@@ -255,7 +255,7 @@ LIBRARY openAASDiscoveryServer
             getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
             typemethod  : C_FUNCTION <FB_FNC_TYPEMETHOD>;
-            cleanupMessageBox : C_FUNCTION <DS_FNC_CLEANUPMESSAGEBOX>;
+            cleanupMessageBox : C_FUNCTION <DS_FNC_CLEANUPMESSAGEBOXDS>;
         END_OPERATIONS;
     END_CLASS;
 	
@@ -266,7 +266,7 @@ LIBRARY openAASDiscoveryServer
             threadDataHndl[] : INT FLAGS = "n";
 		END_VARIABLES;
 		PARTS 
-            ComponentManager : CLASS openAASDiscoveryServer/ComponentManager;
+            ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerDS;
             Security         : CLASS openAASDiscoveryServer/Security;
         	Registration     : CLASS openAASDiscoveryServer/Registration;
     		Search           : CLASS openAASDiscoveryServer/Search;
@@ -279,5 +279,63 @@ LIBRARY openAASDiscoveryServer
 			sendMessage      : C_FUNCTION <DS_FNC_SENDMESSAGE>;
 		END_OPERATIONS;		
 	END_CLASS;
+	
+	CLASS ComponentManagerTC : CLASS fb/functionblock 
+        IS_INSTANTIABLE;
+        VARIABLES
+            messageBoxSize : UINT FLAGS = "n" COMMENT="Determines the size of the messageBox, default size == 1";
+            messageBoxIsFiFo : BOOL FLAGS = "n" COMMENT = "Determines if messages are handled FiFo (First in First out) or as Stack. Default is FiFo.";
+        END_VARIABLES;
+        PARTS
+            INBOX  : CLASS MessageSys/inbox;
+            OUTBOX : CLASS MessageSys/inbox;  
+        END_PARTS;
+        OPERATIONS
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            typemethod  : C_FUNCTION <FB_FNC_TYPEMETHOD>;
+            cleanupMessageBox : C_FUNCTION <DS_FNC_CLEANUPMESSAGEBOXTC>;
+        END_OPERATIONS;
+    END_CLASS;
+	
+	CLASS TestClient : CLASS ov/object
+        IS_INSTANTIABLE;
+        VARIABLES
+        	// header details
+        	EndpointDS          : STRING FLAGS = "i" COMMENT = "Endpoint of Discovery Server, FORMAT IP:MANAGERNAME:PATH" INITIALVALUE = "";
+            EndpointTestClient  : STRING FLAGS = "i" COMMENT = "Endpoint of Component, FORMAT IP:MANAGERNAME:PATH" INITIALVALUE = "";
+        	ComponentID         : STRING FLAGS = "i" COMMENT = "ID of this component, FORMAT IP:MANAGERNAME:PATH" INITIALVALUE = "";
+        	
+        	// error details
+        	errorFlag           : BOOL FLAGS = "o" INITIALVALUE = FALSE;
+        	errorMessage        : STRING FLAGS = "o" INITIALVALUE = "";
+        	
+        	// security details
+            CertificateTC       : STRING FLAGS = "i" INITIALVALUE = "";            
+            SendSecurityMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            certificateDS       : STRING FLAGS = "o" INITIALVALUE = "";
+            securityKey         : STRING FLAGS = "o" INITIALVALUE = "";
+                        
+            // registration
+            ComponentContent    : STRING FLAGS = "i" COMMENT = "Content of Component in JSON" INITIALVALUE = "";
+            SendRegistrationMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            
+            // unregistration
+            SendUnregistrationMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            
+            // search
+            Tags              : STRING FLAGS = "i" COMMENT = "Tags to search for in JSON: FORMAT tag:value";
+            SendSearchMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;            
+
+            // 
+            messageCount      : UINT FLAGS = "o" INITIALVALUE = 0;
+        END_VARIABLES;
+        PARTS 
+            ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerTC;
+        END_PARTS; 
+        OPERATIONS
+            getaccess        : C_FUNCTION <OV_FNC_GETACCESS>;
+        END_OPERATIONS;     
+    END_CLASS;
 	
 END_LIBRARY;

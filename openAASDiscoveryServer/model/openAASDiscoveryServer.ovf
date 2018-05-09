@@ -9,7 +9,8 @@
 		OV_STRING varName
 	);
 */
-typedef void DS_FNC_CLEANUPMESSAGEBOX(OV_INSTPTR_openAASDiscoveryServer_ComponentManager this);
+typedef void DS_FNC_CLEANUPMESSAGEBOXTC(OV_INSTPTR_openAASDiscoveryServer_ComponentManagerTC this);
+typedef void DS_FNC_CLEANUPMESSAGEBOXDS(OV_INSTPTR_openAASDiscoveryServer_ComponentManagerDS this);
 	
 // DISCOVERYSERVER
 typedef OV_RESULT DS_FNC_GETMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage);

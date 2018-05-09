@@ -63,7 +63,7 @@ static void* thread_fcn(void*ptr){
 	responseData.endpointIntern = NULL;
 	responseData.messageID = NULL;
 
-	// TODO JSON Encoding => Search for MessageType, protocolType, endpoints, messageID
+	// TODO: JSON Encoding => Search for MessageType, protocolType, endpoints, messageID
 
 	switch(messageType){
 		case 1: // SecurityMessage
