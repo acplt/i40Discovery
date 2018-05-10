@@ -53,9 +53,9 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 	}
 	// TEST
 	OV_STRING table = "register";
-	OV_STRING fields[] = {"ip", "cert"};
-	OV_STRING values[] = {"\"192.168.0.1\"", "\"blub\""};
-	Databases_SQLite3_insertData(table, fields, values);
+	OV_STRING fields[] = {"ip"};
+	OV_STRING values[] = {"192.168.0.1"};
+	Databases_SQLite3_deleteData(table, fields, values);
 	// TEST
     return OV_ERR_OK;
 }
@@ -67,23 +67,11 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_disconnect(void) {
     return OV_ERR_OK;
 }
 
-/*OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_readData(void) {
-	const char* data = "Callback funtion called";
-	char* err_msg;
-	rc = sqlite3_exec(db, "select * from register", callback, (void*)data, &err_msg);
-
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		return OV_ERR_GENERIC;
-	}
-    return OV_ERR_OK;
-}*/
-
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
-    // length of fields
+    // TODO length of fields, 2 is bad!
 	int len = sizeof(fields)/2;
 	// build up INSERT query
+
 	char* query = "INSERT INTO ";
 	asprintf(&query, "%s%s ", query, table);
 	asprintf(&query, "%s%s", query, "(");
@@ -110,7 +98,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 	rc = sqlite3_step(stmt);
 	if( rc != SQLITE_DONE ) {
 		ov_logfile_info("error: failed to insert into %s", table);
-		return OV_ERR_GENERIC;
+		return OV_ERR_BADPARAM;
 	}
 
     return OV_ERR_OK;
@@ -118,20 +106,77 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* whereFields, OV_STRING* whereValues) {
     // length of fields
-	int len = sizeof(fields)/2;
-	// build up INSERT query
+	int lenFields, lenWhereFields;
+	lenFields = lenWhereFields = 0;
+
+	if(fields != NULL)
+		lenFields = sizeof(fields)/2;
+	if(whereFields != NULL)
+		lenWhereFields = sizeof(whereFields)/2;
+
+	// build up SELECT query
 	char* query = "SELECT ";
-	asprintf(&query, "%s%s ", query, table);
-	asprintf(&query, "%s%s", query, "WHERE ");
-	for(int i = 0; i < len; i++) {
-		if(i == len-1) {
-			asprintf(&query, "%s%s = ", query, whereFields[i]);
-			asprintf(&query, "%s%s) ", query, whereValues[i]);
+	for(int i = 0; i < lenFields; i++) {
+		if(i != lenFields-1) {
+			asprintf(&query, "%s %s, ", query, fields[i]);
 		} else {
-			asprintf(&query, "%s%s = ", query, whereFields[i]);
-			asprintf(&query, "%s%s, ", query, whereValues[i]);
+			asprintf(&query, "%s %s ", query, fields[i]);
 		}
 	}
+	if(!lenFields) asprintf(&query, "%s %s ", query, "*");
+	asprintf(&query, "%s%s", query, "FROM ");
+	asprintf(&query, "%s%s", query, table);
+	if(lenWhereFields) {
+		asprintf(&query, "%s%s", query, "WHERE ");
+		for(int i = 0; i < lenWhereFields; i++) {
+			if(i != lenWhereFields-1) {
+				asprintf(&query, " %s%s = ", query, whereFields[i]);
+				asprintf(&query, "%s%s, ", query, whereValues[i]);
+			} else {
+				asprintf(&query, " %s%s = ", query, whereFields[i]);
+				asprintf(&query, "%s%s ", query, whereValues[i]);
+			}
+		}
+	}
+	asprintf(&query, "%s%s", query, ";");
+
+	ov_logfile_info("%s", query);
+
+	char* err_msg;
+	rc = sqlite3_exec(db, query, callback, NULL, &err_msg);
+
+	if(rc != SQLITE_OK) {
+		ov_logfile_info("SQL Error: %s", err_msg);
+		sqlite3_free(err_msg);
+		return OV_ERR_BADPARAM;
+	}
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
+    // TODO length of fields, 2 is bad!
+	int len = 0;
+	if(fields != NULL) {
+		len = sizeof(fields)/2;
+	}
+	// build up INSERT query
+
+	char* query = "DELETE FROM ";
+	asprintf(&query, "%s%s ", query, table);
+	if(len) {
+		asprintf(&query, "%s%s ", query, "WHERE");
+		for(int i = 0; i < len; i++) {
+			if(i != len-1) {
+				asprintf(&query, "%s%s = ", query, fields[i]);
+				asprintf(&query, "%s%s, ", query, values[i]);
+			} else {
+				asprintf(&query, "%s%s = ", query, fields[i]);
+				asprintf(&query, "%s%s", query, values[i]);
+			}
+		}
+	}
+	asprintf(&query, "%s%s", query, ";");
+
 	ov_logfile_info("%s", query);
 
 	sqlite3_stmt *stmt;
@@ -140,16 +185,8 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 	rc = sqlite3_step(stmt);
 	if( rc != SQLITE_DONE ) {
 		ov_logfile_info("error: failed to insert into %s", table);
-		return OV_ERR_GENERIC;
+		return OV_ERR_BADPARAM;
 	}
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
-    /*
-    *   local variables
-    */
 
     return OV_ERR_OK;
 }

@@ -30,6 +30,15 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_StartConnect_set(
     const OV_BOOL  value
 ) {
     pobj->v_StartConnect = value;
+
+    if(pobj->v_StartConnect) {
+    	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pvtable;
+    	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pvtable, pobj);
+		pvtable->m_connect();
+    }
+
+    pobj->v_StartConnect = FALSE;
+
     return OV_ERR_OK;
 }
 
@@ -96,12 +105,17 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_disconnect(void){
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_insertData(void) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_insertData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_selectData(void){
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_selectData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* whereFields, OV_STRING* whereValues) {
+
+    return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_deleteData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
 
     return OV_ERR_OK;
 }

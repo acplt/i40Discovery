@@ -21,8 +21,9 @@ typedef OV_RESULT DS_FNC_CONNECT(void);
 typedef OV_RESULT DS_FNC_DISCONNECT(void);
 	
 // DBWRAPPER	
-typedef OV_RESULT DS_FNC_INSERTDATA(void); 
-typedef OV_RESULT DS_FNC_SELECTDATA(void);
+typedef OV_RESULT DS_FNC_INSERTDATA(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values); 
+typedef OV_RESULT DS_FNC_SELECTDATA(const OV_STRING table, const OV_STRING* fields, const OV_STRING* whereFields, OV_STRING* whereValues);
+typedef OV_RESULT DS_FNC_DELETEDATA(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values);
 	
 // URMSWrapper
 typedef OV_RESULT DS_FNC_CHECKUSERRIGHTS(void);
