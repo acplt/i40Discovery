@@ -28,7 +28,6 @@
 #include "libov/ov_logfile.h"
 #include "libov/ov_result.h"
 #include "libov/ov_path.h"
-#include "jsmn.h"
 
 #if OV_SYSTEM_NT
 	#include <windows.h>
@@ -47,28 +46,6 @@ typedef struct thread_data{
 	OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pDiscoveryServer;
 }thread_data;
 
-static OV_RESULT jsonParsing(OV_STRING js, request_data* request) {
-	int n;
-	jsmn_parser p;
-	jsmntok_t* token;
-
-	jsmn_init(&p);
-
-	n = jsmn_parse(&p, js, strlen(js), NULL, 0);
-
-	if(n<0)
-		return OV_ERR_BADINITPARAM;
-
-	token = malloc(n*sizeof(jsmntok_t));
-	if(!token)
-		return OV_ERR_GENERIC;
-
-	jsmn_init(&p);
-	jsmn_parse(&p, js, strlen(js), token, n);
-
-	return OV_ERR_OK;
-}
-
 /* thread function */
 static void* thread_fcn(void*ptr){
 	thread_data* pthreadData = ptr;
@@ -83,7 +60,7 @@ static void* thread_fcn(void*ptr){
 	OV_RESULT resultOV = 0;
 	request_data requestData;
 
-	jsonParsing(pthreadData->message, &requestData);
+	//jsonTokenize(pthreadData->message, token);
 
 	switch(messageType){
 		case 1: // SecurityMessage
@@ -147,9 +124,9 @@ static void* thread_fcn(void*ptr){
 
 	// freeMemory
 	ov_string_setvalue(&JsonOutput, NULL);
-	ov_string_setvalue(&requestData.endpointExtern, NULL);
-	ov_string_setvalue(&requestData.endpointIntern, NULL);
-	ov_string_setvalue(&requestData.messageID, NULL);
+	ov_string_setvalue(&requestData.header.endpointSender, NULL);
+	ov_string_setvalue(&requestData.header.endpointReceiver, NULL);
+	ov_string_setvalue(&requestData.header.messageID, NULL);
 	Ov_HeapFree(pthreadData);
 
 	pthread_exit(0);
@@ -227,13 +204,13 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 		return OV_ERR_GENERIC;
 	}
 
-	switch (requestData.protocolType){
+	switch (requestData.header.protocolType){
 		case 1: { // MessageSys
 			// Parse endpoint
 			OV_STRING *pListExtern = NULL;
 			OV_UINT len = 0;
 			// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
-			pListExtern = ov_string_split(requestData.endpointExtern, ":", &len);
+			pListExtern = ov_string_split(requestData.header.endpointSender, ":", &len);
 			if (len != 3){
 				ov_logfile_error("EndpointExtern is not of correct format");
 				ov_string_print(errorMessage, "EndpointExtern is not of correct format");
@@ -242,7 +219,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 
 			OV_STRING *pListIntern = NULL;
 			// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
-			pListIntern = ov_string_split(requestData.endpointIntern, ":", &len);
+			pListIntern = ov_string_split(requestData.header.endpointReceiver, ":", &len);
 			if (len != 3){
 				ov_logfile_error("EndpointIntern is not of correct format");
 				ov_string_print(errorMessage, "EndpointIntern is not of correct format");
@@ -251,7 +228,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 
 			// Create MessageObject in Outbox
 			ov_string_setvalue(&tmpString, "answerMessageTo_");
-			ov_string_append(&tmpString, requestData.messageID);
+			ov_string_append(&tmpString, requestData.header.messageID);
 			resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pinst->p_ComponentManager.p_OUTBOX, tmpString);
 			ov_string_setvalue(&tmpString, NULL);
 			if(Ov_Fail(resultOV)){
@@ -273,7 +250,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			ov_string_freelist(pListExtern);
 
 			// TODO: reference Msg
-			ov_string_setvalue(&panswerMessage->v_refMsgID, requestData.messageID);
+			ov_string_setvalue(&panswerMessage->v_refMsgID, requestData.header.messageID);
 
 			// Body
 			// XML Encoding

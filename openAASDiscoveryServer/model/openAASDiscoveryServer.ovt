@@ -1,14 +1,45 @@
 #ifndef openAASDiscoveryServer_OVT_INCLUDED
 #define openAASDiscoveryServer_OVT_INCLUDED
 
+#include "jsmn.h"
 /* 
 	Define your data types here. 
 */
-typedef struct request_data {
-    OV_UINT     protocolType;
-    OV_STRING   endpointExtern;
-    OV_STRING   endpointIntern;
+typedef struct json_data{
+	jsmntok_t* token;
+	OV_UINT     num_token;
+	OV_STRING  js;
+	OV_UINT    offset;
+} json_data;
+
+typedef struct request_header {
+	OV_STRING   endpointSender;
+    OV_STRING   endpointReceiver;
     OV_STRING   messageID;
+    OV_UINT     messageType;
+	OV_UINT     protocolType;
+	OV_STRING   componentID;    
+}request_header;
+
+typedef struct response_header {
+    OV_STRING   endpointSender;
+    OV_STRING   endpointReceiver;
+    OV_STRING   messageID;
+    OV_STRING   referToMessageID;
+    OV_UINT     messageType;
+  	OV_BOOL     errorFlag;
+    OV_STRING   errorMessage;    
+}response_header;
+
+
+typedef struct request_data {
+    request_header header;
+   	json_data   body;
 }request_data;
+
+typedef struct response_data {
+    response_header header;
+    json_data   body;
+}response_data;
 
 #endif
