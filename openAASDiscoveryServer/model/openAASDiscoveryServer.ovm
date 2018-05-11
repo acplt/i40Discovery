@@ -265,6 +265,7 @@ LIBRARY openAASDiscoveryServer
 		VARIABLES
 			/* handle thread variables */
             threadDataHndl[] : INT FLAGS = "n";
+            messageCount     : UINT FLAGS = "o" INITIALVALUE = 0;
 		END_VARIABLES;
 		PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerDS;

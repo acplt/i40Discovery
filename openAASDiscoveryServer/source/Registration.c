@@ -299,12 +299,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_configureDSService
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getRegistrationMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getRegistrationMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
 
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getUnregistrationMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getUnregistrationMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
 
     return OV_ERR_OK;
 }

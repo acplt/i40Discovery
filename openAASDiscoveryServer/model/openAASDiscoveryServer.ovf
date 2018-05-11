@@ -2,6 +2,7 @@
 #define openAASDiscoveryServer_OVF_INCLUDED
 
 #include "openAASDiscoveryServer.ovt"
+#include "json_helper.h"
 /* 
 	Declare your C functions here. 
 	Example:
@@ -14,7 +15,7 @@ typedef void DS_FNC_CLEANUPMESSAGEBOXDS(OV_INSTPTR_openAASDiscoveryServer_Compon
 	
 // DISCOVERYSERVER
 typedef OV_RESULT DS_FNC_GETMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_SENDMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage, const request_data requestData);
+typedef OV_RESULT DS_FNC_SENDMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage, const response_header responseHeader, OV_UINT protocolType);
 	
 
 // WRAPPER
@@ -54,9 +55,9 @@ typedef OV_RESULT DS_FNC_ADDCAWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pin
 typedef OV_RESULT DS_FNC_REMOVECAWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *CAWrapper, OV_UINT veclen);
 typedef OV_RESULT DS_FNC_ADDSEWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen);
 typedef OV_RESULT DS_FNC_REMOVESEWRAPPER(OV_INSTPTR_openAASDiscoveryServer_Part pinst, OV_STRING *SEWrapper, OV_UINT veclen);
-typedef OV_RESULT DS_FNC_GETSECURITYMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETUNREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
-typedef OV_RESULT DS_FNC_GETSEARCHMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const OV_STRING JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETSECURITYMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETUNREGISTRATIONMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage);
+typedef OV_RESULT DS_FNC_GETSEARCHMESSAGE(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage);
 
 #endif

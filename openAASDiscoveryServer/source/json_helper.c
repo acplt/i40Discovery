@@ -13,6 +13,71 @@ int jsoneq(const char *json, const jsmntok_t *tok, const char *s) {
 	return -1;
 }
 
+void json_data_init(json_data* jsonData){
+	jsonData->js = NULL;
+	jsonData->num_token = 0;
+	jsonData->offset = 0;
+	jsonData->token = NULL;
+	return;
+}
+
+void json_data_deleteMembers(json_data* jsonData){
+	ov_string_setvalue(&jsonData->js, NULL);
+	for (OV_UINT i = 0; i < jsonData->num_token; i++){
+		free(jsonData->token);
+		jsonData->token = NULL;
+	}
+	jsonData->num_token = 0;
+	jsonData->offset = 0;
+	return;
+}
+
+void request_data_init(request_data *requestData){
+	requestData->header.componentID = NULL;
+	requestData->header.endpointReceiver = NULL;
+	requestData->header.endpointSender = NULL;
+	requestData->header.messageID = NULL;
+	requestData->header.messageType = 0;
+	requestData->header.protocolType = 0;
+	json_data_init(&requestData->body);
+	return;
+}
+
+void request_data_deleteMembers(request_data *requestData){
+	ov_string_setvalue(&requestData->header.componentID, NULL);
+	ov_string_setvalue(&requestData->header.endpointReceiver, NULL);
+	ov_string_setvalue(&requestData->header.endpointSender, NULL);
+	ov_string_setvalue(&requestData->header.messageID, NULL);
+	requestData->header.messageType = 0;
+	requestData->header.protocolType = 0;
+	json_data_deleteMembers(&requestData->body);
+	return;
+}
+
+void response_data_init(response_data *responseData){
+	responseData->header.endpointReceiver = NULL;
+	responseData->header.endpointSender = NULL;
+	responseData->header.messageID = NULL;
+	responseData->header.referToMessageID = NULL;
+	responseData->header.errorMessage = NULL;
+	responseData->header.messageType = 0;
+	responseData->header.errorFlag = FALSE;
+	json_data_init(&responseData->body);
+	return;
+}
+
+void response_data_deleteMembers(response_data *responseData){
+	ov_string_setvalue(&responseData->header.referToMessageID, NULL);
+	ov_string_setvalue(&responseData->header.endpointReceiver, NULL);
+	ov_string_setvalue(&responseData->header.endpointSender, NULL);
+	ov_string_setvalue(&responseData->header.messageID, NULL);
+	ov_string_setvalue(&responseData->header.errorMessage, NULL);
+	responseData->header.messageType = 0;
+	responseData->header.errorFlag = FALSE;
+	json_data_deleteMembers(&responseData->body);
+	return;
+}
+
 OV_RESULT jsonTokenize(json_data* jsonData) {
 	jsmn_parser p;
 
@@ -33,8 +98,13 @@ OV_RESULT jsonTokenize(json_data* jsonData) {
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonRequestParse(request_data* requestData) {
+OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	json_data jsonData;
+	jsonData.js = message;
+	jsonData.num_token = 0;
+	jsonData.offset = 0;
+	jsonData.token = NULL;
+
 	if(!jsonTokenize(&jsonData)) {
 		return OV_ERR_BADPARAM;
 	}
@@ -69,9 +139,14 @@ OV_RESULT jsonRequestParse(request_data* requestData) {
 	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
 
 	requestData->body.offset 	= jsonData.token[tokenIndex.value[0]].start;
-	requestData->body.js 	 	= &jsonData.js[requestData->body.offset];
+	ov_string_setvalue(&requestData->body.js, &jsonData.js[requestData->body.offset]);
 	requestData->body.num_token = jsonData.token[tokenIndex.value[0]].size + 1; // number of children plus body
-	requestData->body.token		= &jsonData.token[jsonData.num_token - requestData->body.num_token];
+	memcpy(&requestData->body.token, &jsonData.token[jsonData.num_token - requestData->body.num_token], sizeof(jsmntok_t*)*requestData->body.num_token);
+
+
+	for (OV_UINT i = 0; i < jsonData.num_token; i++){
+		free(&jsonData.token[i]);
+	}
 
 	Ov_SetDynamicVectorLength(&tags, 0 , STRING);
 	Ov_SetDynamicVectorLength(&values, 0 , STRING);
@@ -80,8 +155,13 @@ OV_RESULT jsonRequestParse(request_data* requestData) {
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonResponseParse(response_data* responseData) {
+
+OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message) {
 	json_data jsonData;
+	jsonData.js = message;
+	jsonData.num_token = 0;
+	jsonData.offset = 0;
+	jsonData.token = NULL;
 	if(!jsonTokenize(&jsonData)) {
 		return OV_ERR_BADPARAM;
 	}
@@ -117,10 +197,13 @@ OV_RESULT jsonResponseParse(response_data* responseData) {
 	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
 
 	responseData->body.offset 	= jsonData.token[tokenIndex.value[0]].start;
-	responseData->body.js 	 	= &jsonData.js[responseData->body.offset];
+	ov_string_setvalue(&responseData->body.js, &jsonData.js[responseData->body.offset]);
 	responseData->body.num_token = jsonData.token[tokenIndex.value[0]].size + 1; // number of children plus body
-	responseData->body.token	= &jsonData.token[jsonData.num_token - responseData->body.num_token];
+	memcpy(&responseData->body.token, &jsonData.token[jsonData.num_token - responseData->body.num_token], sizeof(jsmntok_t*)*responseData->body.num_token);
 
+	for (OV_UINT i = 0; i < jsonData.num_token; i++){
+		free(&jsonData.token[i]);
+	}
 	Ov_SetDynamicVectorLength(&tags, 0 , STRING);
 	Ov_SetDynamicVectorLength(&values, 0 , STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0 , UINT);
