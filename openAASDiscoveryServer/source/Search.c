@@ -274,7 +274,35 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_configureDSService(OV_IN
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Search_getSearchMessage(OV_INSTPTR_openAASDiscoveryServer_Part pinst, const json_data body, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
-
+	OV_INSTPTR_ov_object pobj = NULL;
+	OV_INSTPTR_openAASDiscoveryServer_DSSearchService pService = NULL;
+	OV_STRING tmpJsonOutput = NULL;
+	*JsonOutput = NULL;
+	for (OV_UINT i = 0; i < pinst->v_UsedDSServicePaths.veclen; i++){
+		pobj = ov_path_getobjectpointer(pinst->v_UsedDSServicePaths.value[i], 2);
+		if (!pobj){
+			continue;
+		}
+		pService = Ov_DynamicPtrCast(openAASDiscoveryServer_DSSearchService, pobj);
+		if (!pService){
+			continue;
+		}
+		OV_VTBLPTR_openAASDiscoveryServer_DSService pvtable = NULL;
+		Ov_GetVTablePtr(openAASDiscoveryServer_DSService, pvtable, pService);
+		if (i == 0)
+			pvtable->m_executeService(body, JsonOutput);
+		else
+			pvtable->m_executeService(body, &tmpJsonOutput);
+	}
+	if (!*JsonOutput){
+		ov_string_setvalue(errorMessage, "Internal Error");
+		ov_string_setvalue(JsonOutput, "\"body\"{}");
+		return OV_ERR_GENERIC;
+	}
+	if (tmpJsonOutput){
+		ov_logfile_info("%s", tmpJsonOutput);
+		ov_string_setvalue(&tmpJsonOutput, NULL);
+	}
     return OV_ERR_OK;
 }
 

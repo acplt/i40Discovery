@@ -23,10 +23,8 @@ void json_data_init(json_data* jsonData){
 
 void json_data_deleteMembers(json_data* jsonData){
 	ov_string_setvalue(&jsonData->js, NULL);
-	for (OV_UINT i = 0; i < jsonData->num_token; i++){
-		free(jsonData->token);
-		jsonData->token = NULL;
-	}
+	free(jsonData->token);
+	jsonData->token = NULL;
 	jsonData->num_token = 0;
 	jsonData->offset = 0;
 	return;
@@ -105,15 +103,19 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	jsonData.offset = 0;
 	jsonData.token = NULL;
 
-	if(!jsonTokenize(&jsonData)) {
+	if(jsonTokenize(&jsonData) != OV_ERR_OK) {
 		return OV_ERR_BADPARAM;
 	}
 
 	// Parsing Header
 	OV_STRING_VEC tags;
-	Ov_SetDynamicVectorLength(&tags, 7, STRING);
+	tags.value = NULL;
+	tags.veclen = 0;
+	Ov_SetDynamicVectorLength(&tags, 6, STRING);
 	OV_STRING_VEC values;
-	Ov_SetDynamicVectorLength(&values, 7, STRING);
+	values.value = NULL;
+	values.veclen = 0;
+	Ov_SetDynamicVectorLength(&values, 6, STRING);
 
 	ov_string_setvalue(&tags.value[0], "endpointSender");
 	ov_string_setvalue(&tags.value[1], "endpointReceiver");
@@ -131,23 +133,30 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	requestData->header.protocolType = atoi(values.value[4]);
 	ov_string_setvalue(&requestData->header.componentID, values.value[5]);
 
-	Ov_SetDynamicVectorLength(&tags, 1, STRING);
-	ov_string_setvalue(&tags.value[0], "body");
+	Ov_SetDynamicVectorLength(&tags, 2, STRING);
+	ov_string_setvalue(&tags.value[0], "header");
+	ov_string_setvalue(&tags.value[1], "body");
 	OV_UINT_VEC tokenIndex;
-	Ov_SetDynamicVectorLength(&tokenIndex, 1, UINT);
+	tokenIndex.value = NULL;
+	tokenIndex.veclen = 0;
+	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
 
 	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
 
-	requestData->body.offset 	= jsonData.token[tokenIndex.value[0]].start;
-	ov_string_setvalue(&requestData->body.js, &jsonData.js[requestData->body.offset]);
-	requestData->body.num_token = jsonData.token[tokenIndex.value[0]].size + 1; // number of children plus body
-	memcpy(&requestData->body.token, &jsonData.token[jsonData.num_token - requestData->body.num_token], sizeof(jsmntok_t*)*requestData->body.num_token);
-
-
-	for (OV_UINT i = 0; i < jsonData.num_token; i++){
-		free(&jsonData.token[i]);
+	requestData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
+	OV_STRING tmpString = &jsonData.js[requestData->body.offset];
+	ov_string_setvalue(&requestData->body.js, tmpString);
+	if (tokenIndex.value[1] > tokenIndex.value[0])
+		requestData->body.num_token = jsonData.num_token - tokenIndex.value[1];
+	else
+		requestData->body.num_token = tokenIndex.value[0] - 1;
+	requestData->body.token = malloc(sizeof(jsmntok_t)*requestData->body.num_token);
+	for (OV_UINT i = 0; i < requestData->body.num_token; i++){
+		memcpy(&requestData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
 	}
 
+	free(jsonData.token);
+	jsonData.token = NULL;
 	Ov_SetDynamicVectorLength(&tags, 0 , STRING);
 	Ov_SetDynamicVectorLength(&values, 0 , STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0 , UINT);
@@ -162,13 +171,17 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	jsonData.num_token = 0;
 	jsonData.offset = 0;
 	jsonData.token = NULL;
-	if(!jsonTokenize(&jsonData)) {
+	if(jsonTokenize(&jsonData) != OV_ERR_OK) {
 		return OV_ERR_BADPARAM;
 	}
 
 	OV_STRING_VEC tags;
+	tags.value = NULL;
+	tags.veclen = 0;
 	Ov_SetDynamicVectorLength(&tags, 7, STRING);
 	OV_STRING_VEC values;
+	values.value = NULL;
+	values.veclen = 0;
 	Ov_SetDynamicVectorLength(&values, 7, STRING);
 
 	ov_string_setvalue(&tags.value[0], "endpointSender");
@@ -186,24 +199,35 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	ov_string_setvalue(&responseData->header.messageID, values.value[2]);
 	ov_string_setvalue(&responseData->header.referToMessageID, values.value[3]);
 	responseData->header.messageType = atoi(values.value[4]);
-	responseData->header.errorFlag = atoi(values.value[5]);
+	if (ov_string_compare(values.value[5], "true") == OV_STRCMP_EQUAL)
+		responseData->header.errorFlag = TRUE;
+	else
+		responseData->header.errorFlag = FALSE;
 	ov_string_setvalue(&responseData->header.errorMessage, values.value[6]);
 
-	Ov_SetDynamicVectorLength(&tags, 1, STRING);
-	ov_string_setvalue(&tags.value[0], "body");
+	Ov_SetDynamicVectorLength(&tags, 2, STRING);
+	ov_string_setvalue(&tags.value[0], "header");
+	ov_string_setvalue(&tags.value[1], "body");
 	OV_UINT_VEC tokenIndex;
-	Ov_SetDynamicVectorLength(&tokenIndex, 1, UINT);
+	tokenIndex.value = NULL;
+	tokenIndex.veclen = 0;
+	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
 
 	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
 
-	responseData->body.offset 	= jsonData.token[tokenIndex.value[0]].start;
-	ov_string_setvalue(&responseData->body.js, &jsonData.js[responseData->body.offset]);
-	responseData->body.num_token = jsonData.token[tokenIndex.value[0]].size + 1; // number of children plus body
-	memcpy(&responseData->body.token, &jsonData.token[jsonData.num_token - responseData->body.num_token], sizeof(jsmntok_t*)*responseData->body.num_token);
-
-	for (OV_UINT i = 0; i < jsonData.num_token; i++){
-		free(&jsonData.token[i]);
+	responseData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
+	OV_STRING tmpString = &jsonData.js[responseData->body.offset];
+	ov_string_setvalue(&responseData->body.js, tmpString);
+	if (tokenIndex.value[1] > tokenIndex.value[0])
+		responseData->body.num_token = jsonData.num_token - tokenIndex.value[1];
+	else
+		responseData->body.num_token = tokenIndex.value[0] - 1;
+	responseData->body.token = malloc(sizeof(jsmntok_t)*responseData->body.num_token);
+	for (OV_UINT i = 0; i < responseData->body.num_token; i++){
+		memcpy(&responseData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
 	}
+	free(jsonData.token);
+	jsonData.token = NULL;
 	Ov_SetDynamicVectorLength(&tags, 0 , STRING);
 	Ov_SetDynamicVectorLength(&values, 0 , STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0 , UINT);
@@ -227,7 +251,7 @@ OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData
 	for(int i = 0; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if(jsoneq(jsonData.js, &jsonData.token[i], tags.value[j])==0){
-				jsonGetValueByToken(jsonData.js, &jsonData.token[i], &values.value[j]);
+				jsonGetValueByToken(jsonData.js, &jsonData.token[i+1], &values.value[j]);
 				break;
 			}
 		}
@@ -257,7 +281,7 @@ OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str
 	int len = t->end-t->start;
 	int offset = 0;
 
-	char* pString = Ov_DbMalloc(len+1);
+	char* pString = Ov_HeapMalloc(len+1);
 	if(!pString)
 		return OV_ERR_DBOUTOFMEMORY;
 
@@ -301,7 +325,7 @@ OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str
 
 	ov_string_setvalue(str, pString);
 
-	Ov_DbFree(pString);
+	Ov_HeapFree(pString);
 
 	return OV_ERR_OK;
 }

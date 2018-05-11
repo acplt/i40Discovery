@@ -119,7 +119,7 @@ static void* thread_fcn(void*ptr){
 	if (resultOV){
 		ov_logfile_error("Error in part-function: %s", errorMessage);
 		responseHeader.errorFlag = TRUE;
-		responseHeader.errorMessage = errorMessage;
+		ov_string_setvalue(&responseHeader.errorMessage, errorMessage);
 	}else{
 		responseHeader.errorFlag = FALSE;
 		responseHeader.errorMessage = NULL;
@@ -128,7 +128,7 @@ static void* thread_fcn(void*ptr){
 	responseHeader.referToMessageID = requestData.header.messageID;
 	responseHeader.messageType = requestData.header.messageType + 1;
 	pthreadData->pDiscoveryServer->v_messageCount = pthreadData->pDiscoveryServer->v_messageCount + 1;
-	ov_string_print(&responseHeader.messageID, "&i", pthreadData->pDiscoveryServer->v_messageCount);
+	ov_string_print(&responseHeader.messageID, "%i", pthreadData->pDiscoveryServer->v_messageCount);
 
 	// Send Response
 	ov_string_setvalue(&errorMessage, NULL);
@@ -141,6 +141,7 @@ static void* thread_fcn(void*ptr){
 	// freeMemory
 	request_data_deleteMembers(&requestData);
 	ov_string_setvalue(&responseHeader.messageID, NULL);
+	ov_string_setvalue(&responseHeader.errorMessage, NULL);
 	ov_string_setvalue(&JsonOutput, NULL);
 	Ov_HeapFree(pthreadData);
 
@@ -190,6 +191,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_I
 	}
 	pthreadData->thread = 0;
 	pthreadData->pDiscoveryServer = pinst;
+	pthreadData->message = NULL;
 	ov_string_setvalue(&pthreadData->message, JsonInput);
 
 	OV_UINT threadResult = 0;
@@ -263,7 +265,16 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 
 			// generate JSON-Header
 			OV_STRING jsonHeader = NULL;
-			ov_string_print(&jsonHeader, "\"header\":{\"endpointSender\":\"%s\",\"endpointReceiver\":\"%s\",\"messageID\":\"%s\",\"referToMessageID\":\"%s\",\"messageType\":\"%i\",\"errorFlag\":\"%s\",\"errorMessage\":\"%s\"}", responseHeader.endpointSender, responseHeader.endpointReceiver, responseHeader.messageID, responseHeader.referToMessageID, responseHeader.messageType, responseHeader.errorFlag == TRUE ? "true" : "false", responseHeader.errorMessage);
+			OV_STRING errorFlag = NULL;
+			if (responseHeader.errorFlag == TRUE)
+				ov_string_setvalue(&errorFlag, "true");
+			else
+				ov_string_setvalue(&errorFlag, "false");
+			if (responseHeader.errorMessage)
+				ov_string_print(&jsonHeader, "\"header\":{\"endpointSender\":\"%s\",\"endpointReceiver\":\"%s\",\"messageID\":\"%s\",\"referToMessageID\":\"%s\",\"messageType\":\"%i\",\"errorFlag\":\"%s\",\"errorMessage\":\"%s\"}", responseHeader.endpointSender, responseHeader.endpointReceiver, responseHeader.messageID, responseHeader.referToMessageID, responseHeader.messageType, errorFlag, responseHeader.errorMessage);
+			else
+				ov_string_print(&jsonHeader, "\"header\":{\"endpointSender\":\"%s\",\"endpointReceiver\":\"%s\",\"messageID\":\"%s\",\"referToMessageID\":\"%s\",\"messageType\":\"%i\",\"errorFlag\":\"%s\",\"errorMessage\":\"\"}", responseHeader.endpointSender, responseHeader.endpointReceiver, responseHeader.messageID, responseHeader.referToMessageID, responseHeader.messageType, errorFlag);
+			ov_string_setvalue(&errorFlag, NULL);
 
 			// Body
 			// XML Encoding
@@ -322,7 +333,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_constructor(
     /*
     *   local variables
     */
-    //OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pobj);
+    OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst = Ov_StaticPtrCast(openAASDiscoveryServer_DiscoveryServer, pobj);
     OV_RESULT    result;
 
     /* do what the base class does first */
@@ -331,6 +342,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_constructor(
          return result;
 
     /* do what */
+    pinst->v_threadDataHndl.value = NULL;
+    pinst->v_threadDataHndl.veclen = 0;
 
 
     return OV_ERR_OK;

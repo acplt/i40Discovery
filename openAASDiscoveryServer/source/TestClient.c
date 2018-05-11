@@ -128,7 +128,6 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 			pobj->v_errorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		ov_string_setvalue(&pobj->v_securityKey, "testKey");
 		pobj->v_state = 2;
     }
     pobj->v_SendSecurityMessage = FALSE;
@@ -140,7 +139,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
     const OV_BOOL  value
 ) {
     pobj->v_SendRegistrationMessage = value;
-    if (pobj->v_SendRegistrationMessage == TRUE){
+    if (pobj->v_SendRegistrationMessage == TRUE && pobj->v_securityKey){
 		ov_string_setvalue(&pobj->v_errorMessage, NULL);
 		pobj->v_errorFlag = FALSE;
 		if (pobj->v_state != 1){
@@ -247,7 +246,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
     const OV_BOOL  value
 ) {
     pobj->v_SendUnregistrationMessage = value;
-    if (pobj->v_SendUnregistrationMessage == TRUE){
+    if (pobj->v_SendUnregistrationMessage == TRUE && pobj->v_securityKey){
    		ov_string_setvalue(&pobj->v_errorMessage, NULL);
    		pobj->v_errorFlag = FALSE;
 		if (pobj->v_state != 1){
@@ -354,7 +353,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
     const OV_BOOL  value
 ) {
     pobj->v_SendSearchMessage = value;
-    if (pobj->v_SendSearchMessage == TRUE){
+    if (pobj->v_SendSearchMessage == TRUE && pobj->v_securityKey){
 		ov_string_setvalue(&pobj->v_errorMessage, NULL);
 		pobj->v_errorFlag = FALSE;
 		if (pobj->v_state != 1){
@@ -487,6 +486,18 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_TestClient_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_prepairForNextMessage_set(
+    OV_INSTPTR_openAASDiscoveryServer_TestClient          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_prepairForNextMessage = value;
+    if (pobj->v_prepairForNextMessage == TRUE && pobj->v_state == 6){
+    	pobj->v_state = 1;
+    }
+    pobj->v_prepairForNextMessage = FALSE;
+    return OV_ERR_OK;
 }
 
 
