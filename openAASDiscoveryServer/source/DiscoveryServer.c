@@ -277,6 +277,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			ov_string_append(&answerBody, "</bdy>");
 			ov_string_setvalue(&panswerMessage->v_msgBody, answerBody);
 			ov_string_setvalue(&answerBody, NULL);
+			ov_string_setvalue(&jsonHeader, NULL);
 
 			// Message ready for sending
 			panswerMessage->v_msgStatus = MSGREADYFORSENDING;
