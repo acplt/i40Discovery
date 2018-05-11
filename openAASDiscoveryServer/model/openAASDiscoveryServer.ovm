@@ -299,7 +299,7 @@ LIBRARY openAASDiscoveryServer
         END_OPERATIONS;
     END_CLASS;
 	
-	CLASS TestClient : CLASS ov/object
+	CLASS TestClient : CLASS fb/functionblock 
         IS_INSTANTIABLE;
         VARIABLES
         	// header details
@@ -311,7 +311,7 @@ LIBRARY openAASDiscoveryServer
         	errorFlag           : BOOL FLAGS = "o" INITIALVALUE = FALSE;
         	errorMessage        : STRING FLAGS = "o" INITIALVALUE = "";
         	
-        	// security details
+        	// security details 
             CertificateTC       : STRING FLAGS = "i" INITIALVALUE = "";            
             SendSecurityMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
             certificateDS       : STRING FLAGS = "o" INITIALVALUE = "";
@@ -326,16 +326,20 @@ LIBRARY openAASDiscoveryServer
             
             // search
             Tags              : STRING FLAGS = "i" COMMENT = "Tags to search for in JSON: FORMAT tag:value";
-            SendSearchMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;            
+            SendSearchMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            AASFound          : STRING FLAGS = "o" COMMENT = "" INITIALVALUE = "";            
 
             // 
+            reset             : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
             messageCount      : UINT FLAGS = "o" INITIALVALUE = 0;
+            state             : UINT FLAGS = "o" COMMENT = "0:Initializing; 1:ReadyForSendingRequest; 2:WaitingForSecurityResponse; 3:WaitingForRegistrationResponse; 4:WaitingForUnregistrationResponse; 5:WaitingForSearchResponse; 6:ProcessedResponse; 7:Error" INITIALVALUE = 0;
         END_VARIABLES;
         PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerTC;
         END_PARTS; 
         OPERATIONS
             getaccess        : C_FUNCTION <OV_FNC_GETACCESS>;
+            typemethod  : C_FUNCTION <FB_FNC_TYPEMETHOD>;
         END_OPERATIONS;     
     END_CLASS;
 	

@@ -15,6 +15,7 @@ typedef void DS_FNC_CLEANUPMESSAGEBOXDS(OV_INSTPTR_openAASDiscoveryServer_Compon
 // DISCOVERYSERVER
 typedef OV_RESULT DS_FNC_GETMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage);
 typedef OV_RESULT DS_FNC_SENDMESSAGE(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage, const request_data requestData);
+	
 
 // WRAPPER
 typedef OV_RESULT DS_FNC_CONNECT(void);

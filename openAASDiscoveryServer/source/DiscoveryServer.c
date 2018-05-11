@@ -56,17 +56,21 @@ static void* thread_fcn(void*ptr){
 
 	OV_STRING JsonOutput = NULL;
 	OV_STRING errorMessage = NULL;
-	OV_UINT messageType = 0;
 	OV_RESULT resultOV = 0;
 	request_data requestData;
+	requestData.header.componentID = NULL;
+	requestData.header.endpointReceiver = NULL;
+	requestData.header.endpointSender = NULL;
+	requestData.header.messageID = NULL;
+	requestData.header.messageType = 0;
+	requestData.header.protocolType = 0;
 
-	//jsonTokenize(pthreadData->message, token);
+	// TODO: JSON Encoding => Search for MessageType, protocolType, endpoints, messageID
 
-	switch(messageType){
+	switch(requestData.header.messageType){
 		case 1: // SecurityMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Security, pvtableSecurity, &pthreadData->pDiscoveryServer->p_Security);
 			if (pvtableSecurity)
-				// statat p-message p body
 				resultOV = pvtableSecurity->m_getSecurityMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Security), pthreadData->message, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of Security-Object");
@@ -124,9 +128,6 @@ static void* thread_fcn(void*ptr){
 
 	// freeMemory
 	ov_string_setvalue(&JsonOutput, NULL);
-	ov_string_setvalue(&requestData.header.endpointSender, NULL);
-	ov_string_setvalue(&requestData.header.endpointReceiver, NULL);
-	ov_string_setvalue(&requestData.header.messageID, NULL);
 	Ov_HeapFree(pthreadData);
 
 	pthread_exit(0);
@@ -209,11 +210,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			// Parse endpoint
 			OV_STRING *pListExtern = NULL;
 			OV_UINT len = 0;
-			// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
+			// endpoint of old sender have to be of format IP:MANAGERNAME:PathToKSEndpoint
 			pListExtern = ov_string_split(requestData.header.endpointSender, ":", &len);
 			if (len != 3){
-				ov_logfile_error("EndpointExtern is not of correct format");
-				ov_string_print(errorMessage, "EndpointExtern is not of correct format");
+				ov_logfile_error("Endpoint of sender is not of correct format");
+				ov_string_print(errorMessage, "Endpoint of sender is not of correct format");
 				return OV_ERR_GENERIC;
 			}
 
@@ -221,8 +222,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
 			pListIntern = ov_string_split(requestData.header.endpointReceiver, ":", &len);
 			if (len != 3){
-				ov_logfile_error("EndpointIntern is not of correct format");
-				ov_string_print(errorMessage, "EndpointIntern is not of correct format");
+				ov_logfile_error("Endpoint of receiver is not of correct format");
+				ov_string_print(errorMessage, "Endpoint of receiver is not of correct format");
 				return OV_ERR_GENERIC;
 			}
 
@@ -249,7 +250,6 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			MessageSys_Message_receiverComponent_set(panswerMessage, pListExtern[2]);
 			ov_string_freelist(pListExtern);
 
-			// TODO: reference Msg
 			ov_string_setvalue(&panswerMessage->v_refMsgID, requestData.header.messageID);
 
 			// Body

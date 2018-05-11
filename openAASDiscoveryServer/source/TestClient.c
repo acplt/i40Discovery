@@ -35,6 +35,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
     if (pobj->v_SendSecurityMessage == TRUE){
     	ov_string_setvalue(&pobj->v_errorMessage, NULL);
 		pobj->v_errorFlag = FALSE;
+    	if (pobj->v_state != 1){
+        	ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
+    		pobj->v_errorFlag = TRUE;
+    		return OV_ERR_GENERIC;
+    	}
 
     	OV_STRING tmpString = NULL;
 		OV_INSTPTR_MessageSys_Message panswerMessage = NULL;
@@ -63,7 +68,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 
 		// Create MessageObject in Outbox
 		OV_RESULT resultOV = 0;
-		ov_string_print(&tmpString, "%i", pobj->v_messageCount + 1);
+		ov_string_print(&tmpString, "%i", (pobj->v_messageCount + 1));
 		resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pobj->p_ComponentManager.p_OUTBOX, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		if(Ov_Fail(resultOV)){
@@ -124,6 +129,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 			return OV_ERR_GENERIC;
 		}
 		ov_string_setvalue(&pobj->v_securityKey, "testKey");
+		pobj->v_state = 2;
     }
     pobj->v_SendSecurityMessage = FALSE;
     return OV_ERR_OK;
@@ -137,6 +143,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
     if (pobj->v_SendRegistrationMessage == TRUE){
 		ov_string_setvalue(&pobj->v_errorMessage, NULL);
 		pobj->v_errorFlag = FALSE;
+		if (pobj->v_state != 1){
+			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
+			pobj->v_errorFlag = TRUE;
+			return OV_ERR_GENERIC;
+		}
 
 		OV_STRING tmpString = NULL;
 		OV_INSTPTR_MessageSys_Message panswerMessage = NULL;
@@ -225,7 +236,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 			pobj->v_errorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-
+		pobj->v_state = 3;
 	}
 	pobj->v_SendRegistrationMessage = FALSE;
     return OV_ERR_OK;
@@ -239,6 +250,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
     if (pobj->v_SendUnregistrationMessage == TRUE){
    		ov_string_setvalue(&pobj->v_errorMessage, NULL);
    		pobj->v_errorFlag = FALSE;
+		if (pobj->v_state != 1){
+			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
+			pobj->v_errorFlag = TRUE;
+			return OV_ERR_GENERIC;
+		}
 
    		OV_STRING tmpString = NULL;
    		OV_INSTPTR_MessageSys_Message panswerMessage = NULL;
@@ -327,7 +343,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    			pobj->v_errorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
-
+   		pobj->v_state = 4;
    	}
    	pobj->v_SendUnregistrationMessage = FALSE;
     return OV_ERR_OK;
@@ -341,6 +357,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
     if (pobj->v_SendSearchMessage == TRUE){
 		ov_string_setvalue(&pobj->v_errorMessage, NULL);
 		pobj->v_errorFlag = FALSE;
+		if (pobj->v_state != 1){
+			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
+			pobj->v_errorFlag = TRUE;
+			return OV_ERR_GENERIC;
+		}
 
 		OV_STRING tmpString = NULL;
 		OV_INSTPTR_MessageSys_Message panswerMessage = NULL;
@@ -429,7 +450,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 			pobj->v_errorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-
+		pobj->v_state = 5;
 	}
 	pobj->v_SendSearchMessage = FALSE;
     return OV_ERR_OK;
@@ -466,5 +487,65 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_TestClient_getaccess(
 	}
 
 	return ov_object_getaccess(pobj, pelem, pticket);
+}
+
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_reset_set(
+    OV_INSTPTR_openAASDiscoveryServer_TestClient          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_reset = value;
+    if (pobj->v_reset == TRUE){
+    	pobj->v_state = 0;
+    }
+    pobj->v_reset = FALSE;
+    return OV_ERR_OK;
+}
+
+
+
+OV_DLLFNCEXPORT void openAASDiscoveryServer_TestClient_typemethod(
+	OV_INSTPTR_fb_functionblock	pfb,
+	OV_TIME						*pltc
+) {
+    /*
+    *   local variables
+    */
+    OV_INSTPTR_openAASDiscoveryServer_TestClient pinst = Ov_StaticPtrCast(openAASDiscoveryServer_TestClient, pfb);
+
+    switch (pinst->v_state){
+    	case 0: // Initializing
+    		ov_string_setvalue(&pinst->v_securityKey, NULL);
+    		pinst->v_errorFlag = FALSE;
+    		ov_string_setvalue(&pinst->v_errorMessage, NULL);
+    		ov_string_setvalue(&pinst->v_certificateDS, NULL);
+    		pinst->v_state = 1;
+		break;
+    	case 1: // ReadyForSendingRequest
+    		// DoNothing
+		break;
+    	case 2: // WaitingForSecurityResponse
+    		// DoNothing
+		break;
+    	case 3: // WaitingForRegistrationResponse
+			// DoNothing
+		break;
+    	case 4: // WaitingForUnregistrationResponse
+			// DoNothing
+		break;
+    	case 5: // WaitingForSearchResponse
+			// DoNothing
+		break;
+    	case 6: // ProcessedResponse
+    		// DoNothing
+		break;
+    	case 7: // Error
+    		// DoNothing
+		break;
+    	default:
+		break;
+    }
+
+    return;
 }
 

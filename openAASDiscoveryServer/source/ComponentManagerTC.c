@@ -179,6 +179,19 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 		// Nothing to do.
 		return;
 	}
+	OV_INSTPTR_openAASDiscoveryServer_TestClient pTC = NULL;
+	pTC = Ov_DynamicPtrCast(openAASDiscoveryServer_TestClient, pinst->v_pouterobject);
+	if (pTC->v_state != 2){
+		while(TRUE){
+			Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+			message = getNextMessage(pinst);
+			if (message == NULL) {
+				// Nothing to do.
+				return;
+			}
+
+		}
+	}
 
 	// Decoding the Message
 	OV_STRING messageContent = NULL;
@@ -199,12 +212,94 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 	memcpy(messageContent, (message->v_msgBody+5), messageLength-11);
 	messageContent[messageLength-11] = '\0';
 
+	response_data responseData;
 	// TODO: Parsing JSON-Response
+
+	switch(pTC->v_state){
+		case 2: // WaitingForSecurityResponse
+			if (responseData.header.messageType != 2){
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			if (responseData.header.errorFlag == TRUE){
+				pTC->v_errorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
+				pTC->v_state = 6;
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			OV_STRING certificateDS = NULL;
+			OV_STRING securityKey = NULL;
+			// find certificate and securityKey
+			ov_string_setvalue(&pTC->v_certificateDS, certificateDS);
+			ov_string_setvalue(&pTC->v_securityKey, securityKey);
+		break;
+		case 3: // WaitingForRegistrationResponse
+			if (responseData.header.messageType != 4){
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			if (responseData.header.errorFlag == TRUE){
+				pTC->v_errorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
+				pTC->v_state = 6;
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+		break;
+		case 4: // WaitingForUnregistrationResponse
+			if (responseData.header.messageType != 6){
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			if (responseData.header.errorFlag == TRUE){
+				pTC->v_errorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
+				pTC->v_state = 6;
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+		break;
+		case 5: // WaitingForSearchResponse
+			if (responseData.header.messageType != 8){
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			if (responseData.header.errorFlag == TRUE){
+				pTC->v_errorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
+				pTC->v_state = 6;
+				Ov_HeapFree(messageContent);
+				// delete all used memory
+				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+				return;
+			}
+			OV_STRING aas = NULL;
+			// find aas
+
+			ov_string_setvalue(&pTC->v_AASFound, aas);
+		break;
+	}
 
 
 	Ov_HeapFree(messageContent);
 	// delete all used memory
-	//Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+	Ov_DeleteObject((OV_INSTPTR_ov_object) message);
+	pTC->v_state = 6;
 
 	return;
 }
