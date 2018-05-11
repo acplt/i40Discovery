@@ -205,6 +205,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerDS_typemethod(
 	Ov_GetVTablePtr(openAASDiscoveryServer_DiscoveryServer, pVTable, Ov_DynamicPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject));
 	pVTable->m_getMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_DiscoveryServer, pinst->v_pouterobject), messageContent, &errorMessage);
 
+	//TODO: Handle Errormessage
+	if (errorMessage)
+		ov_string_setvalue(&errorMessage, NULL);
 	Ov_HeapFree(messageContent);
 	// delete all used memory
 	Ov_DeleteObject((OV_INSTPTR_ov_object) message);

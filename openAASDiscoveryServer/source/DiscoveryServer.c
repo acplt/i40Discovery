@@ -62,8 +62,6 @@ static void* thread_fcn(void*ptr){
 	request_data_init(&requestData);
 
 	resultOV = jsonRequestParse(&requestData, pthreadData->message);
-	ov_string_setvalue(&pthreadData->message, NULL);
-
 	switch(requestData.header.messageType){
 		case 1: // SecurityMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Security, pvtableSecurity, &pthreadData->pDiscoveryServer->p_Security);
@@ -72,21 +70,21 @@ static void* thread_fcn(void*ptr){
 			else
 				ov_logfile_error("Could not get VTable Pointer of Security-Object");
 		break;
-		case 2: // RegistrationMessage
+		case 3: // RegistrationMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
 			if (pvtableRegistration)
 				resultOV = pvtableRegistration->m_getRegistrationMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Registration), requestData.body, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of Registration-Object");
 		break;
-		case 3: // UnregistrationMessage
+		case 5: // UnregistrationMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Registration, pvtableRegistration, &pthreadData->pDiscoveryServer->p_Registration);
 			if (pvtableRegistration)
 				resultOV = pvtableRegistration->m_getUnregistrationMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Registration), requestData.body, &JsonOutput, &errorMessage);
 			else
 				ov_logfile_error("Could not get VTable Pointer of pvtableRegistration-Object");
 		break;
-		case 4: // SearchMessage
+		case 7: // SearchMessage
 			Ov_GetVTablePtr(openAASDiscoveryServer_Search, pvtableSearch, &pthreadData->pDiscoveryServer->p_Search);
 			if (pvtableSearch)
 				resultOV = pvtableSearch->m_getSearchMessage(Ov_DynamicPtrCast(openAASDiscoveryServer_Part, &pthreadData->pDiscoveryServer->p_Search), requestData.body, &JsonOutput, &errorMessage);
@@ -94,6 +92,10 @@ static void* thread_fcn(void*ptr){
 				ov_logfile_error("Could not get VTable Pointer of Search-Object");
 		break;
 		default:
+			ov_logfile_error("Unknown message type");
+			resultOV = 2;
+			ov_string_setvalue(&errorMessage, "MessageType not found");
+			ov_string_setvalue(&JsonOutput, "\"body\"{}");
 		break;
 	}
 
@@ -128,6 +130,7 @@ static void* thread_fcn(void*ptr){
 	responseHeader.referToMessageID = requestData.header.messageID;
 	responseHeader.messageType = requestData.header.messageType + 1;
 	pthreadData->pDiscoveryServer->v_messageCount = pthreadData->pDiscoveryServer->v_messageCount + 1;
+	responseHeader.messageID = NULL;
 	ov_string_print(&responseHeader.messageID, "%i", pthreadData->pDiscoveryServer->v_messageCount);
 
 	// Send Response
@@ -145,7 +148,7 @@ static void* thread_fcn(void*ptr){
 	ov_string_setvalue(&JsonOutput, NULL);
 	Ov_HeapFree(pthreadData);
 
-	pthread_exit(0);
+	//pthread_exit(0);
 	return 0;
 }
 
@@ -197,7 +200,9 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_I
 	OV_UINT threadResult = 0;
 	Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen + 1, INT);
 	pinst->v_threadDataHndl.value[pinst->v_threadDataHndl.veclen-1] = (OV_UINT) pthreadData;
-	threadResult = pthread_create(&pthreadData->thread, NULL, thread_fcn, (void*) pthreadData);
+	//threadResult = pthread_create(&pthreadData->thread, NULL, thread_fcn, (void*) pthreadData);
+	pthreadData->thread = 1;
+	thread_fcn((void*)pthreadData);
 
 	if (threadResult){
 		ov_logfile_error("Could not create a thread for getting Message. ErrorCode: %i", threadResult);

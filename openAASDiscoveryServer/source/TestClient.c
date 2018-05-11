@@ -309,7 +309,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		// XML Encoding
    		OV_STRING answerBody = NULL;
    		ov_string_setvalue(&answerBody, "<bdy>");
-   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"4\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey);
+   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"5\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey);
    		ov_string_append(&answerBody, tmpString);
    		ov_string_setvalue(&tmpString, NULL);
    		ov_string_append(&answerBody, "</bdy>");

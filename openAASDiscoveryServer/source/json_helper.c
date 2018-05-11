@@ -124,7 +124,8 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	ov_string_setvalue(&tags.value[4], "protocolType");
 	ov_string_setvalue(&tags.value[5], "componentID");
 
-	jsonGetValuesByTags(tags, jsonData, values);
+
+	jsonGetValuesByTags(tags, jsonData, &values);
 
 	ov_string_setvalue(&requestData->header.endpointSender, values.value[0]);
 	ov_string_setvalue(&requestData->header.endpointReceiver, values.value[1]);
@@ -141,7 +142,7 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	tokenIndex.veclen = 0;
 	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
 
-	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
+	jsonGetTokenIndexByTags(tags, jsonData, &tokenIndex);
 
 	requestData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
 	OV_STRING tmpString = &jsonData.js[requestData->body.offset];
@@ -157,6 +158,7 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 
 	free(jsonData.token);
 	jsonData.token = NULL;
+
 	Ov_SetDynamicVectorLength(&tags, 0 , STRING);
 	Ov_SetDynamicVectorLength(&values, 0 , STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0 , UINT);
@@ -192,7 +194,7 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	ov_string_setvalue(&tags.value[5], "errorFlag");
 	ov_string_setvalue(&tags.value[6], "errorMessage");
 
-	jsonGetValuesByTags(tags, jsonData, values);
+	jsonGetValuesByTags(tags, jsonData, &values);
 
 	ov_string_setvalue(&responseData->header.endpointSender, values.value[0]);
 	ov_string_setvalue(&responseData->header.endpointReceiver, values.value[1]);
@@ -213,7 +215,7 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	tokenIndex.veclen = 0;
 	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
 
-	jsonGetTokenIndexByTags(tags, jsonData, tokenIndex);
+	jsonGetTokenIndexByTags(tags, jsonData, &tokenIndex);
 
 	responseData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
 	OV_STRING tmpString = &jsonData.js[responseData->body.offset];
@@ -235,11 +237,11 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_UINT_VEC tokenIndex) {
+OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_UINT_VEC* tokenIndex) {
 	for(int i = 0; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if(jsoneq(jsonData.js, &jsonData.token[i], tags.value[j])==0){
-				tokenIndex.value[j] = i;
+				tokenIndex->value[j] = i;
 				break;
 			}
 		}
@@ -247,11 +249,11 @@ OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data json
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC values) {
+OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values) {
 	for(int i = 0; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if(jsoneq(jsonData.js, &jsonData.token[i], tags.value[j])==0){
-				jsonGetValueByToken(jsonData.js, &jsonData.token[i+1], &values.value[j]);
+				jsonGetValueByToken(jsonData.js, &jsonData.token[i+1], &values->value[j]);
 				break;
 			}
 		}
@@ -259,12 +261,12 @@ OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC values, OV_UINT_VEC tokenIndex) {
+OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex) {
 	for(int i = 0; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if(jsoneq(jsonData.js, &jsonData.token[i], tags.value[j])==0){
-				jsonGetValueByToken(jsonData.js, &jsonData.token[i], &values.value[j]);
-				tokenIndex.value[j] = i;
+				jsonGetValueByToken(jsonData.js, &jsonData.token[i], &values->value[j]);
+				tokenIndex->value[j] = i;
 				break;
 			}
 		}
