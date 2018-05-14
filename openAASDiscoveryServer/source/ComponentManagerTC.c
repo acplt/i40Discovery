@@ -27,40 +27,6 @@
 #include "fb_database.h"
 #include "libov/ov_result.h"
 
-OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_ComponentManagerTC_getaccess(
-	OV_INSTPTR_ov_object	pobj,
-	const OV_ELEMENT		*pelem,
-	const OV_TICKET			*pticket
-) {
-    /*    
-    *   local variables
-    */
-
-	switch(pelem->elemtype) {
-		case OV_ET_VARIABLE:
-			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
-				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
-					return OV_AC_NONE;
-				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
-						return OV_AC_READWRITE;
-					}
-				}
-			}
-		break;
-		default:
-		break;
-	}
-
-	return ov_object_getaccess(pobj, pelem, pticket);
-}
-
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_ComponentManagerTC_constructor(
 	OV_INSTPTR_ov_object 	pobj
 ) {

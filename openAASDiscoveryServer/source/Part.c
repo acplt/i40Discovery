@@ -60,6 +60,14 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDBWrapper_set(
     return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_DBWrapper_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_STRING*  value,
+    const OV_UINT veclen
+) {
+    return Ov_SetDynamicVectorValue(&pobj->v_DBWrapper,value,veclen,STRING);
+}
+
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_AddDSService_set(
     OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
     const OV_BOOL  value
@@ -94,6 +102,14 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_RemoveDSService_set(
     return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_DSService_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_STRING*  value,
+    const OV_UINT veclen
+) {
+    return Ov_SetDynamicVectorValue(&pobj->v_DSService,value,veclen,STRING);
+}
+
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_UseDSServices_set(
     OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
     const OV_BOOL  value
@@ -109,6 +125,14 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_UseDSServices_set(
 	}
 	pobj->v_UseDSServices = FALSE;
     return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_UsedDSServicePaths_set(
+    OV_INSTPTR_openAASDiscoveryServer_Part          pobj,
+    const OV_STRING*  value,
+    const OV_UINT veclen
+) {
+    return Ov_SetDynamicVectorValue(&pobj->v_UsedDSServicePaths,value,veclen,STRING);
 }
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Part_ConfigDSServices_set(
@@ -136,21 +160,21 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_Part_getaccess(
     /*    
     *   local variables
     */
+
 	switch(pelem->elemtype) {
 		case OV_ET_VARIABLE:
 			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
 				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
 					return OV_AC_NONE;
 				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
+					if(pelem->elemunion.pvar->v_flags == 256) { // InputFlag is set
 						return OV_AC_READWRITE;
 					}
+					/* Nicht FB? */
+					if(pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR) {
+						return OV_AC_READWRITE;
+					}
+					return OV_AC_READ;
 				}
 			}
 		break;

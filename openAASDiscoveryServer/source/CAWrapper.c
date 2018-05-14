@@ -47,15 +47,14 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_CAWrapper_getaccess(
 				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
 					return OV_AC_NONE;
 				else{
-					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
-						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
-							return OV_AC_READWRITE;
-						} else {
-							return OV_AC_READ;
-						}
-					} else {
+					if(pelem->elemunion.pvar->v_flags == 256) { // InputFlag is set
 						return OV_AC_READWRITE;
 					}
+					/* Nicht FB? */
+					if(pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR) {
+						return OV_AC_READWRITE;
+					}
+					return OV_AC_READ;
 				}
 			}
 		break;

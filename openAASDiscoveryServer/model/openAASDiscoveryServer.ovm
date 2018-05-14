@@ -82,7 +82,7 @@ LIBRARY openAASDiscoveryServer
 	
 	CLASS DSService : CLASS ov/domain
         VARIABLES
-            DBWrapperUsed[] : STRING FLAGS = "o" COMMENT="spath to Database-Object";
+            DBWrapperUsed[] : STRING FLAGS = "n" COMMENT="paths to Database-Object";
         END_VARIABLES;
         OPERATIONS
         	executeService   : C_FUNCTION <DS_FNC_EXECUTESERVICE> IS_ABSTRACT;
@@ -91,8 +91,8 @@ LIBRARY openAASDiscoveryServer
     
     CLASS DSSecurityService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            URMSWrapperUsed[]  : STRING FLAGS = "o" COMMENT="paths to UserRightManagementeSystemWrapper-Object";
-            CAWrapperUsed[]    : STRING FLAGS = "o" COMMENT="paths to CertificateAuthorityWrapper-Object";
+            URMSWrapperUsed[]  : STRING FLAGS = "n" COMMENT="paths to UserRightManagementeSystemWrapper-Object";
+            CAWrapperUsed[]    : STRING FLAGS = "n" COMMENT="paths to CertificateAuthorityWrapper-Object";
         END_VARIABLES;
         OPERATIONS
         END_OPERATIONS;
@@ -100,7 +100,7 @@ LIBRARY openAASDiscoveryServer
      
     CLASS DSRegistrationService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+            SEWrapperUsed[] : STRING FLAGS = "n" COMMENT="paths to SearchEngingeWrapper-Object";
         END_VARIABLES;
         OPERATIONS
         END_OPERATIONS;
@@ -108,7 +108,7 @@ LIBRARY openAASDiscoveryServer
     
     CLASS DSUnRegistrationService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+            SEWrapperUsed[] : STRING FLAGS = "n" COMMENT="paths to SearchEngingeWrapper-Object";
         END_VARIABLES;
         OPERATIONS
         END_OPERATIONS;
@@ -116,7 +116,7 @@ LIBRARY openAASDiscoveryServer
     
     CLASS DSSearchService : CLASS openAASDiscoveryServer/DSService
         VARIABLES
-            SEWrapperUsed[] : STRING FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+            SEWrapperUsed[] : STRING FLAGS = "n" COMMENT="paths to SearchEngingeWrapper-Object";
         END_VARIABLES;
         OPERATIONS
         END_OPERATIONS;
@@ -127,16 +127,16 @@ LIBRARY openAASDiscoveryServer
             DBWrapperPath               : STRING    FLAGS = "i" COMMENT="path to DatabaseWrapper-Object to add/remove";
             AddDBWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DatabaseWrapper";
             RemoveDBWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DatabaseWrapper";
-            DBWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to DatabaseWrapper-Object";
+            DBWrapper[]                 : STRING    FLAGS = "n" COMMENT="paths to DatabaseWrapper-Object";
             
             DSServicePath               : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object to add/remove";
             AddDSService                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add DSxxxService";
             RemoveDSService             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove DSxxxService";
-            DSService[]                 : STRING    FLAGS = "o" COMMENT="paths to DSxxxService-Object";
+            DSService[]                 : STRING    FLAGS = "n" COMMENT="paths to DSxxxService-Object";
             
             DSServicePaths[]            : STRING    FLAGS = "i" COMMENT="paths to DSxxxService-Object which the part have to use";
             UseDSServices               : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="use the listed DSServices";
-            UsedDSServicePaths[]        : STRING    FLAGS = "o" COMMENT="paths to DSxxxService-Object which the part actual use";
+            UsedDSServicePaths[]        : STRING    FLAGS = "n" COMMENT="paths to DSxxxService-Object which the part actual use";
             
             DBWrapperPaths[]            : STRING    FLAGS = "i" COMMENT="paths to DatabaseWrapper-Object which have to be used by service";
             DSServicePathForConfig      : STRING    FLAGS = "i" COMMENT="path to DSxxxService-Object which have to use the DatabaseWrapper-Objects";
@@ -160,12 +160,12 @@ LIBRARY openAASDiscoveryServer
     		URMSWrapperPath             : STRING    FLAGS = "i" COMMENT="path to UserRightManagementSystemWrapper-Object to add/remove";
             AddURMSWrapper              : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add UserRightManagementSystemWrapper";
             RemoveURMSWrapper           : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove UserRightManagementSystemWrapper";
-            URMSWrapper[]               : STRING    FLAGS = "o" COMMENT="paths to UserRightManagementSystemWrapper-Object";
+            URMSWrapper[]               : STRING    FLAGS = "n" COMMENT="paths to UserRightManagementSystemWrapper-Object";
             
             CAWrapperPath               : STRING    FLAGS = "i" COMMENT="path to CertifcateAuthorityWrapper-Object to add/remove";
             AddCAWrapper                : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add CertifcateAuthorityWrapper";
             RemoveCAWrapper             : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove CertifcateAuthorityWrapper";
-            CAWrapper[]                 : STRING    FLAGS = "o" COMMENT="paths to CertifcateAuthorityWrapper-Object";
+            CAWrapper[]                 : STRING    FLAGS = "n" COMMENT="paths to CertifcateAuthorityWrapper-Object";
             
             URMSWrapperPaths[]          : STRING    FLAGS = "i" COMMENT="paths to UserRightManagementSystemWrapper-Object which have to be used by service";
             CAWrapperPaths[]            : STRING    FLAGS = "i" COMMENT="paths to CertifcateAuthorityWrapper-Object which have to be used by service";
@@ -193,7 +193,7 @@ LIBRARY openAASDiscoveryServer
             SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
             AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
             RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
-            SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+            SEWrapper[]                     : STRING    FLAGS = "n" COMMENT="paths to SearchEngingeWrapper-Object";
                         
             SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";
             
@@ -223,7 +223,7 @@ LIBRARY openAASDiscoveryServer
             SEWrapperPath                   : STRING    FLAGS = "i" COMMENT="path to SearchEngingeWrapper-Object to add/remove";
             AddSEWrapper                    : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Add SearchEngingeWrapper";
             RemoveSEWrapper                 : BOOL      HAS_SET_ACCESSOR FLAGS = "i" COMMENT="Remove SearchEngingeWrapper";
-            SEWrapper[]                     : STRING    FLAGS = "o" COMMENT="paths to SearchEngingeWrapper-Object";
+            SEWrapper[]                     : STRING    FLAGS = "n" COMMENT="paths to SearchEngingeWrapper-Object";
                         
             SEWrapperPaths[]                : STRING    FLAGS = "i" COMMENT="paths to SearchEngingeWrapper-Object which have to be used by service";
             
@@ -245,15 +245,14 @@ LIBRARY openAASDiscoveryServer
 	CLASS ComponentManagerDS : CLASS fb/functionblock 
         IS_INSTANTIABLE;
         VARIABLES
-            messageBoxSize : UINT FLAGS = "n" COMMENT="Determines the size of the messageBox, default size == 1";
-            messageBoxIsFiFo : BOOL FLAGS = "n" COMMENT = "Determines if messages are handled FiFo (First in First out) or as Stack. Default is FiFo.";
+            messageBoxSize : UINT FLAGS = "i" COMMENT="Determines the size of the messageBox, default size == 1";
+            messageBoxIsFiFo : BOOL FLAGS = "i" COMMENT = "Determines if messages are handled FiFo (First in First out) or as Stack. Default is FiFo.";
         END_VARIABLES;
         PARTS
             INBOX  : CLASS MessageSys/inbox;
             OUTBOX : CLASS MessageSys/inbox;  
         END_PARTS;
         OPERATIONS
-            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
             typemethod  : C_FUNCTION <FB_FNC_TYPEMETHOD>;
             cleanupMessageBox : C_FUNCTION <DS_FNC_CLEANUPMESSAGEBOXDS>;
@@ -265,7 +264,7 @@ LIBRARY openAASDiscoveryServer
 		VARIABLES
 			/* handle thread variables */
             threadDataHndl[] : INT FLAGS = "n";
-            messageCount     : UINT FLAGS = "o" INITIALVALUE = 0;
+            messageCount     : UINT FLAGS = "n" INITIALVALUE = 0;
 		END_VARIABLES;
 		PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerDS;
@@ -285,15 +284,14 @@ LIBRARY openAASDiscoveryServer
 	CLASS ComponentManagerTC : CLASS fb/functionblock 
         IS_INSTANTIABLE;
         VARIABLES
-            messageBoxSize : UINT FLAGS = "n" COMMENT="Determines the size of the messageBox, default size == 1";
-            messageBoxIsFiFo : BOOL FLAGS = "n" COMMENT = "Determines if messages are handled FiFo (First in First out) or as Stack. Default is FiFo.";
+            messageBoxSize : UINT FLAGS = "i" COMMENT="Determines the size of the messageBox, default size == 1";
+            messageBoxIsFiFo : BOOL FLAGS = "i" COMMENT = "Determines if messages are handled FiFo (First in First out) or as Stack. Default is FiFo.";
         END_VARIABLES;
         PARTS
             INBOX  : CLASS MessageSys/inbox;
             OUTBOX : CLASS MessageSys/inbox;  
         END_PARTS;
         OPERATIONS
-            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
             typemethod  : C_FUNCTION <FB_FNC_TYPEMETHOD>;
             cleanupMessageBox : C_FUNCTION <DS_FNC_CLEANUPMESSAGEBOXTC>;
@@ -333,7 +331,7 @@ LIBRARY openAASDiscoveryServer
             // 
             reset             : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
             prepairForNextMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
-            messageCount      : UINT FLAGS = "o" INITIALVALUE = 0;
+            messageCount      : UINT FLAGS = "n" INITIALVALUE = 0;
             state             : UINT FLAGS = "o" COMMENT = "0:Initializing; 1:ReadyForSendingRequest; 2:WaitingForSecurityResponse; 3:WaitingForRegistrationResponse; 4:WaitingForUnregistrationResponse; 5:WaitingForSearchResponse; 6:ProcessedResponse; 7:Error" INITIALVALUE = 0;
         END_VARIABLES;
         PARTS 
