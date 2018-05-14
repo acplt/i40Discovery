@@ -46,7 +46,7 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
 	ov_string_setvalue(&tags.value[0], "componentID");
 	ov_string_setvalue(&tags.value[1], "certificate");
 
-	jsonGetValuesByTags(tags, JsonInput, &values);
+	jsonGetValuesByTags(tags, JsonInput, 1, &values);
 
 	// find certificate in DB
 

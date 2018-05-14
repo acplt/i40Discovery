@@ -212,7 +212,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 			ov_string_setvalue(&tags.value[0], "certificate");
 			ov_string_setvalue(&tags.value[1], "securityKey");
 
-			jsonGetValuesByTags(tags, responseData.body, &values);
+			jsonGetValuesByTags(tags, responseData.body, 1, &values);
 			ov_string_setvalue(&pTC->v_certificateDS, values.value[0]);
 			ov_string_setvalue(&pTC->v_securityKey, values.value[1]);
 		break;

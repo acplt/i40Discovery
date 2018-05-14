@@ -25,59 +25,64 @@
 #include "libov/ov_macros.h"
 #include "json_helper.h"
 
+struct endpoint{
+	OV_STRING protocolType;
+	OV_STRING endpoint;
+}endpoint;
+
 OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
     /*    
     *   local variables
     */
-	OV_STRING certificate = NULL;
-	OV_STRING securityKey = NULL;
-
 	// Parsing Body
 
 	// Find endpoints
 	OV_STRING_VEC tags;
-	Ov_SetDynamicVectorLength(&tags, 1, STRING);
-	ov_string_setvalue(&tags.value[0], "endpoints");
-	OV_UINT_VEC tokenIndex;
-	tokenIndex.value = NULL;
-	tokenIndex.veclen = 0;
-	Ov_SetDynamicVectorLength(&tokenIndex, 1, UINT);
-
-	jsonGetTokenIndexByTags(tags, JsonInput, &tokenIndex);
-
-	OV_UINT size = JsonInput.token[tokenIndex.value[1]].size;
-
-
 	tags.value = NULL;
 	tags.veclen = 0;
 	Ov_SetDynamicVectorLength(&tags, 3, STRING);
-	OV_STRING_VEC values;
-	values.value = NULL;
-	values.veclen = 0;
-	Ov_SetDynamicVectorLength(&values, 3, STRING);
-
 	ov_string_setvalue(&tags.value[0], "componentID");
 	ov_string_setvalue(&tags.value[1], "securityKey");
-	ov_string_setvalue(&tags.value[2], "securityKey");
+	ov_string_setvalue(&tags.value[2], "endpoints");
+	OV_UINT_VEC tokenIndex;
+	tokenIndex.value = NULL;
+	tokenIndex.veclen = 0;
+	Ov_SetDynamicVectorLength(&tokenIndex, 3, UINT);
 
-	jsonGetValuesByTags(tags, JsonInput, &values);
+	jsonGetTokenIndexByTags(tags, JsonInput, 1, &tokenIndex);
 
-	// find certificate in DB
+	OV_STRING componentID = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[0]+1], &componentID);
+	OV_STRING securityKey = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
 
-		// certificate not in DB => check certificate extern => write certificate in DB with component-ID
+	// check SecurityKey in Database
 
 
-	// generate securityKey => write securityKey in DB
+	// get endpoints
+	OV_UINT arraySize = JsonInput.token[tokenIndex.value[2]+1].size;
+	struct endpoint *endpoints = malloc(sizeof(endpoint)*arraySize);
+	for (OV_UINT i = 0; i < arraySize; i++){
+		endpoints[i].protocolType = NULL;
+		// value + 2 start of objects + i*5 next object + 2/4 values of protocolType and endpoint
+		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+2], &endpoints[i].protocolType);
+		endpoints[i].endpoint = NULL;
+		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &endpoints[i].endpoint);
+	}
 
-	// get certificate of DS from DB
+	// add endpoints to Database
 
-	ov_string_setvalue(&certificate, "certificate of DS");
-	ov_string_setvalue(&securityKey, "securityKey123");
-	ov_string_print(JsonOutput, "\"body\":{\"certificate\":\"%s\", \"securityKey\":\"%s\"}", certificate, securityKey);
-	ov_string_setvalue(&certificate, NULL);
-	ov_string_setvalue(&securityKey, NULL);
+
+	ov_string_print(JsonOutput, "\"body\":{}");
 	Ov_SetDynamicVectorLength(&tags, 0, STRING);
-	Ov_SetDynamicVectorLength(&values, 0, STRING);
+	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
+	ov_string_setvalue(&componentID, NULL);
+	ov_string_setvalue(&securityKey, NULL);
+	for (OV_UINT i = 0; i < arraySize; i++){
+		ov_string_setvalue(&endpoints[i].protocolType, NULL);
+		ov_string_setvalue(&endpoints[i].endpoint, NULL);
+	}
+	free(endpoints);
     return OV_ERR_OK;
 }
 
