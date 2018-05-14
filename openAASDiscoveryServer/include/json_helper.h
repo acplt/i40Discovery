@@ -17,7 +17,6 @@ typedef struct request_header {
     OV_STRING   messageID;
     OV_UINT     messageType;
     OV_UINT     protocolType;
-    OV_STRING   componentID;
 }request_header;
 
 typedef struct response_header {

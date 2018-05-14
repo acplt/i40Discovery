@@ -95,7 +95,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"1\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"certificate\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_CertificateTC);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"1\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"certificate\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_CertificateTC);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");
@@ -202,7 +202,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"3\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"securityKey\":\"%s\", %s}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_ComponentContent);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"3\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", %s}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_ComponentContent);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");
@@ -309,7 +309,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		// XML Encoding
    		OV_STRING answerBody = NULL;
    		ov_string_setvalue(&answerBody, "<bdy>");
-   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"5\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey);
+   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"5\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey);
    		ov_string_append(&answerBody, tmpString);
    		ov_string_setvalue(&tmpString, NULL);
    		ov_string_append(&answerBody, "</bdy>");
@@ -416,7 +416,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"7\", \"protocolType\":\"1\", \"componentID\":\"%s\"},\"body\":{\"securityKey\":\"%s\", \"tags\":[%s]}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_Tags);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"7\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", \"tags\":[%s]}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_Tags);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");

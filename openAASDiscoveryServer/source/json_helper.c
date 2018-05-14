@@ -31,7 +31,6 @@ void json_data_deleteMembers(json_data* jsonData){
 }
 
 void request_data_init(request_data *requestData){
-	requestData->header.componentID = NULL;
 	requestData->header.endpointReceiver = NULL;
 	requestData->header.endpointSender = NULL;
 	requestData->header.messageID = NULL;
@@ -42,7 +41,6 @@ void request_data_init(request_data *requestData){
 }
 
 void request_data_deleteMembers(request_data *requestData){
-	ov_string_setvalue(&requestData->header.componentID, NULL);
 	ov_string_setvalue(&requestData->header.endpointReceiver, NULL);
 	ov_string_setvalue(&requestData->header.endpointSender, NULL);
 	ov_string_setvalue(&requestData->header.messageID, NULL);
@@ -111,18 +109,17 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	OV_STRING_VEC tags;
 	tags.value = NULL;
 	tags.veclen = 0;
-	Ov_SetDynamicVectorLength(&tags, 6, STRING);
+	Ov_SetDynamicVectorLength(&tags, 5, STRING);
 	OV_STRING_VEC values;
 	values.value = NULL;
 	values.veclen = 0;
-	Ov_SetDynamicVectorLength(&values, 6, STRING);
+	Ov_SetDynamicVectorLength(&values, 5, STRING);
 
 	ov_string_setvalue(&tags.value[0], "endpointSender");
 	ov_string_setvalue(&tags.value[1], "endpointReceiver");
 	ov_string_setvalue(&tags.value[2], "messageID");
 	ov_string_setvalue(&tags.value[3], "messageType");
 	ov_string_setvalue(&tags.value[4], "protocolType");
-	ov_string_setvalue(&tags.value[5], "componentID");
 
 
 	jsonGetValuesByTags(tags, jsonData, &values);
@@ -132,7 +129,6 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	ov_string_setvalue(&requestData->header.messageID, values.value[2]);
 	requestData->header.messageType = atoi(values.value[3]);
 	requestData->header.protocolType = atoi(values.value[4]);
-	ov_string_setvalue(&requestData->header.componentID, values.value[5]);
 
 	Ov_SetDynamicVectorLength(&tags, 2, STRING);
 	ov_string_setvalue(&tags.value[0], "header");
