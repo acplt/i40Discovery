@@ -16,7 +16,6 @@ int jsoneq(const char *json, const jsmntok_t *tok, const char *s) {
 void json_data_init(json_data* jsonData){
 	jsonData->js = NULL;
 	jsonData->num_token = 0;
-	jsonData->offset = 0;
 	jsonData->token = NULL;
 	return;
 }
@@ -26,7 +25,6 @@ void json_data_deleteMembers(json_data* jsonData){
 	free(jsonData->token);
 	jsonData->token = NULL;
 	jsonData->num_token = 0;
-	jsonData->offset = 0;
 	return;
 }
 
@@ -96,10 +94,8 @@ OV_RESULT jsonTokenize(json_data* jsonData) {
 
 OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	json_data jsonData;
+	json_data_init(&jsonData);
 	jsonData.js = message;
-	jsonData.num_token = 0;
-	jsonData.offset = 0;
-	jsonData.token = NULL;
 
 	if(jsonTokenize(&jsonData) != OV_ERR_OK) {
 		return OV_ERR_BADPARAM;
@@ -140,8 +136,7 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 
 	jsonGetTokenIndexByTags(tags, jsonData, &tokenIndex);
 
-	requestData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
-	OV_STRING tmpString = &jsonData.js[requestData->body.offset];
+	OV_STRING tmpString = &jsonData.js[jsonData.token[tokenIndex.value[1]].start];
 	ov_string_setvalue(&requestData->body.js, tmpString);
 	if (tokenIndex.value[1] > tokenIndex.value[0])
 		requestData->body.num_token = jsonData.num_token - tokenIndex.value[1];
@@ -150,6 +145,9 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	requestData->body.token = malloc(sizeof(jsmntok_t)*requestData->body.num_token);
 	for (OV_UINT i = 0; i < requestData->body.num_token; i++){
 		memcpy(&requestData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
+		requestData->body.token[i].start = requestData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start;
+		requestData->body.token[i].end = requestData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start;
+		requestData->body.token[i].parent = requestData->body.token[i].parent - jsonData.token[tokenIndex.value[1]].parent;
 	}
 
 	free(jsonData.token);
@@ -162,13 +160,11 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	return OV_ERR_OK;
 }
 
-
 OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message) {
 	json_data jsonData;
+	json_data_init(&jsonData);
 	jsonData.js = message;
-	jsonData.num_token = 0;
-	jsonData.offset = 0;
-	jsonData.token = NULL;
+
 	if(jsonTokenize(&jsonData) != OV_ERR_OK) {
 		return OV_ERR_BADPARAM;
 	}
@@ -213,8 +209,7 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 
 	jsonGetTokenIndexByTags(tags, jsonData, &tokenIndex);
 
-	responseData->body.offset 	= jsonData.token[tokenIndex.value[1]].start;
-	OV_STRING tmpString = &jsonData.js[responseData->body.offset];
+	OV_STRING tmpString = &jsonData.js[jsonData.token[tokenIndex.value[1]].start];
 	ov_string_setvalue(&responseData->body.js, tmpString);
 	if (tokenIndex.value[1] > tokenIndex.value[0])
 		responseData->body.num_token = jsonData.num_token - tokenIndex.value[1];
@@ -223,6 +218,9 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	responseData->body.token = malloc(sizeof(jsmntok_t)*responseData->body.num_token);
 	for (OV_UINT i = 0; i < responseData->body.num_token; i++){
 		memcpy(&responseData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
+		responseData->body.token[i].start = responseData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start;
+		responseData->body.token[i].end = responseData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start;
+		responseData->body.token[i].parent = responseData->body.token[i].parent - jsonData.token[tokenIndex.value[1]].parent;
 	}
 	free(jsonData.token);
 	jsonData.token = NULL;

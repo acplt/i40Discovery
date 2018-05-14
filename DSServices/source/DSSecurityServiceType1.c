@@ -23,6 +23,7 @@
 
 #include "DSServices.h"
 #include "libov/ov_macros.h"
+#include "json_helper.h"
 
 
 OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
@@ -31,12 +32,38 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
     */
 	OV_STRING certificate = NULL;
 	OV_STRING securityKey = NULL;
+
+	// Parsing Body
+	OV_STRING_VEC tags;
+	tags.value = NULL;
+	tags.veclen = 0;
+	Ov_SetDynamicVectorLength(&tags, 2, STRING);
+	OV_STRING_VEC values;
+	values.value = NULL;
+	values.veclen = 0;
+	Ov_SetDynamicVectorLength(&values, 2, STRING);
+
+	ov_string_setvalue(&tags.value[0], "componentID");
+	ov_string_setvalue(&tags.value[1], "certificate");
+
+	jsonGetValuesByTags(tags, JsonInput, &values);
+
+	// find certificate in DB
+
+		// certificate not in DB => check certificate extern => write certificate in DB with component-ID
+
+
+	// generate securityKey => write securityKey in DB
+
+	// get certificate of DS from DB
+
 	ov_string_setvalue(&certificate, "certificate of DS");
 	ov_string_setvalue(&securityKey, "securityKey123");
 	ov_string_print(JsonOutput, "\"body\":{\"certificate\":\"%s\", \"securityKey\":\"%s\"}", certificate, securityKey);
 	ov_string_setvalue(&certificate, NULL);
 	ov_string_setvalue(&securityKey, NULL);
-	pinst-
+	Ov_SetDynamicVectorLength(&tags, 0, STRING);
+	Ov_SetDynamicVectorLength(&values, 0, STRING);
     return OV_ERR_OK;
 }
 

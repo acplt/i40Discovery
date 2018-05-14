@@ -8,7 +8,6 @@ typedef struct json_data{
     jsmntok_t* token;
     OV_UINT     num_token;
     OV_STRING  js;
-    OV_UINT    offset;
 } json_data;
 
 typedef struct request_header {
@@ -47,11 +46,11 @@ void request_data_deleteMembers(request_data *requestData);
 void response_data_init(response_data *responseData);
 void response_data_deleteMembers(response_data *responseData);
 int jsoneq(const char *json, const jsmntok_t *tok, const char *s);
-OV_RESULT jsonTokenize(json_data* jsonData);
+OV_DLLFNCEXPORT OV_RESULT jsonTokenize(json_data* jsonData);
 OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message);
 OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message);
-OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_UINT_VEC* tokenIndex);
-OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values);
-OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex);
-OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str);
+OV_DLLFNCEXPORT OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_UINT_VEC* tokenIndex);
+OV_DLLFNCEXPORT OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values);
+OV_DLLFNCEXPORT OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex);
+OV_DLLFNCEXPORT OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str);
 #endif

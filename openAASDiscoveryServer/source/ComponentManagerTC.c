@@ -230,14 +230,25 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				pTC->v_state = 6;
 				// delete all used memory
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
-				ov_string_setvalue(&pTC->v_securityKey, "TestKey");
 				return;
 			}
-			OV_STRING certificateDS = NULL;
-			OV_STRING securityKey = NULL;
 			// find certificate and securityKey
-			ov_string_setvalue(&pTC->v_certificateDS, certificateDS);
-			ov_string_setvalue(&pTC->v_securityKey, securityKey);
+			// Parsing Body
+			OV_STRING_VEC tags;
+			tags.value = NULL;
+			tags.veclen = 0;
+			Ov_SetDynamicVectorLength(&tags, 2, STRING);
+			OV_STRING_VEC values;
+			values.value = NULL;
+			values.veclen = 0;
+			Ov_SetDynamicVectorLength(&values, 2, STRING);
+
+			ov_string_setvalue(&tags.value[0], "certificate");
+			ov_string_setvalue(&tags.value[1], "securityKey");
+
+			jsonGetValuesByTags(tags, responseData.body, &values);
+			ov_string_setvalue(&pTC->v_certificateDS, values.value[0]);
+			ov_string_setvalue(&pTC->v_securityKey, values.value[1]);
 		break;
 		case 3: // WaitingForRegistrationResponse
 			if (responseData.header.messageType != 4){
