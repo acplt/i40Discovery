@@ -7,7 +7,7 @@
 *
 *   History
 *   -------
-*   2018-05-11   File created
+*   2018-05-14   File created
 *
 *******************************************************************************
 *
@@ -25,11 +25,44 @@
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(const json_data JsonInput, OV_STRING *JsonOutput) {
+OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
     /*    
     *   local variables
     */
 	ov_string_setvalue(JsonOutput, "\"body\":{}");
     return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_ACCESS DSServices_DSRegistrationServiceType1_getaccess(
+	OV_INSTPTR_ov_object	pobj,
+	const OV_ELEMENT		*pelem,
+	const OV_TICKET			*pticket
+) {
+    /*    
+    *   local variables
+    */
+	switch(pelem->elemtype) {
+		case OV_ET_VARIABLE:
+			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
+				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
+					return OV_AC_NONE;
+				else{
+					if((pelem->elemunion.pvar->v_varprops & OV_VP_DERIVED)){
+						if((pelem->elemunion.pvar->v_varprops & OV_VP_SETACCESSOR)){
+							return OV_AC_READWRITE;
+						} else {
+							return OV_AC_READ;
+						}
+					} else {
+						return OV_AC_READWRITE;
+					}
+				}
+			}
+		break;
+		default:
+		break;
+	}
+
+	return ov_object_getaccess(pobj, pelem, pticket);
 }
 

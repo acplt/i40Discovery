@@ -371,9 +371,9 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_getSecurityMessage(OV_
 		OV_VTBLPTR_openAASDiscoveryServer_DSService pvtable = NULL;
 		Ov_GetVTablePtr(openAASDiscoveryServer_DSService, pvtable, pService);
 		if (i == 0)
-			pvtable->m_executeService(body, JsonOutput);
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, JsonOutput);
 		else
-			pvtable->m_executeService(body, &tmpJsonOutput);
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput);
 	}
 	if (!*JsonOutput){
 		ov_string_setvalue(errorMessage, "Internal Error");

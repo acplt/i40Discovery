@@ -18,6 +18,7 @@ LIBRARY DSServices
 		END_VARIABLES;
 		OPERATIONS
 			executeService   : C_FUNCTION <DS_FNC_EXECUTESERVICE>;
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
 		END_OPERATIONS;
 	END_CLASS;
 	
@@ -27,6 +28,7 @@ LIBRARY DSServices
         END_VARIABLES;
         OPERATIONS
             executeService   : C_FUNCTION <DS_FNC_EXECUTESERVICE>;
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
         END_OPERATIONS;
     END_CLASS;
     
@@ -36,8 +38,9 @@ LIBRARY DSServices
         END_VARIABLES;
         OPERATIONS
             executeService   : C_FUNCTION <DS_FNC_EXECUTESERVICE>;
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
         END_OPERATIONS;
-    END_CLASS;
+    END_CLASS; 
     
     CLASS DSSecurityServiceType1 : CLASS openAASDiscoveryServer/DSSecurityService
         IS_INSTANTIABLE;
@@ -45,6 +48,7 @@ LIBRARY DSServices
         END_VARIABLES;
         OPERATIONS
             executeService   : C_FUNCTION <DS_FNC_EXECUTESERVICE>;
+            getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
         END_OPERATIONS;
     END_CLASS;
 	

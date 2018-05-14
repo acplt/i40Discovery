@@ -3,7 +3,7 @@
 *
 *   FILE
 *   ----
-*   DSSecurityServiceType1.c
+*   DSService.c
 *
 *   History
 *   -------
@@ -16,31 +16,16 @@
 ******************************************************************************/
 
 
-#ifndef OV_COMPILE_LIBRARY_DSServices
-#define OV_COMPILE_LIBRARY_DSServices
+#ifndef OV_COMPILE_LIBRARY_openAASDiscoveryServer
+#define OV_COMPILE_LIBRARY_openAASDiscoveryServer
 #endif
 
 
-#include "DSServices.h"
+#include "openAASDiscoveryServer.h"
 #include "libov/ov_macros.h"
 
 
-OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
-    /*    
-    *   local variables
-    */
-	OV_STRING certificate = NULL;
-	OV_STRING securityKey = NULL;
-	ov_string_setvalue(&certificate, "certificate of DS");
-	ov_string_setvalue(&securityKey, "securityKey123");
-	ov_string_print(JsonOutput, "\"body\":{\"certificate\":\"%s\", \"securityKey\":\"%s\"}", certificate, securityKey);
-	ov_string_setvalue(&certificate, NULL);
-	ov_string_setvalue(&securityKey, NULL);
-	pinst-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_ACCESS DSServices_DSSecurityServiceType1_getaccess(
+OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DSService_getaccess(
 	OV_INSTPTR_ov_object	pobj,
 	const OV_ELEMENT		*pelem,
 	const OV_TICKET			*pticket
@@ -48,7 +33,7 @@ OV_DLLFNCEXPORT OV_ACCESS DSServices_DSSecurityServiceType1_getaccess(
     /*    
     *   local variables
     */
-	switch(pelem->elemtype) {
+    switch(pelem->elemtype) {
 		case OV_ET_VARIABLE:
 			if(pelem->elemunion.pvar->v_offset >= offsetof(OV_INST_ov_object,__classinfo)) {
 				if(pelem->elemunion.pvar->v_vartype == OV_VT_CTYPE)
