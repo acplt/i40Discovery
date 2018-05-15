@@ -23,9 +23,9 @@
 
 #include "DSServices.h"
 #include "libov/ov_macros.h"
+#include "service_helper.h"
 
-
-OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
+OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
     /*    
     *   local variables
     */
@@ -48,11 +48,31 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService
 	OV_STRING securityKey = NULL;
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
 
-	// check SecurityKey in Database
-
+	// check securityKey
+	OV_RESULT resultOV = checkSecurityKey(pinst->v_DBWrapperUsed, componentID, securityKey);
+	if (resultOV){
+		ov_string_setvalue(errorMessage, "SecurityKey is not correct");
+		goto FINALIZE;
+	}
 	// delete all data to componentID in Database
+	// TODO: Extend to MultiDBWrapper
+	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
+	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pDBWrapperVTable = NULL;
+	pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[0], 2));
+	if (!pDBWrapper){
+		ov_string_setvalue(errorMessage, "Internel Error");
+		ov_logfile_error("Could not find DBWrapper Object");
+		goto FINALIZE;
+	}
+	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+	OV_STRING table  = "demoDB";
+	OV_STRING tmpFields = "ComponentID";
+	OV_STRING tmpValues = NULL;
+	ov_string_print(&tmpValues, "'%s'", componentID);
+	resultOV = pDBWrapperVTable->m_deleteData(table, &tmpFields, 1, &tmpValues, 1);
+	ov_string_setvalue(&tmpValues, NULL);
 
-
+	FINALIZE:
 	ov_string_print(JsonOutput, "\"body\":{}");
 	Ov_SetDynamicVectorLength(&tags, 0, STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);

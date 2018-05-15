@@ -22,20 +22,22 @@
 
 
 #include "DSServices.h"
-#include "libov/ov_macros.h"
 #include "json_helper.h"
-#include "libov/ov_path.h"
+#include "service_helper.h"
 
 struct endpoint{
 	OV_STRING protocolType;
 	OV_STRING endpointString;
 };
 
-OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
+OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
     /*    
     *   local variables
     */
 	// Parsing Body
+	OV_UINT arraySize = 0;
+	struct endpoint *endpoints = NULL;
+	OV_STRING assetID = NULL;
 	OV_STRING_VEC tags;
 	tags.value = NULL;
 	tags.veclen = 0;
@@ -55,33 +57,18 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[0]+1], &componentID);
 	OV_STRING securityKey = NULL;
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
-	OV_STRING assetID = NULL;
-	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[3]+1], &assetID);
 
-	// check SecurityKey in Database
-	OV_STRING table  = "register";
-	OV_STRING fields[1] = {"secKey"};
-	OV_STRING tmpString;
-	ov_string_print(&tmpString,"'%s'", componentID);
-	OV_STRING whereFields[1] = {"componentID"};
-	OV_STRING whereValues[1] = {tmpString};
-	ov_string_setvalue(&tmpString, NULL);
-	OV_STRING_VEC result;
-	result.value = NULL;
-	result.veclen = 0;
+	// check securityKey
+	OV_RESULT resultOV = checkSecurityKey(pinst->v_DBWrapperUsed, componentID, securityKey);
+	if (resultOV){
+		ov_string_setvalue(errorMessage, "SecurityKey is not correct");
+		goto FINALIZE;
+	}
 
-	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
-	pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[0], 2));
-	if (!pDBWrapper)
-		return OV_ERR_GENERIC;
-
-	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pvtable;
-	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pvtable, pDBWrapper);
-	pvtable->m_selectData(table, fields, 1, whereFields, 1, whereValues, 1, &result);
-
-	// get endpoints
-	OV_UINT arraySize = JsonInput.token[tokenIndex.value[2]+1].size;
-	struct endpoint *endpoints = malloc(sizeof(struct endpoint)*arraySize);
+	// get registrationData
+	// get endpoints from JSON
+	arraySize = JsonInput.token[tokenIndex.value[2]+1].size;
+	endpoints = malloc(sizeof(struct endpoint)*arraySize);
 	for (OV_UINT i = 0; i < arraySize; i++){
 		endpoints[i].protocolType = NULL;
 		// value + 2 start of objects + i*5 next object + 2/4 values of protocolType and endpoint
@@ -89,10 +76,62 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 		endpoints[i].endpointString = NULL;
 		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &endpoints[i].endpointString);
 	}
+	// get assetID from JSON
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[3]+1], &assetID);
 
-	// add endpoints and assetID to Database
+	// Insert endpoints in database
 
+	// TODO: Extend to multiDBWrapper
+	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
+	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pDBWrapperVTable = NULL;
+	pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[0], 2));
+	if (!pDBWrapper){
+		ov_string_setvalue(errorMessage, "Internel Error");
+		ov_logfile_error("Could not find DBWrapper Object");
+		goto FINALIZE;
+	}
+	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+	OV_STRING table  = "demoDB";
+	OV_STRING tmpFields[6];
+	OV_STRING tmpValues[6];
+	tmpFields[0] = "ComponentID";
+	tmpFields[1] = "Certificate";
+	tmpFields[2] = "SecurityKey";
+	tmpFields[3] = "ProtocolType";
+	tmpFields[4] = "EndpointString";
+	tmpFields[5] = "AssetID";
 
+	tmpValues[0] = NULL;
+	ov_string_print(&tmpValues[0], "'%s'", componentID);
+	tmpValues[1] = "''";
+	tmpValues[2] = "''";
+	tmpValues[5] = "''";
+
+	for (OV_UINT i = 0; i < arraySize; i++){
+		tmpValues[3] = NULL;
+		ov_string_print(&tmpValues[3], "'%s'", endpoints[i].protocolType);
+		tmpValues[4] = NULL;
+		ov_string_print(&tmpValues[4], "'%s'", endpoints[i].endpointString);
+		resultOV = pDBWrapperVTable->m_insertData(table, tmpFields, 6, tmpValues, 6);
+		ov_string_setvalue(&tmpValues[3], NULL);
+		ov_string_setvalue(&tmpValues[4], NULL);
+	}
+
+	// Insert assetID in database
+	if (assetID){
+		tmpValues[0] = NULL;
+		ov_string_print(&tmpValues[0], "'%s'", componentID);
+		tmpValues[1] = "''";
+		tmpValues[2] = "''";
+		tmpValues[3] = "''";
+		tmpValues[4] = "''";
+		tmpValues[5] = NULL;
+		ov_string_print(&tmpValues[5], "'%s'", assetID);
+		resultOV = pDBWrapperVTable->m_insertData(table, tmpFields, 6, tmpValues, 6);
+		ov_string_setvalue(&tmpValues[5], NULL);
+	}
+
+	FINALIZE:
 	ov_string_print(JsonOutput, "\"body\":{}");
 	Ov_SetDynamicVectorLength(&tags, 0, STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
@@ -103,7 +142,8 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 		ov_string_setvalue(&endpoints[i].protocolType, NULL);
 		ov_string_setvalue(&endpoints[i].endpointString, NULL);
 	}
-	free(endpoints);
+	if (endpoints)
+		free(endpoints);
     return OV_ERR_OK;
 }
 

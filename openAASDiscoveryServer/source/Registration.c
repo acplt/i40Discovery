@@ -304,6 +304,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getRegistrationMes
 	OV_INSTPTR_openAASDiscoveryServer_DSRegistrationService pService = NULL;
 	OV_STRING tmpJsonOutput = NULL;
 	*JsonOutput = NULL;
+	OV_BOOL first = TRUE;
 	for (OV_UINT i = 0; i < pinst->v_UsedDSServicePaths.veclen; i++){
 		pobj = ov_path_getobjectpointer(pinst->v_UsedDSServicePaths.value[i], 2);
 		if (!pobj){
@@ -315,10 +316,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getRegistrationMes
 		}
 		OV_VTBLPTR_openAASDiscoveryServer_DSService pvtable = NULL;
 		Ov_GetVTablePtr(openAASDiscoveryServer_DSService, pvtable, pService);
-		if (i == 0)
-			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, JsonOutput);
+		if (first == TRUE){
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, JsonOutput, errorMessage);
+			first = FALSE;
+		}
 		else
-			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput);
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput, errorMessage);
 	}
 	if (!*JsonOutput){
 		ov_string_setvalue(errorMessage, "Internal Error");
@@ -337,6 +340,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getUnregistrationM
 	OV_INSTPTR_openAASDiscoveryServer_DSUnRegistrationService pService = NULL;
 	OV_STRING tmpJsonOutput = NULL;
 	*JsonOutput = NULL;
+	OV_BOOL first = TRUE;
 	for (OV_UINT i = 0; i < pinst->v_UsedDSServicePaths.veclen; i++){
 		pobj = ov_path_getobjectpointer(pinst->v_UsedDSServicePaths.value[i], 2);
 		if (!pobj){
@@ -348,10 +352,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Registration_getUnregistrationM
 		}
 		OV_VTBLPTR_openAASDiscoveryServer_DSService pvtable = NULL;
 		Ov_GetVTablePtr(openAASDiscoveryServer_DSService, pvtable, pService);
-		if (i == 0)
-			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, JsonOutput);
+		if (first == TRUE){
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, JsonOutput, errorMessage);
+			first = FALSE;
+		}
 		else
-			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput);
+			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput, errorMessage);
 	}
 	if (!*JsonOutput){
 		ov_string_setvalue(errorMessage, "Internal Error");

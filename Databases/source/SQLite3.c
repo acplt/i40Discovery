@@ -35,10 +35,11 @@ int rc;
 
 // callback function
 static int callback(void* data, int argc, char **argv, char **col_name) {
-	Ov_SetDynamicVectorLength((OV_STRING_VEC*)data, argc, STRING);
+
+	Ov_SetDynamicVectorLength((OV_STRING_VEC*)data, ((OV_STRING_VEC*)data)->veclen + argc, STRING);
 
 	for(int i = 0; i<argc; i++) {
-		ov_string_setvalue(&(((OV_STRING_VEC*)data)->value[i]), argv[i]);
+		ov_string_setvalue(&(((OV_STRING_VEC*)data)->value[((OV_STRING_VEC*)data)->veclen - argc + i]), argv[i]);
 		ov_logfile_info("%-10s : %-s", col_name[i], argv[i] ? argv[i] : "NULL");
 	}
 	return 0;
@@ -52,17 +53,6 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 		ov_logfile_info("failed to open db!");
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
-	}
-	OV_STRING table  = "demoDB";
-	OV_STRING fields[1] = {"SecurityKey"};
-	OV_STRING whereFields[1] = {"ComponentID"};
-	OV_STRING whereValues[1] = {"'test'"};
-	OV_STRING_VEC result;
-	result.value = NULL;
-	result.veclen = 0;
-	Databases_SQLite3_selectData(table, fields, 1, whereFields, 1, whereValues, 1, &result);
-	for(int i = 0; i < result.veclen; i++) {
-		ov_logfile_info("%s ", result.value[i]);
 	}
     return OV_ERR_OK;
 }
@@ -99,11 +89,15 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 	}
 	ov_logfile_info("%s", query);
 
-	sqlite3_stmt *stmt;
-	sqlite3_prepare_v2(SQLITE3_pinst->v_db, query, -1,  &stmt, NULL);
+	sqlite3_stmt *stmt = NULL;
+	rc = sqlite3_prepare_v2(SQLITE3_pinst->v_db, query, -1,  &stmt, NULL);
+	if( rc != SQLITE_OK ) {
+		ov_logfile_info("error: failed to insert into %s", table);
+		return OV_ERR_BADPARAM;
+	}
 
 	rc = sqlite3_step(stmt);
-	if( rc == SQLITE_ERROR ) {
+	if( rc != SQLITE_OK ) {
 		ov_logfile_info("error: failed to insert into %s", table);
 		return OV_ERR_BADPARAM;
 	}
@@ -117,7 +111,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 		return OV_ERR_BADPARAM;
 	}
 	// build up SELECT query
-	char* query = "SELECT";
+	char* query = "SELECT DISTINCT";
 	for(int i = 0; i < fieldsLen; i++) {
 		if(i != fieldsLen-1) {
 			asprintf(&query, "%s %s,", query, fields[i]);
@@ -128,12 +122,24 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 	if(!fieldsLen) asprintf(&query, "%s %s ", query, "*");
 	asprintf(&query, "%s %s", query, "FROM");
 	asprintf(&query, "%s %s", query, table);
-	if(whereFieldsLen) {
+	if (fieldsLen){
 		asprintf(&query, "%s %s", query, "WHERE");
+		for(int i = 0; i < fieldsLen; i++) {
+			if(i != fieldsLen-1) {
+				asprintf(&query, "%s %s IS NOT NULL AND", query, fields[i]);
+				asprintf(&query, "%s %s != \"\" AND", query, fields[i]);
+			} else {
+				asprintf(&query, "%s %s IS NOT NULL AND", query, fields[i]);
+				asprintf(&query, "%s %s != \"\" AND", query, fields[i]);
+			}
+		}
+	}
+	if(whereFieldsLen) {
+		if (!fieldsLen)	asprintf(&query, "%s %s", query, "WHERE");
 		for(int i = 0; i < whereFieldsLen; i++) {
 			if(i != whereFieldsLen-1) {
 				asprintf(&query, "%s %s =", query, whereFields[i]);
-				asprintf(&query, "%s %s,", query, whereValues[i]);
+				asprintf(&query, "%s %s AND", query, whereValues[i]);
 			} else {
 				asprintf(&query, "%s %s =", query, whereFields[i]);
 				asprintf(&query, "%s %s", query, whereValues[i]);

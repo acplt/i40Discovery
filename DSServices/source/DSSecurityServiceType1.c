@@ -24,14 +24,24 @@
 #include "DSServices.h"
 #include "libov/ov_macros.h"
 #include "json_helper.h"
+#include "service_helper.h"
 
 
-OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
+OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
     /*    
     *   local variables
     */
+
+	OV_RESULT resultOV = OV_ERR_OK;
 	OV_STRING certificate = NULL;
+	OV_STRING certificateDS = NULL;
 	OV_STRING securityKey = NULL;
+	OV_STRING componentID = NULL;
+
+	OV_STRING table  = "demoDB";
+	OV_STRING tmpFields[6];
+	OV_STRING tmpValues[6];
+	OV_STRING whereFields[1];
 
 	// Parsing Body
 	OV_STRING_VEC tags;
@@ -48,20 +58,175 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
 
 	jsonGetValuesByTags(tags, JsonInput, 1, &values);
 
+	ov_string_setvalue(&componentID, values.value[0]);
+	ov_string_setvalue(&certificate, values.value[1]);
+
 	// find certificate in DB
+	tmpFields[0] = "Certificate";
+	whereFields[0] = "ComponentID";
+	tmpValues[0] = NULL;
+	ov_string_print(&tmpValues[0], "'%s'", componentID);
+	OV_STRING_VEC result;
+	result.value = NULL;
+	result.veclen = 0;
 
-		// certificate not in DB => check certificate extern => write certificate in DB with component-ID
+	OV_BOOL certificateCheckSuccessful = FALSE;
+	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
+	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pDBWrapperVTable = NULL;
+	for (OV_UINT i = 0; i < pinst->v_DBWrapperUsed.veclen; i++){
+		pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[i], 2));
+		if (!pDBWrapper){
+			ov_string_setvalue(errorMessage, "Internal Error");
+			ov_logfile_error("Could not find DBWrapper Object");
+			goto FINALIZE;
+		}
+
+		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+		pDBWrapperVTable->m_selectData(table, tmpFields, 1, whereFields, 1, tmpValues, 1, &result);
+		for (OV_UINT j = 0; j < result.veclen; j++){
+			if (ov_string_compare(result.value[j], certificate) == OV_STRCMP_EQUAL){
+				certificateCheckSuccessful = TRUE;
+				Ov_SetDynamicVectorLength(&result, 0, STRING);
+				break;
+			}
+		}
+		if (certificateCheckSuccessful == TRUE)
+			break;
+	}
+	ov_string_setvalue(&tmpValues[0], NULL);
+
+	if (certificateCheckSuccessful == FALSE){
+		// TODO: Check certificate extern
+
+		// Insert certificate in database
+		tmpFields[0] = "ComponentID";
+		tmpFields[1] = "Certificate";
+		tmpFields[2] = "SecurityKey";
+		tmpFields[3] = "ProtocolType";
+		tmpFields[4] = "EndpointString";
+		tmpFields[5] = "AssetID";
+		tmpValues[0] = NULL;
+		ov_string_print(&tmpValues[0], "'%s'", componentID);
+		tmpValues[1] = NULL;
+		ov_string_print(&tmpValues[1], "'%s'", certificate);
+		tmpValues[2] = "''";
+		tmpValues[3] = "''";
+		tmpValues[4] = "''";
+		tmpValues[5] = "''";
+		resultOV = pDBWrapperVTable->m_insertData(table, tmpFields, 6, tmpValues, 6);
+		ov_string_setvalue(&tmpValues[0], NULL);
+		ov_string_setvalue(&tmpValues[1], NULL);
+		/*
+		if (resultOV != OV_ERR_OK){
+			ov_string_setvalue(errorMessage, "Internal Error");
+			ov_logfile_error("Could not find certificate of DS");
+			goto FINALIZE;
+		}
+		*/
+
+	}
 
 
-	// generate securityKey => write securityKey in DB
+	// Check if securityKey already exist
+	tmpFields[0] = "SecurityKey";
+	whereFields[0] = "ComponentID";
+	tmpValues[0] = NULL;
+	ov_string_print(&tmpValues[0], "'%s'", componentID);
+	result.value = NULL;
+	result.veclen = 0;
+	OV_BOOL securityKeyAlreadyExist = FALSE;
+	pDBWrapper = NULL;
+	pDBWrapperVTable = NULL;
+	for (OV_UINT i = 0; i < pinst->v_DBWrapperUsed.veclen; i++){
+		pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[i], 2));
+		if (!pDBWrapper){
+			ov_string_setvalue(errorMessage, "Internal Error");
+			ov_logfile_error("Could not find DBWrapper Object");
+			goto FINALIZE;
+		}
+
+		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+		pDBWrapperVTable->m_selectData(table, tmpFields, 1, whereFields, 1, tmpValues, 1, &result);
+		for (OV_UINT j = 0; j < result.veclen; j++){
+			if (result.value[j] != NULL && ov_string_compare(result.value[j], "") != OV_STRCMP_EQUAL){ // TODO: Handling more than one securityKey
+				securityKeyAlreadyExist = TRUE;
+				ov_string_setvalue(&securityKey, result.value[j]);
+				Ov_SetDynamicVectorLength(&result, 0, STRING);
+				break;
+			}
+		}
+		if (securityKeyAlreadyExist == TRUE)
+			break;
+	}
+	ov_string_setvalue(&tmpValues[0], NULL);
+
+	if(securityKeyAlreadyExist == FALSE){
+		// TODO: generate securityKey
+		ov_string_setvalue(&securityKey, "AutgenKey1");
+		// Insert securityKey in database
+		tmpFields[0] = "ComponentID";
+		tmpFields[1] = "Certificate";
+		tmpFields[2] = "SecurityKey";
+		tmpFields[3] = "ProtocolType";
+		tmpFields[4] = "EndpointString";
+		tmpFields[5] = "AssetID";
+		tmpValues[0] = NULL;
+		ov_string_print(&tmpValues[0], "'%s'", componentID);
+		tmpValues[1] = "''";
+		tmpValues[2] = NULL;
+		ov_string_print(&tmpValues[2], "'%s'", securityKey);
+		tmpValues[3] = "''";
+		tmpValues[4] = "''";
+		tmpValues[5] = "''";
+		resultOV = pDBWrapperVTable->m_insertData(table, tmpFields, 6, tmpValues, 6);
+		ov_string_setvalue(&tmpValues[0], NULL);
+		ov_string_setvalue(&tmpValues[2], NULL);
+		/*
+		if (resultOV != OV_ERR_OK){
+			ov_string_setvalue(errorMessage, "Internal Error");
+			ov_logfile_error("Could not find certificate of DS");
+			goto FINALIZE;
+		}
+		 */
+	}
 
 	// get certificate of DS from DB
+	OV_BOOL FoundCertificate = FALSE;
+	tmpFields[0] = "Certificate";
+	whereFields[0] = "ComponentID";
+	tmpValues[0] = "'DiscoveryServer'";
+	pDBWrapper = NULL;
+	pDBWrapperVTable = NULL;;
+	for (OV_UINT i = 0; i < pinst->v_DBWrapperUsed.veclen; i++){
+		pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[i], 2));
+		if (!pDBWrapper)
+			break;
 
-	ov_string_setvalue(&certificate, "certificate of DS");
-	ov_string_setvalue(&securityKey, "securityKey123");
-	ov_string_print(JsonOutput, "\"body\":{\"certificate\":\"%s\", \"securityKey\":\"%s\"}", certificate, securityKey);
+		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+		pDBWrapperVTable->m_selectData(table, tmpFields, 1, whereFields, 1, tmpValues, 1, &result);
+		for (OV_UINT j = 0; j < result.veclen; j++){
+			if (result.value[j] != NULL && ov_string_compare(result.value[j], "") != OV_STRCMP_EQUAL){ // TODO: Handling more than one certificate
+				ov_string_setvalue(&certificateDS, result.value[0]);
+				FoundCertificate = TRUE;
+				Ov_SetDynamicVectorLength(&result, 0, STRING);
+				break;
+			}
+		}
+	}
+
+	if (FoundCertificate == FALSE){
+		ov_string_setvalue(errorMessage, "Internal Error");
+		ov_logfile_error("Could not find certificate of DS");
+		return OV_ERR_GENERIC;
+	}
+
+	ov_string_print(JsonOutput, "\"body\":{\"certificate\":\"%s\", \"securityKey\":\"%s\"}", certificateDS, securityKey);
+
+	FINALIZE:
 	ov_string_setvalue(&certificate, NULL);
+	ov_string_setvalue(&certificateDS, NULL);
 	ov_string_setvalue(&securityKey, NULL);
+	ov_string_setvalue(&componentID, NULL);
 	Ov_SetDynamicVectorLength(&tags, 0, STRING);
 	Ov_SetDynamicVectorLength(&values, 0, STRING);
     return OV_ERR_OK;
