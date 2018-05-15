@@ -35,7 +35,10 @@ int rc;
 
 // callback function
 static int callback(void* data, int argc, char **argv, char **col_name) {
+	Ov_SetDynamicVectorLength((OV_STRING_VEC*)data, argc, STRING);
+
 	for(int i = 0; i<argc; i++) {
+		ov_string_setvalue(&(((OV_STRING_VEC*)data)->value[i]), argv[i]);
 		ov_logfile_info("%-10s : %-s", col_name[i], argv[i] ? argv[i] : "NULL");
 	}
 	return 0;
@@ -43,14 +46,23 @@ static int callback(void* data, int argc, char **argv, char **col_name) {
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
-	ov_logfile_info("%s", SQLITE3_pinst->v_Endpoint);
+	ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
 	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &SQLITE3_pinst->v_db);
 	if( rc != SQLITE_OK ) {
 		ov_logfile_info("failed to open db!");
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
 	}
-
+	OV_STRING table  = {"register"};
+	OV_STRING whereFields[1] = {"ip"};
+	OV_STRING whereValues[1] = {"'192.168.0.1'"};
+	OV_STRING_VEC result;
+	result.value = NULL;
+	result.veclen = 0;
+	Databases_SQLite3_selectData(table, NULL, 0, whereFields, 1, whereValues, 1, &result);
+	for(int i = 0; i < result.veclen; i++) {
+		ov_logfile_info("%s ", result.value[i]);
+	}
     return OV_ERR_OK;
 }
 
@@ -90,7 +102,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 	sqlite3_prepare_v2(SQLITE3_pinst->v_db, query, -1,  &stmt, NULL);
 
 	rc = sqlite3_step(stmt);
-	if( rc != SQLITE_DONE ) {
+	if( rc == SQLITE_ERROR ) {
 		ov_logfile_info("error: failed to insert into %s", table);
 		return OV_ERR_BADPARAM;
 	}
@@ -98,7 +110,8 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* whereFields,
+													   OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen, OV_STRING_VEC* result) {
 	if(whereFieldsLen != whereValuesLen) {
 		return OV_ERR_BADPARAM;
 	}
@@ -131,13 +144,14 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 	ov_logfile_info("%s", query);
 
 	char* err_msg;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, NULL, &err_msg);
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
 
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);
 		sqlite3_free(err_msg);
 		return OV_ERR_BADPARAM;
 	}
+
     return OV_ERR_OK;
 }
 
