@@ -24,13 +24,109 @@
 #include "DSServices.h"
 #include "libov/ov_macros.h"
 
+struct searchtag{
+	OV_STRING tag;
+	OV_STRING value;
+};
+
+struct endpoint{
+	OV_STRING protocolType;
+	OV_STRING endpointString;
+};
+
+struct component{
+	OV_STRING componentID;
+	struct endpoint* endpoints;
+	OV_UINT	  endpointsSize;
+};
 
 OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
     /*    
     *   local variables
     */
-	ov_string_setvalue(JsonOutput, "\"body\":{}");
-    return OV_ERR_OK;
+	// Parsing Body
+	OV_STRING_VEC tags;
+	tags.value = NULL;
+	tags.veclen = 0;
+	Ov_SetDynamicVectorLength(&tags, 3, STRING);
+	ov_string_setvalue(&tags.value[0], "componentID");
+	ov_string_setvalue(&tags.value[1], "securityKey");
+	ov_string_setvalue(&tags.value[2], "tags");
+	OV_UINT_VEC tokenIndex;
+	tokenIndex.value = NULL;
+	tokenIndex.veclen = 0;
+	Ov_SetDynamicVectorLength(&tokenIndex, 3, UINT);
+
+	jsonGetTokenIndexByTags(tags, JsonInput, 1, &tokenIndex);
+
+	OV_STRING componentID = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[0]+1], &componentID);
+	OV_STRING securityKey = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
+
+	// check SecurityKey in Database
+
+	// get tags
+	OV_UINT arraySize = JsonInput.token[tokenIndex.value[2]+1].size;
+	struct searchtag *searchtags = malloc(sizeof(struct searchtag)*arraySize);
+	for (OV_UINT i = 0; i < arraySize; i++){
+		searchtags[i].tag = NULL;
+		// value + 2 start of objects + i*5 next object + 2/4 values of protocolType and endpoint
+		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+2], &searchtags[i].tag);
+		searchtags[i].value = NULL;
+		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &searchtags[i].value);
+	}
+
+	// search for tags in Database and get componentID and endpoints
+
+	OV_UINT componentSize = 9999;
+	struct component *components = malloc(sizeof(struct component)*componentSize);
+	for (OV_UINT i = 0; i < componentSize; i++){
+		components[i].componentID = NULL;
+		// ov_string_setvalue(&components[i].componentID, Value DB);
+		components[i].endpoints = NULL;
+		components[i].endpointsSize = 9999;
+		components[i].endpoints = malloc(sizeof(struct endpoint)*components[i].endpointsSize);
+		for (OV_UINT j = 0; j < components[i].endpointsSize; j++){
+			components[i].endpoints[j].protocolType = NULL;
+			// ov_string_setvalue(&components[i].endpoints[j].protocolType, Value DB);
+			components[i].endpoints[j].endpointString = NULL;
+			// ov_string_setvalue(&components[i].endpoints[j].endpoint, Value DB);
+		}
+	}
+
+	// Generate Response
+	ov_string_setvalue(JsonOutput, "\"body\":{\"components\":[");
+	for (OV_UINT i = 0; i < componentSize; i++){
+		OV_STRING tmpString = NULL;
+		ov_string_print(&tmpString, "{\"componentID\":\"%s\", \"endpoints\":[", components[i].componentID);
+		ov_string_append(JsonOutput, tmpString);
+		ov_string_setvalue(&tmpString, NULL);
+		for (OV_UINT j = 0; j < components[i].endpointsSize; j++){
+			tmpString = NULL;
+			ov_string_print(&tmpString, "{\"protocolType\":\"%s\", \"endpointString\":\"%s\"}", components[i].endpoints[j].protocolType, components[i].endpoints[j].endpointString);
+			ov_string_append(JsonOutput, tmpString);
+			ov_string_setvalue(&tmpString, NULL);
+		}
+		ov_string_append(JsonOutput, "]}");
+	}
+	ov_string_append(JsonOutput, "]}}");
+
+	Ov_SetDynamicVectorLength(&tags, 0, STRING);
+	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
+	ov_string_setvalue(&componentID, NULL);
+	ov_string_setvalue(&securityKey, NULL);
+
+	for (OV_UINT i = 0; i < componentSize; i++){
+		ov_string_setvalue(&components[i].componentID, NULL);
+		for (OV_UINT j = 0; j < components[i].endpointsSize; j++){
+			ov_string_setvalue(&components[i].endpoints[j].protocolType, NULL);
+			ov_string_setvalue(&components[i].endpoints[j].endpointString, NULL);
+		}
+		free(components[i].endpoints);
+	}
+	free(components);
+	return OV_ERR_OK;
 }
 
 OV_DLLFNCEXPORT OV_ACCESS DSServices_DSSearchServiceType1_getaccess(

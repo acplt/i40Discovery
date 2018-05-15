@@ -29,7 +29,35 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService
     /*    
     *   local variables
     */
-	ov_string_setvalue(JsonOutput, "\"body\":{}");
+	// Parsing Body
+	OV_STRING_VEC tags;
+	tags.value = NULL;
+	tags.veclen = 0;
+	Ov_SetDynamicVectorLength(&tags, 2, STRING);
+	ov_string_setvalue(&tags.value[0], "componentID");
+	ov_string_setvalue(&tags.value[1], "securityKey");
+	OV_UINT_VEC tokenIndex;
+	tokenIndex.value = NULL;
+	tokenIndex.veclen = 0;
+	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
+
+	jsonGetTokenIndexByTags(tags, JsonInput, 1, &tokenIndex);
+
+	OV_STRING componentID = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[0]+1], &componentID);
+	OV_STRING securityKey = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
+
+	// check SecurityKey in Database
+
+	// delete all data to componentID in Database
+
+
+	ov_string_print(JsonOutput, "\"body\":{}");
+	Ov_SetDynamicVectorLength(&tags, 0, STRING);
+	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
+	ov_string_setvalue(&componentID, NULL);
+	ov_string_setvalue(&securityKey, NULL);
     return OV_ERR_OK;
 }
 

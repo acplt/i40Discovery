@@ -27,16 +27,14 @@
 
 struct endpoint{
 	OV_STRING protocolType;
-	OV_STRING endpoint;
-}endpoint;
+	OV_STRING endpointString;
+};
 
 OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput) {
     /*    
     *   local variables
     */
 	// Parsing Body
-
-	// Find endpoints
 	OV_STRING_VEC tags;
 	tags.value = NULL;
 	tags.veclen = 0;
@@ -58,16 +56,15 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 
 	// check SecurityKey in Database
 
-
 	// get endpoints
 	OV_UINT arraySize = JsonInput.token[tokenIndex.value[2]+1].size;
-	struct endpoint *endpoints = malloc(sizeof(endpoint)*arraySize);
+	struct endpoint *endpoints = malloc(sizeof(struct endpoint)*arraySize);
 	for (OV_UINT i = 0; i < arraySize; i++){
 		endpoints[i].protocolType = NULL;
 		// value + 2 start of objects + i*5 next object + 2/4 values of protocolType and endpoint
 		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+2], &endpoints[i].protocolType);
-		endpoints[i].endpoint = NULL;
-		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &endpoints[i].endpoint);
+		endpoints[i].endpointString = NULL;
+		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &endpoints[i].endpointString);
 	}
 
 	// add endpoints to Database
@@ -80,7 +77,7 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	ov_string_setvalue(&securityKey, NULL);
 	for (OV_UINT i = 0; i < arraySize; i++){
 		ov_string_setvalue(&endpoints[i].protocolType, NULL);
-		ov_string_setvalue(&endpoints[i].endpoint, NULL);
+		ov_string_setvalue(&endpoints[i].endpointString, NULL);
 	}
 	free(endpoints);
     return OV_ERR_OK;
