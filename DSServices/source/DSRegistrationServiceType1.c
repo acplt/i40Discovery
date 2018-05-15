@@ -38,14 +38,15 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	OV_STRING_VEC tags;
 	tags.value = NULL;
 	tags.veclen = 0;
-	Ov_SetDynamicVectorLength(&tags, 3, STRING);
+	Ov_SetDynamicVectorLength(&tags, 4, STRING);
 	ov_string_setvalue(&tags.value[0], "componentID");
 	ov_string_setvalue(&tags.value[1], "securityKey");
 	ov_string_setvalue(&tags.value[2], "endpoints");
+	ov_string_setvalue(&tags.value[3], "assetID");
 	OV_UINT_VEC tokenIndex;
 	tokenIndex.value = NULL;
 	tokenIndex.veclen = 0;
-	Ov_SetDynamicVectorLength(&tokenIndex, 3, UINT);
+	Ov_SetDynamicVectorLength(&tokenIndex, 4, UINT);
 
 	jsonGetTokenIndexByTags(tags, JsonInput, 1, &tokenIndex);
 
@@ -53,6 +54,8 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[0]+1], &componentID);
 	OV_STRING securityKey = NULL;
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[1]+1], &securityKey);
+	OV_STRING assetID = NULL;
+	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[3]+1], &assetID);
 
 	// check SecurityKey in Database
 
@@ -67,7 +70,7 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 		jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[2]+2+i*5+4], &endpoints[i].endpointString);
 	}
 
-	// add endpoints to Database
+	// add endpoints and assetID to Database
 
 
 	ov_string_print(JsonOutput, "\"body\":{}");
@@ -75,6 +78,7 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
 	ov_string_setvalue(&componentID, NULL);
 	ov_string_setvalue(&securityKey, NULL);
+	ov_string_setvalue(&assetID, NULL);
 	for (OV_UINT i = 0; i < arraySize; i++){
 		ov_string_setvalue(&endpoints[i].protocolType, NULL);
 		ov_string_setvalue(&endpoints[i].endpointString, NULL);
