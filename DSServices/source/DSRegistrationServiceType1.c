@@ -24,6 +24,7 @@
 #include "DSServices.h"
 #include "libov/ov_macros.h"
 #include "json_helper.h"
+#include "libov/ov_path.h"
 
 struct endpoint{
 	OV_STRING protocolType;
@@ -58,6 +59,25 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSRegistrationServiceType1_executeService(O
 	jsonGetValueByToken(JsonInput.js, &JsonInput.token[tokenIndex.value[3]+1], &assetID);
 
 	// check SecurityKey in Database
+	OV_STRING table  = "register";
+	OV_STRING fields[1] = {"secKey"};
+	OV_STRING tmpString;
+	ov_string_print(&tmpString,"'%s'", componentID);
+	OV_STRING whereFields[1] = {"componentID"};
+	OV_STRING whereValues[1] = {tmpString};
+	ov_string_setvalue(&tmpString, NULL);
+	OV_STRING_VEC result;
+	result.value = NULL;
+	result.veclen = 0;
+
+	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
+	pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[0], 2));
+	if (!pDBWrapper)
+		return OV_ERR_GENERIC;
+
+	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pvtable;
+	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pvtable, pDBWrapper);
+	pvtable->m_selectData(table, fields, 1, whereFields, 1, whereValues, 1, &result);
 
 	// get endpoints
 	OV_UINT arraySize = JsonInput.token[tokenIndex.value[2]+1].size;

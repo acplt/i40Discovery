@@ -23,11 +23,11 @@ LIBRARY openAASDiscoveryServer
         OPERATIONS  
             getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
             constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
-            connect     : C_FUNCTION <DS_FNC_CONNECT>;
-            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
-            insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
-            selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
-            deleteData  : C_FUNCTION <DS_FNC_DELETEDATA>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT> IS_ABSTRACT;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT> IS_ABSTRACT;
+            insertData  : C_FUNCTION <DS_FNC_INSERTDATA> IS_ABSTRACT;
+            selectData  : C_FUNCTION <DS_FNC_SELECTDATA> IS_ABSTRACT;
+            deleteData  : C_FUNCTION <DS_FNC_DELETEDATA> IS_ABSTRACT;
         END_OPERATIONS;
     END_CLASS;
     

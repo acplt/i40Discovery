@@ -93,28 +93,4 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_constructor(
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_connect(void){
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_disconnect(void){
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_insertData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_selectData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* whereFields, OV_STRING* whereValues) {
-
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DBWrapper_deleteData(const OV_STRING table, const OV_STRING* fields, const OV_STRING* values) {
-
-    return OV_ERR_OK;
-}
 
