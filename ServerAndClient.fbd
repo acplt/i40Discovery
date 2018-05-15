@@ -1,6 +1,6 @@
 /************************************************************
 * Sicherung der Datenbasis
-* Erstellt: 2018-05-14 14:02:28
+* Erstellt: 2018-05-15 08:19:47
 * 
 * HOST   : 134.130.125.86:7509
 * SERVER : MANAGER
@@ -732,7 +732,7 @@
     CLASS /acplt/fb/task;
     VARIABLE_VALUES
       actimode : INPUT INT = 1;
-      proctime : INPUT TIME = 2018-05-14 14:02:29.874729;
+      proctime : INPUT TIME = 2018-05-15 08:19:47.874729;
       cyctime : INPUT TIME_SPAN = 1.000000;
       ErrState : OUTPUT INT = 0;
       calctime : OUTPUT TIME_SPAN = 0.000025;
@@ -753,7 +753,7 @@
       threadDataHndl[0] : OUTPUT INT = {};
       messageCount : OUTPUT UINT = 0;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1273;
+      idL : INPUT UINT = 1272;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -765,16 +765,16 @@
       iexreq : INPUT BOOL = TRUE;
       eexreq : OUTPUT BOOL = FALSE;
       maxcalctime : INPUT TIME_SPAN = 0.000000;
-      methcount : OUTPUT UINT = 298;
+      methcount : OUTPUT UINT = 638;
       actimode : INPUT INT = 1;
       proctime : INPUT TIME = 2018-05-11 13:06:27.072230;
       cyctime : INPUT TIME_SPAN = 0.000000;
       ErrState : OUTPUT INT = 0;
-      calctime : OUTPUT TIME_SPAN = 0.000004;
+      calctime : OUTPUT TIME_SPAN = 0.000003;
       Xpos : INPUT INT = 0;
       Ypos : INPUT INT = 0;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1274;
+      idL : INPUT UINT = 1273;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -782,7 +782,7 @@
     CLASS /acplt/MessageSys/inbox;
     VARIABLE_VALUES
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1275;
+      idL : INPUT UINT = 1274;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -790,7 +790,7 @@
     CLASS /acplt/MessageSys/inbox;
     VARIABLE_VALUES
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1276;
+      idL : INPUT UINT = 1275;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -824,7 +824,7 @@
       DSServicePathForConfig : INPUT STRING = "/TechUnits/DSSecurity";
       ConfigDSServices : INPUT BOOL = FALSE;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1277;
+      idL : INPUT UINT = 1276;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -844,18 +844,18 @@
       AddDBWrapper : INPUT BOOL = FALSE;
       RemoveDBWrapper : INPUT BOOL = FALSE;
       DBWrapper[1] : OUTPUT STRING = {"/TechUnits/DB1"};
-      DSServicePath : INPUT STRING = "/TechUnits/DSRegistration";
+      DSServicePath : INPUT STRING = "/TechUnits/DSUnregistration";
       AddDSService : INPUT BOOL = FALSE;
       RemoveDSService : INPUT BOOL = FALSE;
-      DSService[1] : OUTPUT STRING = {"/TechUnits/DSRegistration"};
-      DSServicePaths[1] : INPUT STRING = {"/TechUnits/DSRegistration"};
+      DSService[2] : OUTPUT STRING = {"/TechUnits/DSRegistration" , "/TechUnits/DSUnregistration"};
+      DSServicePaths[2] : INPUT STRING = {"/TechUnits/DSRegistration" , "/TechUnits/DSUnregistration"};
       UseDSServices : INPUT BOOL = FALSE;
-      UsedDSServicePaths[1] : OUTPUT STRING = {"/TechUnits/DSRegistration"};
+      UsedDSServicePaths[2] : OUTPUT STRING = {"/TechUnits/DSRegistration" , "/TechUnits/DSUnregistration"};
       DBWrapperPaths[1] : INPUT STRING = {"/TechUnits/DB1"};
-      DSServicePathForConfig : INPUT STRING = "/TechUnits/DSRegistration";
+      DSServicePathForConfig : INPUT STRING = "/TechUnits/DSUnregistration";
       ConfigDSServices : INPUT BOOL = FALSE;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1278;
+      idL : INPUT UINT = 1277;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -884,7 +884,7 @@
       DSServicePathForConfig : INPUT STRING = "/TechUnits/DSSearch";
       ConfigDSServices : INPUT BOOL = FALSE;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1279;
+      idL : INPUT UINT = 1278;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -900,10 +900,10 @@
       SendSecurityMessage : INPUT BOOL = FALSE;
       certificateDS : OUTPUT STRING = "";
       securityKey : OUTPUT STRING = "";
-      ComponentContent : INPUT STRING = "\"assetId\":\"asd\"";
+      ComponentContent : INPUT STRING = "\"endpoints\":[{\"protocolType\":\"acplt_ks\",\"endpointSring\":\"134.130.125.86:MANAGER:/TechUnits/TestClient.ComponentManager\"}{\"protocolType\":\"opcua\",\"endpointString\":\"opc.tcp://134.130.125.86:16664;nsindex=1, nodeId=23\"}],\"assetID\":\"asset_TC123\"";
       SendRegistrationMessage : INPUT BOOL = FALSE;
       SendUnregistrationMessage : INPUT BOOL = FALSE;
-      Tags : INPUT STRING = "";
+      Tags : INPUT STRING = "\"assetID\":\"asset_TC123\"";
       SendSearchMessage : INPUT BOOL = FALSE;
       AASFound : OUTPUT STRING = "";
       reset : INPUT BOOL = FALSE;
@@ -913,16 +913,16 @@
       iexreq : INPUT BOOL = TRUE;
       eexreq : OUTPUT BOOL = FALSE;
       maxcalctime : INPUT TIME_SPAN = 0.000000;
-      methcount : OUTPUT UINT = 297;
+      methcount : OUTPUT UINT = 638;
       actimode : INPUT INT = 1;
-      proctime : INPUT TIME = 2018-05-14 13:57:32.051615;
+      proctime : INPUT TIME = 2018-05-15 08:09:10.214979;
       cyctime : INPUT TIME_SPAN = 0.000000;
       ErrState : OUTPUT INT = 0;
-      calctime : OUTPUT TIME_SPAN = 0.000002;
+      calctime : OUTPUT TIME_SPAN = 0.000001;
       Xpos : INPUT INT = 0;
       Ypos : INPUT INT = 0;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1282;
+      idL : INPUT UINT = 1279;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -934,16 +934,16 @@
       iexreq : INPUT BOOL = TRUE;
       eexreq : OUTPUT BOOL = FALSE;
       maxcalctime : INPUT TIME_SPAN = 0.000000;
-      methcount : OUTPUT UINT = 297;
+      methcount : OUTPUT UINT = 638;
       actimode : INPUT INT = 1;
       proctime : INPUT TIME = 2018-05-11 13:06:39.481070;
       cyctime : INPUT TIME_SPAN = 0.000000;
       ErrState : OUTPUT INT = 0;
-      calctime : OUTPUT TIME_SPAN = 0.000001;
+      calctime : OUTPUT TIME_SPAN = 0.000002;
       Xpos : INPUT INT = 0;
       Ypos : INPUT INT = 0;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1283;
+      idL : INPUT UINT = 1280;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -951,7 +951,7 @@
     CLASS /acplt/MessageSys/inbox;
     VARIABLE_VALUES
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1284;
+      idL : INPUT UINT = 1281;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -959,7 +959,7 @@
     CLASS /acplt/MessageSys/inbox;
     VARIABLE_VALUES
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1285;
+      idL : INPUT UINT = 1282;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -970,7 +970,7 @@
       CAWrapperUsed[0] : OUTPUT STRING = {};
       DBWrapperUsed[1] : OUTPUT STRING = {"/TechUnits/DB1"};
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1286;
+      idL : INPUT UINT = 1283;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -987,7 +987,7 @@
       Password : INPUT STRING = "";
       StartConnect : INPUT BOOL = FALSE;
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1287;
+      idL : INPUT UINT = 1284;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -997,7 +997,7 @@
       SEWrapperUsed[0] : OUTPUT STRING = {};
       DBWrapperUsed[1] : OUTPUT STRING = {"/TechUnits/DB1"};
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1288;
+      idL : INPUT UINT = 1285;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -1005,9 +1005,9 @@
     CLASS /acplt/DSServices/DSUnregistrationServiceType1;
     VARIABLE_VALUES
       SEWrapperUsed[0] : OUTPUT STRING = {};
-      DBWrapperUsed[0] : OUTPUT STRING = {};
+      DBWrapperUsed[1] : OUTPUT STRING = {"/TechUnits/DB1"};
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1297;
+      idL : INPUT UINT = 1286;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -1017,7 +1017,7 @@
       SEWrapperUsed[0] : OUTPUT STRING = {};
       DBWrapperUsed[1] : OUTPUT STRING = {"/TechUnits/DB1"};
       idH : INPUT UINT = 0;
-      idL : INPUT UINT = 1300;
+      idL : INPUT UINT = 1287;
     END_VARIABLE_VALUES;
  END_INSTANCE;
 
@@ -1069,22 +1069,22 @@
       associations[22] : OUTPUT STRING = {"/acplt/ov/containment" , "/acplt/ov/instantiation" , "/acplt/ov/inheritance" , "/acplt/ov/parentrelationship" , "/acplt/ov/childrelationship" , "/acplt/ov/construction" , "/acplt/ov/embedment" , "/acplt/ksbase/AssocComTaskList" , "/acplt/ksbase/AssocChannelClientHandler" , "/acplt/ksbase/AssocChannelDataHandler" , "/acplt/ksbase/AssocCurrentChannel" , "/acplt/ksbase/AssocClientToTicketGenerator" , "/acplt/TCPbind/AssocSpecificClientHandler" , "/acplt/fb/variables" , "/acplt/fb/tasklist" , "/acplt/fb/inputconnections" , "/acplt/fb/outputconnections" , "/acplt/MessageSys/MsgDelivery2CurrentMessage" , "/acplt/MessageSys/MsgDelivery2Message" , "/acplt/MessageSys/Message2Channel" , "/acplt/MessageSys/SendExtension2Message" , "/acplt/ksapi/operationToVariable"};
       instanceCount : OUTPUT UINT = 1282;
       database_fragmentation : OUTPUT UINT = 0;
-      database_free : OUTPUT UINT = 49619520;
+      database_free : OUTPUT UINT = 49618144;
       database_name : OUTPUT STRING = "/home/ubuntu/AcpltDevelopmentKit/acplt/servers/MANAGER/db.ovd";
       database_size : OUTPUT UINT = 50003968;
       database_started : OUTPUT BOOL = TRUE;
-      database_used : OUTPUT UINT = 384448;
+      database_used : OUTPUT UINT = 385824;
       name : OUTPUT STRING = "Lehrstuhl fuer Prozessleittechnik, RWTH Aachen";
       ks_version : OUTPUT STRING = "";
       libov_version : OUTPUT STRING = "2.0.0";
       semantic_flags[32] : OUTPUT STRING = {"" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , "" , ""};
       server_description : OUTPUT STRING = "generic ACPLT/OV server";
       server_name : OUTPUT STRING = "MANAGER";
-      server_time : OUTPUT TIME = 2018-05-14 14:02:29.249890;
+      server_time : OUTPUT TIME = 2018-05-15 08:19:47.424950;
       server_version : OUTPUT STRING = "1.3.2";
       server_run : INPUT BOOL = TRUE;
-      serverPID : OUTPUT UINT = 15320;
-      startup_time : OUTPUT TIME = 2018-05-14 13:57:27.016559;
+      serverPID : OUTPUT UINT = 31549;
+      startup_time : OUTPUT TIME = 2018-05-15 08:09:00.755900;
       running_db_backup : OUTPUT BOOL = FALSE;
       write_db_backup : OUTPUT BOOL = FALSE;
       ov_time_offset : INPUT TIME_SPAN = 0.000000;
