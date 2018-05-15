@@ -48,18 +48,19 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
 	ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
 	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &SQLITE3_pinst->v_db);
-	if( rc != SQLITE_OK ) {
+	if( rc != SQLITE_OK) {
 		ov_logfile_info("failed to open db!");
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
 	}
-	OV_STRING table  = {"register"};
-	OV_STRING whereFields[1] = {"ip"};
-	OV_STRING whereValues[1] = {"'192.168.0.1'"};
+	OV_STRING table  = "demoDB";
+	OV_STRING fields[1] = {"SecurityKey"};
+	OV_STRING whereFields[1] = {"ComponentID"};
+	OV_STRING whereValues[1] = {"'test'"};
 	OV_STRING_VEC result;
 	result.value = NULL;
 	result.veclen = 0;
-	Databases_SQLite3_selectData(table, NULL, 0, whereFields, 1, whereValues, 1, &result);
+	Databases_SQLite3_selectData(table, fields, 1, whereFields, 1, whereValues, 1, &result);
 	for(int i = 0; i < result.veclen; i++) {
 		ov_logfile_info("%s ", result.value[i]);
 	}
