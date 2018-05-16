@@ -75,22 +75,23 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 		return OV_ERR_BADPARAM;
 	}
 	// build up INSERT query
-	char* query = "INSERT INTO ";
-	asprintf(&query, "%s%s ", query, table);
-	asprintf(&query, "%s%s", query, "(");
+	OV_STRING query = NULL;
+	ov_string_setvalue(&query, "INSERT INTO ");
+	ov_string_print(&query, "%s%s ", query, table);
+	ov_string_print(&query, "%s%s", query, "(");
 	for(int i = 0; i < fieldsLen; i++) {
 		if(i == fieldsLen-1) {
-			asprintf(&query, "%s%s) ", query, fields[i]);
+			ov_string_print(&query, "%s%s) ", query, fields[i]);
 		} else {
-			asprintf(&query, "%s%s, ", query, fields[i]);
+			ov_string_print(&query, "%s%s, ", query, fields[i]);
 		}
 	}
-	asprintf(&query, "%s%s", query, "VALUES (");
+	ov_string_print(&query, "%s%s", query, "VALUES (");
 	for(int i = 0; i < fieldsLen; i++) {
 		if(i == fieldsLen-1) {
-			asprintf(&query, "%s%s); ", query, values[i]);
+			ov_string_print(&query, "%s%s); ", query, values[i]);
 		} else {
-			asprintf(&query, "%s%s, ", query, values[i]);
+			ov_string_print(&query, "%s%s, ", query, values[i]);
 		}
 	}
 	ov_logfile_info("%s", query);
@@ -101,9 +102,11 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);
 		sqlite3_free(err_msg);
+		ov_string_setvalue(&query, NULL);
 		return OV_ERR_BADPARAM;
 	}
 
+	ov_string_setvalue(&query, NULL);
     return OV_ERR_OK;
 }
 
@@ -113,74 +116,73 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 		return OV_ERR_BADPARAM;
 	}
 	// build up SELECT query
-	char* query = "SELECT DISTINCT";
+	OV_STRING query = NULL;
+	ov_string_setvalue(&query, "SELECT DISTINCT");
 	for(int i = 0; i < fieldsLen; i++) {
 		if(i != fieldsLen-1) {
-			asprintf(&query, "%s %s,", query, fields[i]);
+			ov_string_print(&query, "%s %s,", query, fields[i]);
 		} else {
-			asprintf(&query, "%s %s", query, fields[i]);
+			ov_string_print(&query, "%s %s", query, fields[i]);
 		}
 	}
-	if(!fieldsLen) asprintf(&query, "%s %s ", query, "*");
-	asprintf(&query, "%s %s", query, "FROM");
-	asprintf(&query, "%s %s", query, table);
+	if(!fieldsLen) ov_string_print(&query, "%s %s ", query, "*");
+	ov_string_print(&query, "%s %s", query, "FROM");
+	ov_string_print(&query, "%s %s", query, table);
 	if (fieldsLen){
-		asprintf(&query, "%s %s", query, "WHERE");
+		ov_string_print(&query, "%s %s", query, "WHERE");
 		for(int i = 0; i < fieldsLen; i++) {
 			if(i != fieldsLen-1) {
-				asprintf(&query, "%s %s IS NOT NULL AND", query, fields[i]);
-				asprintf(&query, "%s %s != \"\" AND", query, fields[i]);
+				ov_string_print(&query, "%s %s IS NOT NULL AND", query, fields[i]);
+				ov_string_print(&query, "%s %s != \"\" AND", query, fields[i]);
 			} else {
-				asprintf(&query, "%s %s IS NOT NULL AND", query, fields[i]);
-				asprintf(&query, "%s %s != \"\" AND", query, fields[i]);
+				ov_string_print(&query, "%s %s IS NOT NULL AND", query, fields[i]);
+				ov_string_print(&query, "%s %s != \"\" AND", query, fields[i]);
 			}
 		}
 	}
 	if(whereFieldsLen) {
-		if (!fieldsLen)	asprintf(&query, "%s %s", query, "WHERE");
+		if (!fieldsLen)	ov_string_print(&query, "%s %s", query, "WHERE");
 		for(int i = 0; i < whereFieldsLen; i++) {
 			if(i != whereFieldsLen-1) {
-				asprintf(&query, "%s %s =", query, whereFields[i]);
-				asprintf(&query, "%s %s AND", query, whereValues[i]);
+				ov_string_print(&query, "%s %s = %s AND", query, whereFields[i], whereValues[i]);
 			} else {
-				asprintf(&query, "%s %s =", query, whereFields[i]);
-				asprintf(&query, "%s %s", query, whereValues[i]);
+				ov_string_print(&query, "%s %s = %s", query, whereFields[i], whereValues[i]);
 			}
 		}
 	}
-	asprintf(&query, "%s%s", query, ";");
+	ov_string_print(&query, "%s%s", query, ";");
 
 	ov_logfile_info("%s", query);
 
-	char* err_msg;
+	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
 
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);
 		sqlite3_free(err_msg);
+		ov_string_setvalue(&query, NULL);
 		return OV_ERR_BADPARAM;
 	}
 
+	ov_string_setvalue(&query, NULL);
     return OV_ERR_OK;
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* values, OV_UINT valuesLen) {
 	// build up DELETE query
-	char* query = "DELETE FROM ";
-	asprintf(&query, "%s%s ", query, table);
+	OV_STRING query = NULL;
+	ov_string_setvalue(&query, "DELETE FROM ");
+	ov_string_print(&query, "%s%s ", query, table);
 	if(fieldsLen) {
-		asprintf(&query, "%s%s ", query, "WHERE");
+		ov_string_print(&query, "%s%s ", query, "WHERE");
 		for(int i = 0; i < fieldsLen; i++) {
 			if(i != fieldsLen-1) {
-				asprintf(&query, "%s%s = ", query, fields[i]);
-				asprintf(&query, "%s%s, ", query, values[i]);
+				ov_string_print(&query, "%s%s = %s, ", query, fields[i], values[i]);
 			} else {
-				asprintf(&query, "%s%s = ", query, fields[i]);
-				asprintf(&query, "%s%s", query, values[i]);
+				ov_string_print(&query, "%s%s = %s;", query, fields[i], values[i]);
 			}
 		}
 	}
-	asprintf(&query, "%s%s", query, ";");
 
 	ov_logfile_info("%s", query);
 
@@ -190,15 +192,17 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);
 		sqlite3_free(err_msg);
+		ov_string_setvalue(&query, NULL);
 		return OV_ERR_BADPARAM;
 	}
 
-    return OV_ERR_OK;
+	ov_string_setvalue(&query, NULL);
+	return OV_ERR_OK;
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* fieldValues, OV_UINT fieldValuesLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
 	// build up UPDATE query
-	OV_STRING query;
+	OV_STRING query = NULL;
 	ov_string_setvalue(&query, "UPDATE");
 	ov_string_print(&query, "%s %s", query, table);
 	if(fieldsLen) {
