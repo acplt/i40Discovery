@@ -54,6 +54,12 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
 	}
+	OV_STRING  table = "demoDB";
+	OV_STRING fields[1] = {"Certificate"};
+	OV_STRING fieldValues[1] = {"'UPDATEtest'"};
+	OV_STRING whereFields[1] = {"ComponentID"};
+	OV_STRING whereFieldValues[1] = {"'TC123'"};
+	Databases_SQLite3_updateData(table, fields, 1, fieldValues, 1, whereFields, 1 ,whereFieldValues, 1);
     return OV_ERR_OK;
 }
 
@@ -178,7 +184,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 
 	ov_logfile_info("%s", query);
 
-	char* err_msg;
+	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
 
 	if(rc != SQLITE_OK) {
@@ -191,6 +197,45 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* fieldValues, OV_UINT fieldValuesLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
+	// build up UPDATE query
+	OV_STRING query;
+	ov_string_setvalue(&query, "UPDATE");
+	ov_string_print(&query, "%s %s", query, table);
+	if(fieldsLen) {
+		ov_string_print(&query, "%s %s", query, "SET");
+		for(int i = 0; i < fieldsLen; i++) {
+			if(i != fieldsLen-1) {
+				ov_string_print(&query, "%s %s = %s,", query, fields[i], fieldValues[i]);
+			} else {
+				ov_string_print(&query, "%s %s = %s", query, fields[i], fieldValues[i]);
+			}
+		}
+	}
+	if(whereFieldsLen) {
+		ov_string_print(&query, "%s %s", query, "WHERE");
+		for(int i = 0; i < fieldsLen; i++) {
+			if(i != fieldsLen-1) {
+				ov_string_print(&query, "%s %s = %s,", query, whereFields[i], whereValues[i]);
+			} else {
+				ov_string_print(&query, "%s %s = %s", query, whereFields[i], whereValues[i]);
+			}
+		}
+	}
+	ov_string_print(&query, "%s%s", query, ";");
+
+	ov_logfile_info("%s", query);
+
+	char* err_msg = NULL;
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
+
+	if(rc != SQLITE_OK) {
+		ov_logfile_info("SQL Error: %s", err_msg);
+		sqlite3_free(err_msg);
+		ov_free(query);
+		return OV_ERR_BADPARAM;
+	}
+
+	ov_free(query);
 	return OV_ERR_OK;
 }
 
