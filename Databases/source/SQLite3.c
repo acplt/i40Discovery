@@ -54,12 +54,6 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
 	}
-	OV_STRING  table = "demoDB";
-	OV_STRING fields[1] = {"Certificate"};
-	OV_STRING fieldValues[1] = {"'UPDATEtest'"};
-	OV_STRING whereFields[1] = {"ComponentID"};
-	OV_STRING whereFieldValues[1] = {"'TC123'"};
-	Databases_SQLite3_updateData(table, fields, 1, fieldValues, 1, whereFields, 1 ,whereFieldValues, 1);
     return OV_ERR_OK;
 }
 
@@ -235,11 +229,11 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, co
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);
 		sqlite3_free(err_msg);
-		ov_free(query);
+		ov_string_setvalue(&query,NULL);
 		return OV_ERR_BADPARAM;
 	}
 
-	ov_free(query);
+	ov_string_setvalue(&query,NULL);
 	return OV_ERR_OK;
 }
 
