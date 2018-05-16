@@ -89,16 +89,12 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 	}
 	ov_logfile_info("%s", query);
 
-	sqlite3_stmt *stmt = NULL;
-	rc = sqlite3_prepare_v2(SQLITE3_pinst->v_db, query, -1,  &stmt, NULL);
-	if( rc != SQLITE_OK ) {
-		ov_logfile_info("error: failed to insert into %s", table);
-		return OV_ERR_BADPARAM;
-	}
+	char* err_msg = NULL;
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
 
-	rc = sqlite3_step(stmt);
-	if( rc != SQLITE_OK ) {
-		ov_logfile_info("error: failed to insert into %s", table);
+	if(rc != SQLITE_OK) {
+		ov_logfile_info("SQL Error: %s", err_msg);
+		sqlite3_free(err_msg);
 		return OV_ERR_BADPARAM;
 	}
 
@@ -182,16 +178,20 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 
 	ov_logfile_info("%s", query);
 
-	sqlite3_stmt *stmt;
-	sqlite3_prepare_v2(SQLITE3_pinst->v_db, query, -1,  &stmt, NULL);
+	char* err_msg;
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
 
-	rc = sqlite3_step(stmt);
-	if( rc != SQLITE_DONE ) {
-		ov_logfile_info("error: failed to insert into %s", table);
+	if(rc != SQLITE_OK) {
+		ov_logfile_info("SQL Error: %s", err_msg);
+		sqlite3_free(err_msg);
 		return OV_ERR_BADPARAM;
 	}
 
     return OV_ERR_OK;
+}
+
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* fieldValues, OV_UINT fieldValuesLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
+	return OV_ERR_OK;
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_execQuery(const OV_STRING query) {

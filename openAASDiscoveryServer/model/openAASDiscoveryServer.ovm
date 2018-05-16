@@ -28,6 +28,7 @@ LIBRARY openAASDiscoveryServer
             insertData  : C_FUNCTION <DS_FNC_INSERTDATA> IS_ABSTRACT;
             selectData  : C_FUNCTION <DS_FNC_SELECTDATA> IS_ABSTRACT;
             deleteData  : C_FUNCTION <DS_FNC_DELETEDATA> IS_ABSTRACT;
+            updateData  : C_FUNCTION <DS_FNC_UPDATEDATA> IS_ABSTRACT;
         END_OPERATIONS;
     END_CLASS;
     

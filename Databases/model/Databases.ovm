@@ -24,6 +24,7 @@ LIBRARY Databases
             insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
             selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
             deleteData	: C_FUNCTION <DS_FNC_DELETEDATA>;
+            updateData  : C_FUNCTION <DS_FNC_UPDATEDATA>;
             execQuery   : C_FUNCTION <DS_FNC_EXECQUERY>;
 		END_OPERATIONS;
 	END_CLASS;
