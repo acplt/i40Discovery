@@ -182,7 +182,12 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 	response_data_init(&responseData);
 	jsonResponseParse(&responseData, messageContent);
 	Ov_HeapFree(messageContent);
-
+	OV_STRING_VEC tags;
+	tags.value = NULL;
+	tags.veclen = 0;
+	OV_STRING_VEC values;
+	values.value = NULL;
+	values.veclen = 0;
 	switch(pTC->v_state){
 		case 2: // WaitingForSecurityResponse
 			if (responseData.header.messageType != 2){
@@ -200,13 +205,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 			}
 			// find certificate and securityKey
 			// Parsing Body
-			OV_STRING_VEC tags;
-			tags.value = NULL;
-			tags.veclen = 0;
 			Ov_SetDynamicVectorLength(&tags, 2, STRING);
-			OV_STRING_VEC values;
-			values.value = NULL;
-			values.veclen = 0;
 			Ov_SetDynamicVectorLength(&values, 2, STRING);
 
 			ov_string_setvalue(&tags.value[0], "certificate");
@@ -215,6 +214,8 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 			jsonGetValuesByTags(tags, responseData.body, 1, &values);
 			ov_string_setvalue(&pTC->v_certificateDS, values.value[0]);
 			ov_string_setvalue(&pTC->v_securityKey, values.value[1]);
+			Ov_SetDynamicVectorLength(&tags, 0, STRING);
+			Ov_SetDynamicVectorLength(&values, 0, STRING);
 		break;
 		case 3: // WaitingForRegistrationResponse
 			if (responseData.header.messageType != 4){
@@ -260,10 +261,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 				return;
 			}
-			OV_STRING aas = NULL;
 			// find aas
-
-			ov_string_setvalue(&pTC->v_AASFound, aas);
+			// Parsing Body
+			ov_string_setvalue(&pTC->v_AASFound, responseData.body.js);
 		break;
 	}
 

@@ -119,7 +119,7 @@ static void* thread_fcn(void*ptr){
 	responseHeader.endpointSender = requestData.header.endpointSender;
 	responseHeader.errorMessage = NULL;
 	// Check ErrorMessage
-	if (resultOV){
+	if (errorMessage){
 		ov_logfile_error("Error in part-function: %s", errorMessage);
 		responseHeader.errorFlag = TRUE;
 		ov_string_setvalue(&responseHeader.errorMessage, errorMessage);

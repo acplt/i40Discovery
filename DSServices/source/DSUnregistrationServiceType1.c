@@ -65,11 +65,34 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService
 		goto FINALIZE;
 	}
 	Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-	OV_STRING table  = "demoDB";
 	OV_STRING tmpFields = "ComponentID";
 	OV_STRING tmpValues = NULL;
 	ov_string_print(&tmpValues, "'%s'", componentID);
+	OV_STRING table  = "SecurityData";
 	resultOV = pDBWrapperVTable->m_deleteData(table, &tmpFields, 1, &tmpValues, 1);
+	ov_string_setvalue(&tmpValues, NULL);
+	if (resultOV){
+		ov_string_setvalue(&tmpValues, NULL);
+		ov_string_setvalue(errorMessage, "Internal Error");
+		ov_logfile_error("Could not delete data in SecurityData in database");
+		goto FINALIZE;
+	}
+	table  = "Endpoints";
+	resultOV = pDBWrapperVTable->m_deleteData(table, &tmpFields, 1, &tmpValues, 1);
+	if (resultOV){
+		ov_string_setvalue(&tmpValues, NULL);
+		ov_string_setvalue(errorMessage, "Internal Error");
+		ov_logfile_error("Could not delete data in Endpoints in database");
+		goto FINALIZE;
+	}
+	table  = "Tags";
+	resultOV = pDBWrapperVTable->m_deleteData(table, &tmpFields, 1, &tmpValues, 1);
+	if (resultOV){
+		ov_string_setvalue(&tmpValues, NULL);
+		ov_string_setvalue(errorMessage, "Internal Error");
+		ov_logfile_error("Could not delete data in Tags in database");
+		goto FINALIZE;
+	}
 	ov_string_setvalue(&tmpValues, NULL);
 
 	FINALIZE:

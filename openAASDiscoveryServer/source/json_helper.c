@@ -22,7 +22,8 @@ void json_data_init(json_data* jsonData){
 
 void json_data_deleteMembers(json_data* jsonData){
 	ov_string_setvalue(&jsonData->js, NULL);
-	free(jsonData->token);
+	if (jsonData->token)
+		free(jsonData->token);
 	jsonData->token = NULL;
 	jsonData->num_token = 0;
 	return;

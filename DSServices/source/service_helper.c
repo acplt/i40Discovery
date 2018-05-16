@@ -9,7 +9,7 @@
 
 OV_RESULT checkSecurityKey(OV_STRING_VEC DBWrapperPath, OV_STRING componentID, OV_STRING securityKey){
 	// check SecurityKey in Database
-	OV_STRING table  = "demoDB";
+	OV_STRING table  = "SecurityData";
 	OV_STRING fields = "SecurityKey";
 	OV_STRING whereFields = "ComponentID";
 	OV_STRING whereValues = NULL;
