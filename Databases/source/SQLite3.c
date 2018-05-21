@@ -237,6 +237,40 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, co
 	return OV_ERR_OK;
 }
 
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table, const DB_QUERY db_query) {
+
+	OV_STRING query = NULL;
+    ov_string_setvalue(&query, "SELECT Component1 FROM");
+    /*
+    for(int i = 0; i < db_query.field.veclen; i++) {
+    	ov_string_print(&query, "%s (SELECT ComponentID AS Component%i FROM Tags WHERE", query, i);
+    	ov_string_print(&query, "%s Tag = '%s' AND Value = '%s')", query, db_query.field[i], db_query.value[i]);
+    	if(i < db_query.field.veclen-1)
+    		ov_string_print(&query, "%s,");
+    }
+    for(int i = 0; i < db_query.field.veclen; i++) {
+    	ov_string_print(&query, "%s WHERE Component%i", i);
+    	if(i < db_query.field.veclen-1)
+    		ov_string_print(&query, "%s=", query);
+    }*/
+    ov_string_print(&query, "%s;", query);
+
+	ov_logfile_info("%s", query);
+
+	char* err_msg = NULL;
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
+
+	if(rc != SQLITE_OK) {
+		ov_logfile_info("SQL Error: %s", err_msg);
+		sqlite3_free(err_msg);
+		ov_string_setvalue(&query, NULL);
+		return OV_ERR_BADPARAM;
+	}
+
+	ov_string_setvalue(&query, NULL);
+    return OV_ERR_OK;
+}
+
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_execQuery(const OV_STRING query) {
 
     return OV_ERR_OK;
