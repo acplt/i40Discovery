@@ -145,8 +145,9 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	// Parse Header
 	json_data jsonData_header;
 	json_data_init(&jsonData_header);
-	char* tmpString = malloc(jsonData.token[tokenIndex.value[0]+tokenSizeHeader - 1].end - jsonData.token[tokenIndex.value[0]].start);
-	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[0]].start], jsonData.token[tokenIndex.value[0]+tokenSizeHeader - 1].end - jsonData.token[tokenIndex.value[0]].start);
+	char* tmpString = malloc(jsonData.token[tokenIndex.value[0]+1].end + 2 - jsonData.token[tokenIndex.value[0]].start);
+	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[0]].start - 1], jsonData.token[tokenIndex.value[0]+1].end + 1 - jsonData.token[tokenIndex.value[0]].start);
+	tmpString[jsonData.token[tokenIndex.value[0]+1].end - jsonData.token[tokenIndex.value[0]].start + 1] = '\0';
 	ov_string_setvalue(&jsonData_header.js, tmpString);
 	free(tmpString);
 	tmpString = NULL;
@@ -154,8 +155,8 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	jsonData_header.token = malloc(sizeof(jsmntok_t)*jsonData_header.num_token);
 	for (OV_UINT i = 0; i < jsonData_header.num_token; i++){
 		memcpy(&jsonData_header.token[i], &jsonData.token[tokenIndex.value[0]+i], sizeof(jsmntok_t));
-		jsonData_header.token[i].start = jsonData_header.token[i].start - jsonData.token[tokenIndex.value[0]].start;
-		jsonData_header.token[i].end = jsonData_header.token[i].end - jsonData.token[tokenIndex.value[0]].start;
+		jsonData_header.token[i].start = jsonData_header.token[i].start - jsonData.token[tokenIndex.value[0]].start + 1;
+		jsonData_header.token[i].end = jsonData_header.token[i].end - jsonData.token[tokenIndex.value[0]].start + 1;
 		jsonData_header.token[i].parent = jsonData_header.token[i].parent - tokenIndex.value[0];
 	}
 
@@ -182,8 +183,9 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	requestData->header.protocolType = atoi(values.value[4]);
 
 	// Parse Body
-	tmpString = malloc(jsonData.token[tokenIndex.value[1]+tokenSizeBody - 1].end - jsonData.token[tokenIndex.value[1]].start);
-	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[1]].start], jsonData.token[tokenIndex.value[1]+tokenSizeBody - 1].end - jsonData.token[tokenIndex.value[1]].start);
+	tmpString = malloc(jsonData.token[tokenIndex.value[1]+1].end + 2 - jsonData.token[tokenIndex.value[1]].start);
+	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[1]].start - 1], jsonData.token[tokenIndex.value[1]+1].end + 1 - jsonData.token[tokenIndex.value[1]].start);
+	tmpString[jsonData.token[tokenIndex.value[1]+1].end - jsonData.token[tokenIndex.value[1]].start + 1] = '\0';
 	ov_string_setvalue(&requestData->body.js, tmpString);
 	free(tmpString);
 	tmpString = NULL;
@@ -191,8 +193,8 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	requestData->body.token = malloc(sizeof(jsmntok_t)*requestData->body.num_token);
 	for (OV_UINT i = 0; i < requestData->body.num_token; i++){
 		memcpy(&requestData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
-		requestData->body.token[i].start = requestData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start;
-		requestData->body.token[i].end = requestData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start;
+		requestData->body.token[i].start = requestData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start + 1;
+		requestData->body.token[i].end = requestData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start + 1;
 		requestData->body.token[i].parent = requestData->body.token[i].parent - tokenIndex.value[1];
 	}
 
@@ -258,8 +260,9 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	// Parse Header
 	json_data jsonData_header;
 	json_data_init(&jsonData_header);
-	char* tmpString = malloc(jsonData.token[tokenIndex.value[0]+tokenSizeHeader - 1].end - jsonData.token[tokenIndex.value[0]].start);
-	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[0]].start], jsonData.token[tokenIndex.value[0]+tokenSizeHeader - 1].end - jsonData.token[tokenIndex.value[0]].start);
+	char* tmpString = malloc(jsonData.token[tokenIndex.value[0]+1].end + 2 - jsonData.token[tokenIndex.value[0]].start);
+	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[0]].start-1], jsonData.token[tokenIndex.value[0]+1].end + 1 - jsonData.token[tokenIndex.value[0]].start);
+	tmpString[jsonData.token[tokenIndex.value[0]+1].end - jsonData.token[tokenIndex.value[0]].start + 1] = '\0';
 	ov_string_setvalue(&jsonData_header.js, tmpString);
 	free(tmpString);
 	tmpString = NULL;
@@ -267,8 +270,8 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	jsonData_header.token = malloc(sizeof(jsmntok_t)*jsonData_header.num_token);
 	for (OV_UINT i = 0; i < jsonData_header.num_token; i++){
 		memcpy(&jsonData_header.token[i], &jsonData.token[tokenIndex.value[0]+i], sizeof(jsmntok_t));
-		jsonData_header.token[i].start = jsonData_header.token[i].start - jsonData.token[tokenIndex.value[0]].start;
-		jsonData_header.token[i].end = jsonData_header.token[i].end - jsonData.token[tokenIndex.value[0]].start;
+		jsonData_header.token[i].start = jsonData_header.token[i].start - jsonData.token[tokenIndex.value[0]].start + 1;
+		jsonData_header.token[i].end = jsonData_header.token[i].end - jsonData.token[tokenIndex.value[0]].start + 1;
 		jsonData_header.token[i].parent = jsonData_header.token[i].parent - tokenIndex.value[0];
 	}
 
@@ -309,8 +312,9 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 		ov_string_setvalue(&responseData->header.errorMessage, values.value[6]);
 
 	// Parse Body
-	tmpString = malloc(jsonData.token[tokenIndex.value[1]+tokenSizeBody - 1].end - jsonData.token[tokenIndex.value[1]].start);
-	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[1]].start], jsonData.token[tokenIndex.value[1]+tokenSizeBody - 1].end - jsonData.token[tokenIndex.value[1]].start);
+	tmpString = malloc(jsonData.token[tokenIndex.value[1]+1].end + 2 - jsonData.token[tokenIndex.value[1]].start);
+	strncpy(tmpString, &jsonData.js[jsonData.token[tokenIndex.value[1]].start-1], jsonData.token[tokenIndex.value[1]+1].end + 1 - jsonData.token[tokenIndex.value[1]].start);
+	tmpString[jsonData.token[tokenIndex.value[1]+1].end - jsonData.token[tokenIndex.value[1]].start + 1] = '\0';
 	ov_string_setvalue(&responseData->body.js, tmpString);
 	free(tmpString);
 	tmpString = NULL;
@@ -318,8 +322,8 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	responseData->body.token = malloc(sizeof(jsmntok_t)*responseData->body.num_token);
 	for (OV_UINT i = 0; i < responseData->body.num_token; i++){
 		memcpy(&responseData->body.token[i], &jsonData.token[tokenIndex.value[1]+i], sizeof(jsmntok_t));
-		responseData->body.token[i].start = responseData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start;
-		responseData->body.token[i].end = responseData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start;
+		responseData->body.token[i].start = responseData->body.token[i].start - jsonData.token[tokenIndex.value[1]].start + 1;
+		responseData->body.token[i].end = responseData->body.token[i].end - jsonData.token[tokenIndex.value[1]].start + 1;
 		responseData->body.token[i].parent = responseData->body.token[i].parent - tokenIndex.value[1];
 	}
 	free(jsonData.token);

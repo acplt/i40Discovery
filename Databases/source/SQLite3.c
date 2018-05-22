@@ -237,28 +237,37 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, co
 	return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table, const DB_QUERY db_query) {
+OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table, const DB_QUERY* db_query, OV_UINT querySize, OV_STRING_VEC* result) {
+	// TODO: Check Veclen => Errorhandling
 
 	OV_STRING query = NULL;
-    ov_string_setvalue(&query, "SELECT Component1 FROM");
-    /*
-    for(int i = 0; i < db_query.field.veclen; i++) {
-    	ov_string_print(&query, "%s (SELECT ComponentID AS Component%i FROM Tags WHERE", query, i);
-    	ov_string_print(&query, "%s Tag = '%s' AND Value = '%s')", query, db_query.field[i], db_query.value[i]);
-    	if(i < db_query.field.veclen-1)
-    		ov_string_print(&query, "%s,");
+    ov_string_setvalue(&query, "SELECT DISTINCT ComponentID0 FROM");
+
+    for(OV_UINT i = 0; i < querySize; i++) {
+    	ov_string_print(&query, "%s (SELECT DISTINCT ComponentID AS ComponentID%i FROM %s WHERE ", query, i, table);
+    	for(OV_UINT j = 0; j < db_query[i].column.veclen; j++) {
+    		if (j < db_query[i].column.veclen - 1)
+    			ov_string_print(&query, "%s %s='%s' AND ", query, db_query[i].column.value[j], db_query[i].value.value[j]);
+    		else
+    			ov_string_print(&query, "%s %s='%s')", query, db_query[i].column.value[j], db_query[i].value.value[j]);
+    	}
+    	if (i < querySize - 1)
+    		ov_string_append(&query, ",");
     }
-    for(int i = 0; i < db_query.field.veclen; i++) {
-    	ov_string_print(&query, "%s WHERE Component%i", i);
-    	if(i < db_query.field.veclen-1)
-    		ov_string_print(&query, "%s=", query);
-    }*/
-    ov_string_print(&query, "%s;", query);
+    if (querySize > 1){
+    	ov_string_append(&query, "WHERE ");
+    	for(OV_UINT i = 0; i < querySize; i++) {
+    		ov_string_print(&query, "%s ComponentID%i", query, i);
+    		if(i < querySize-1)
+    			ov_string_append(&query, "=");
+    	}
+    }
+	ov_string_append(&query, ";");
 
 	ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
+	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
 
 	if(rc != SQLITE_OK) {
 		ov_logfile_info("SQL Error: %s", err_msg);

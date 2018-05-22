@@ -530,6 +530,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_TestClient_typemethod(
     		pinst->v_errorFlag = FALSE;
     		ov_string_setvalue(&pinst->v_errorMessage, NULL);
     		ov_string_setvalue(&pinst->v_certificateDS, NULL);
+    		ov_string_setvalue(&pinst->v_AASFound, NULL);
     		pinst->v_state = 1;
 		break;
     	case 1: // ReadyForSendingRequest

@@ -94,24 +94,24 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 	}
 
 	// search for tags in Database and get componentID and endpoints
-	OV_STRING table  = "tags";
-	OV_STRING *tmpFields = NULL;
-	tmpFields = malloc(sizeof(OV_STRING));
-	tmpFields[0] = "ComponentID";
-	OV_STRING *whereFields = NULL;
-	OV_STRING *tmpValues = NULL;
-	whereFields = malloc(sizeof(OV_STRING)*searchtagsSize*2);
-	tmpValues = malloc(sizeof(OV_STRING)*searchtagsSize*2);
+	struct DB_QUERY * query = NULL;
+	query = malloc(sizeof(struct DB_QUERY) * searchtagsSize);
+
 	for (OV_UINT i = 0; i < searchtagsSize; i++){
-		whereFields[i*2] = "Tag";
-		tmpValues[i*2] = NULL;
-		ov_string_print(&tmpValues[i*2], "'%s'", searchtags[i].tag);
-		whereFields[i*2+1] = "Value";
-		tmpValues[i*2+1] = NULL;
-		ov_string_print(&tmpValues[i*2+1], "'%s'", searchtags[i].value);
+		query[i].column.veclen = 0;
+		query[i].column.value = NULL;
+		query[i].value.veclen = 0;
+		query[i].value.value = NULL;
+
+		Ov_SetDynamicVectorLength(&query[i].column, query[i].column.veclen + 2, STRING);
+		ov_string_setvalue(&query[i].column.value[query[i].column.veclen-2], "Tag");
+		ov_string_setvalue(&query[i].column.value[query[i].column.veclen-1], "Value");
+		Ov_SetDynamicVectorLength(&query[i].value, query[i].value.veclen + 2, STRING);
+		ov_string_setvalue(&query[i].value.value[query[i].value.veclen-2], searchtags[i].tag);
+		ov_string_setvalue(&query[i].value.value[query[i].value.veclen-1], searchtags[i].value);
 	}
-	Ov_SetDynamicVectorLength(&componentIDs, 0, STRING);
-	OV_BOOL componentFound = FALSE;
+
+	OV_STRING table  = "tags";
 	// Find ComponentID by Tags
 	OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
 	OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pDBWrapperVTable = NULL;
@@ -121,84 +121,69 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 			break;
 
 		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-		pDBWrapperVTable->m_selectData(table, tmpFields, 1, whereFields, searchtagsSize*2, tmpValues, searchtagsSize*2, &componentIDs);
+		pDBWrapperVTable->m_getComponentID(table, query, searchtagsSize, &componentIDs);
 		if (componentIDs.veclen > 0){
-			componentFound = TRUE;
-			componentSize = componentIDs.veclen;
 			break;
 		}
 	}
 
-	if (componentFound == FALSE){
+	if (componentIDs.veclen == 0){
 		ov_string_setvalue(errorMessage, "no component found by your tags");
 		ov_string_setvalue(JsonOutput, "\"body\":{}");
 		goto FINALIZE;
 	}
-	if (tmpFields)
-		free(tmpFields);
-	if (whereFields)
-		free(whereFields);
-	for (OV_UINT i = 0; i < searchtagsSize*2; i++){
-		ov_string_setvalue(&tmpValues[i], NULL);
+
+	for (OV_UINT i = 0; i < searchtagsSize; i++){
+		Ov_SetDynamicVectorLength(&query[i].column, 0, STRING);
+		Ov_SetDynamicVectorLength(&query[i].value, 0, STRING);
 	}
-	if (tmpValues)
-		free(tmpValues);
+	free(query);
 
 	table  = "Endpoints";
 	components = malloc(sizeof(struct component)*componentIDs.veclen);
 	Ov_SetDynamicVectorLength(&endpointStruct, 0, STRING);
-	tmpFields = NULL;
-	tmpFields = malloc(sizeof(OV_STRING)*2);
-	tmpFields[0] = "ProtocolType";
-	tmpFields[1] = "EndpointString";
+	OV_STRING tmpFields[2] = {"ProtocolType","EndpointString"};
+	OV_STRING whereFields = NULL;
+	OV_STRING tmpValues = NULL;
 	for (OV_UINT i = 0; i < componentIDs.veclen; i++){
 		components[i].componentID = NULL;
 		ov_string_setvalue(&components[i].componentID, componentIDs.value[i]);
 		components[i].endpoints = NULL;
+		components[i].endpointsSize = 0;
 		// Find ComponentID by Tags
 		whereFields = NULL;
-		whereFields = malloc(sizeof(OV_STRING));
-		whereFields[0] = "ComponentID";
+		ov_string_setvalue(&whereFields,"ComponentID");
 		tmpValues = NULL;
-		tmpValues = malloc(sizeof(OV_STRING));
-		tmpValues[0] = NULL;
-		ov_string_print(&tmpValues[i], "'%s'", components[i].componentID);
+		ov_string_print(&tmpValues, "'%s'", components[i].componentID);
 		OV_INSTPTR_openAASDiscoveryServer_DBWrapper pDBWrapper = NULL;
 		OV_VTBLPTR_openAASDiscoveryServer_DBWrapper pDBWrapperVTable = NULL;
-		components[i].endpointsSize = 0;
-		components[i].endpoints = NULL;
-		for (OV_UINT i = 0; i < pinst->v_DBWrapperUsed.veclen; i++){
-			pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[i], 2));
+		for (OV_UINT j = 0; j < pinst->v_DBWrapperUsed.veclen; j++){
+			pDBWrapper = Ov_DynamicPtrCast(openAASDiscoveryServer_DBWrapper, ov_path_getobjectpointer(pinst->v_DBWrapperUsed.value[j], 2));
 			if (!pDBWrapper)
 				break;
 
 			Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-			pDBWrapperVTable->m_selectData(table, tmpFields, 2, whereFields, 1, tmpValues, 1, &endpointStruct);
+			pDBWrapperVTable->m_selectData(table, tmpFields, 2, &whereFields, 1, &tmpValues, 1, &endpointStruct);
 			if (endpointStruct.veclen > 0){
 				components[i].endpointsSize = endpointStruct.veclen / 2;
 				components[i].endpoints = malloc(sizeof(struct endpoint)*endpointStruct.veclen / 2);
-				for (OV_UINT j = 0; j < endpointStruct.veclen/2; j++){
-					components[i].endpoints[j].protocolType = NULL;
-					ov_string_setvalue(&components[i].endpoints[j].protocolType, endpointStruct.value[j*2]);
-					components[i].endpoints[j].endpointString = NULL;
-					ov_string_setvalue(&components[i].endpoints[j].endpointString, endpointStruct.value[j*2+1]);
+				for (OV_UINT k = 0; k < endpointStruct.veclen/2; k++){
+					components[i].endpoints[k].protocolType = NULL;
+					ov_string_setvalue(&components[i].endpoints[k].protocolType, endpointStruct.value[k*2]);
+					components[i].endpoints[k].endpointString = NULL;
+					ov_string_setvalue(&components[i].endpoints[k].endpointString, endpointStruct.value[k*2+1]);
 				}
 				Ov_SetDynamicVectorLength(&endpointStruct, 0, STRING);
 				break;
 			}
 		}
-		ov_string_setvalue(&tmpValues[i], NULL);
-		if (whereFields)
-			free(whereFields);
-		if (tmpValues)
-			free(tmpValues);
+		ov_string_setvalue(&tmpValues, NULL);
+		ov_string_setvalue(&whereFields, NULL);
 	}
-	if (tmpFields)
-		free(tmpFields);
 
 	// Generate Response
 	ov_string_setvalue(JsonOutput, "\"body\":{\"components\":[");
-	for (OV_UINT i = 0; i < componentSize; i++){
+	for (OV_UINT i = 0; i < componentIDs.veclen; i++){
 		OV_STRING tmpString = NULL;
 		ov_string_print(&tmpString, "{\"componentID\":\"%s\", \"endpoints\":[", components[i].componentID);
 		ov_string_append(JsonOutput, tmpString);
@@ -208,29 +193,34 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 			ov_string_print(&tmpString, "{\"protocolType\":\"%s\", \"endpointString\":\"%s\"}", components[i].endpoints[j].protocolType, components[i].endpoints[j].endpointString);
 			ov_string_append(JsonOutput, tmpString);
 			ov_string_setvalue(&tmpString, NULL);
+			if (j < components[i].endpointsSize - 1)
+				ov_string_append(JsonOutput, ",");
 		}
 		ov_string_append(JsonOutput, "]}");
+		if (i < componentIDs.veclen - 1)
+			ov_string_append(JsonOutput, ",");
 	}
 	ov_string_append(JsonOutput, "]}}");
 
 	FINALIZE:
 	Ov_SetDynamicVectorLength(&tags, 0, STRING);
 	Ov_SetDynamicVectorLength(&tokenIndex, 0, UINT);
-	Ov_SetDynamicVectorLength(&componentIDs, 0, STRING);
 	Ov_SetDynamicVectorLength(&endpointStruct, 0, STRING);
 	ov_string_setvalue(&componentID, NULL);
 	ov_string_setvalue(&securityKey, NULL);
 
-	for (OV_UINT i = 0; i < componentSize; i++){
+	for (OV_UINT i = 0; i < componentIDs.veclen; i++){
 		ov_string_setvalue(&components[i].componentID, NULL);
 		for (OV_UINT j = 0; j < components[i].endpointsSize; j++){
 			ov_string_setvalue(&components[i].endpoints[j].protocolType, NULL);
 			ov_string_setvalue(&components[i].endpoints[j].endpointString, NULL);
 		}
 		free(components[i].endpoints);
+		components[i].endpoints = NULL;
 	}
 	if (components)
 		free(components);
+	Ov_SetDynamicVectorLength(&componentIDs, 0, STRING);
 
 	for (OV_UINT i = 0; i < searchtagsSize; i++){
 		ov_string_setvalue(&searchtags[i].tag, NULL);

@@ -25,6 +25,7 @@
 #include "libov/ov_macros.h"
 #include "json_helper.h"
 #include "service_helper.h"
+#include <time.h>
 
 
 OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_INSTPTR_openAASDiscoveryServer_DSService pinst, const json_data JsonInput, OV_STRING *JsonOutput, OV_STRING *errorMessage) {
@@ -155,7 +156,9 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
 
 	if(securityKeyAlreadyExist == FALSE){
 		// TODO: generate securityKey
-		ov_string_setvalue(&securityKey, "AutgenKey1");
+		srand(time(NULL));
+		OV_UINT i = rand();
+		ov_string_print(&securityKey, "AutgenKey%i", i);
 		// Insert securityKey in database
 		table  = "SecurityData";
 		fields[0] = "SecurityKey";
