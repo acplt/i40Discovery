@@ -397,6 +397,7 @@ OV_DLLFNCEXPORT void openaas_AASComponentManager_typemethod(
 	cleanupMessageBox(pinst);
 	ov_string_setvalue(&pinst->v_errorText, NULL);
 
+
 	// StateMaschine
 	switch(pinst->v_state){
 	case 0: //Waiting for the setting of AAS-ID and Asset-ID
@@ -419,6 +420,8 @@ OV_DLLFNCEXPORT void openaas_AASComponentManager_typemethod(
 		break;
 	case 1: //Sending Security-Request and wait for answer
 		// Get the next message, if any.
+		ov_string_setvalue(&pinst->v_errorMessage, NULL);
+		pinst->v_errorFlag = FALSE;
 		pinst->v_messageCount++;
 		pTaskParent=Ov_GetParent(fb_tasklist, pinst);
 		tmpTimeSpan.usecs = pTaskParent->v_cyctime.usecs * pinst->v_messageCount;
@@ -495,6 +498,8 @@ OV_DLLFNCEXPORT void openaas_AASComponentManager_typemethod(
 	break;
 	case 2: //Sending Registration-Request and wait for answer
 		// Get the next message, if any.
+		ov_string_setvalue(&pinst->v_errorMessage, NULL);
+		pinst->v_errorFlag = FALSE;
 		pinst->v_messageCount++;
 		pTaskParent=Ov_GetParent(fb_tasklist, pinst);
 		tmpTimeSpan.usecs = pTaskParent->v_cyctime.usecs * pinst->v_messageCount;
@@ -551,6 +556,8 @@ OV_DLLFNCEXPORT void openaas_AASComponentManager_typemethod(
 	break;
 	case 3: //Process incoming messages
 		// Get the next message, if any.
+		ov_string_setvalue(&pinst->v_errorMessage, NULL);
+		pinst->v_errorFlag = FALSE;
 		message = getNextMessage(pinst);
 		if (message == NULL) {
 			// Nothing to do.
