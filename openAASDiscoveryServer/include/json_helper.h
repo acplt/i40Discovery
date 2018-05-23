@@ -40,17 +40,18 @@ typedef struct response_data {
 }response_data;
 
 
-
+void json_data_init(json_data* jsonData);
+void json_data_deleteMembers(json_data* jsonData);
 void request_data_init(request_data *requestData);
 void request_data_deleteMembers(request_data *requestData);
 void response_data_init(response_data *responseData);
 void response_data_deleteMembers(response_data *responseData);
 int jsoneq(const char *json, const jsmntok_t *tok, const char *s);
-OV_DLLFNCEXPORT OV_RESULT jsonTokenize(json_data* jsonData);
+OV_RESULT jsonTokenize(json_data* jsonData);
 OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message);
 OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message);
-OV_DLLFNCEXPORT OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_UINT_VEC* tokenIndex);
-OV_DLLFNCEXPORT OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values);
-OV_DLLFNCEXPORT OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex);
-OV_DLLFNCEXPORT OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str);
+OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_UINT_VEC* tokenIndex);
+OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values);
+OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex);
+OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str);
 #endif

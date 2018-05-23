@@ -70,7 +70,6 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSUnregistrationServiceType1_executeService
 	ov_string_print(&tmpValues, "'%s'", componentID);
 	OV_STRING table  = "SecurityData";
 	resultOV = pDBWrapperVTable->m_deleteData(table, &tmpFields, 1, &tmpValues, 1);
-	ov_string_setvalue(&tmpValues, NULL);
 	if (resultOV){
 		ov_string_setvalue(&tmpValues, NULL);
 		ov_string_setvalue(errorMessage, "Internal Error");

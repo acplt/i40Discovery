@@ -13,14 +13,14 @@ int jsoneq(const char *json, const jsmntok_t *tok, const char *s) {
 	return -1;
 }
 
-void json_data_init(json_data* jsonData){
+OV_DLLFNCEXPORT void json_data_init(json_data* jsonData){
 	jsonData->js = NULL;
 	jsonData->num_token = 0;
 	jsonData->token = NULL;
 	return;
 }
 
-void json_data_deleteMembers(json_data* jsonData){
+OV_DLLFNCEXPORT void json_data_deleteMembers(json_data* jsonData){
 	ov_string_setvalue(&jsonData->js, NULL);
 	if (jsonData->token)
 		free(jsonData->token);
@@ -29,7 +29,7 @@ void json_data_deleteMembers(json_data* jsonData){
 	return;
 }
 
-void request_data_init(request_data *requestData){
+OV_DLLFNCEXPORT void request_data_init(request_data *requestData){
 	requestData->header.endpointReceiver = NULL;
 	requestData->header.endpointSender = NULL;
 	requestData->header.messageID = NULL;
@@ -39,7 +39,7 @@ void request_data_init(request_data *requestData){
 	return;
 }
 
-void request_data_deleteMembers(request_data *requestData){
+OV_DLLFNCEXPORT void request_data_deleteMembers(request_data *requestData){
 	ov_string_setvalue(&requestData->header.endpointReceiver, NULL);
 	ov_string_setvalue(&requestData->header.endpointSender, NULL);
 	ov_string_setvalue(&requestData->header.messageID, NULL);
@@ -49,7 +49,7 @@ void request_data_deleteMembers(request_data *requestData){
 	return;
 }
 
-void response_data_init(response_data *responseData){
+OV_DLLFNCEXPORT void response_data_init(response_data *responseData){
 	responseData->header.endpointReceiver = NULL;
 	responseData->header.endpointSender = NULL;
 	responseData->header.messageID = NULL;
@@ -61,7 +61,7 @@ void response_data_init(response_data *responseData){
 	return;
 }
 
-void response_data_deleteMembers(response_data *responseData){
+OV_DLLFNCEXPORT void response_data_deleteMembers(response_data *responseData){
 	ov_string_setvalue(&responseData->header.referToMessageID, NULL);
 	ov_string_setvalue(&responseData->header.endpointReceiver, NULL);
 	ov_string_setvalue(&responseData->header.endpointSender, NULL);
@@ -73,7 +73,7 @@ void response_data_deleteMembers(response_data *responseData){
 	return;
 }
 
-OV_RESULT jsonTokenize(json_data* jsonData) {
+OV_DLLFNCEXPORT OV_RESULT jsonTokenize(json_data* jsonData) {
 	jsmn_parser p;
 
 	jsmn_init(&p);
@@ -93,7 +93,7 @@ OV_RESULT jsonTokenize(json_data* jsonData) {
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
+OV_DLLFNCEXPORT OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	json_data jsonData;
 	json_data_init(&jsonData);
 	jsonData.js = message;
@@ -115,7 +115,6 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	Ov_SetDynamicVectorLength(&tokenIndex, 2, UINT);
 
 	jsonGetTokenIndexByTags(tags, jsonData, 0, &tokenIndex);
-
 
 	// get tokenSize for header and body
 	OV_UINT tokenSizeHeader = 0;
@@ -208,7 +207,7 @@ OV_RESULT jsonRequestParse(request_data* requestData, const OV_STRING message) {
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message) {
+OV_DLLFNCEXPORT OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message) {
 	json_data jsonData;
 	json_data_init(&jsonData);
 	jsonData.js = message;
@@ -335,7 +334,7 @@ OV_RESULT jsonResponseParse(response_data* responseData, const OV_STRING message
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_UINT_VEC* tokenIndex) {
+OV_DLLFNCEXPORT OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_UINT_VEC* tokenIndex) {
 	for(int i = parentToken; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if (jsonData.token[i].parent != parentToken){
@@ -350,7 +349,7 @@ OV_RESULT jsonGetTokenIndexByTags(const OV_STRING_VEC tags, const json_data json
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values) {
+OV_DLLFNCEXPORT OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values) {
 	for(int i = parentToken; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if (jsonData.token[i].parent != parentToken){
@@ -365,7 +364,7 @@ OV_RESULT jsonGetValuesByTags(const OV_STRING_VEC tags, const json_data jsonData
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex) {
+OV_DLLFNCEXPORT OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_data jsonData, const OV_UINT parentToken, OV_STRING_VEC* values, OV_UINT_VEC* tokenIndex) {
 	for(int i = parentToken; i < jsonData.num_token; i++) {
 		for(int j = 0; j < tags.veclen; j++) {
 			if (jsonData.token[i].parent != parentToken){
@@ -381,7 +380,7 @@ OV_RESULT jsonGetValuesAndTokenIndexByTags(const OV_STRING_VEC tags, const json_
 	return OV_ERR_OK;
 }
 
-OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str) {
+OV_DLLFNCEXPORT OV_RESULT jsonGetValueByToken(const char* js, const jsmntok_t* t, OV_STRING* str) {
 	if(!(t->type==JSMN_STRING) || !str)
 		return OV_ERR_BADPARAM;
 
