@@ -292,7 +292,7 @@ static OV_STRING sendingRequestToDiscoveryServer(OV_INSTPTR_openaas_AASComponent
 		ov_string_print(&value, "%i", paas->p_AssetID.v_IdType);
 		ov_string_append(&value, ",");
 		ov_string_append(&value, paas->p_AssetID.v_IdSpec);
-		ov_string_print(&tmpString, ",{\"tag\":\"assetID\",\"value\":\"%s\"}", value);
+		ov_string_print(&tmpString, ",{\"tag\":\"ASSETID\",\"value\":\"%s\"}", value);
 		ov_string_setvalue(&value, NULL);
 		ov_string_append(&componentContent, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
