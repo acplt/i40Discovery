@@ -40,14 +40,14 @@ static int callback(void* data, int argc, char **argv, char **col_name) {
 
 	for(int i = 0; i<argc; i++) {
 		ov_string_setvalue(&(((OV_STRING_VEC*)data)->value[((OV_STRING_VEC*)data)->veclen - argc + i]), argv[i]);
-		ov_logfile_info("%-10s : %-s", col_name[i], argv[i] ? argv[i] : "NULL");
+		//ov_logfile_info("%-10s : %-s", col_name[i], argv[i] ? argv[i] : "NULL");
 	}
 	return 0;
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
 	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
-	ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
+	//ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
 	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &SQLITE3_pinst->v_db);
 	if( rc != SQLITE_OK) {
 		ov_logfile_info("failed to open db!");
@@ -88,7 +88,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 			ov_string_print(&query, "%s%s, ", query, values[i]);
 		}
 	}
-	ov_logfile_info("%s", query);
+	//ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
@@ -146,7 +146,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 	}
 	ov_string_print(&query, "%s%s", query, ";");
 
-	ov_logfile_info("%s", query);
+	//ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
@@ -178,7 +178,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 		}
 	}
 
-	ov_logfile_info("%s", query);
+	//ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
@@ -221,7 +221,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, co
 	}
 	ov_string_print(&query, "%s%s", query, ";");
 
-	ov_logfile_info("%s", query);
+	//ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
@@ -264,7 +264,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table
     }
 	ov_string_append(&query, ";");
 
-	ov_logfile_info("%s", query);
+	//ov_logfile_info("%s", query);
 
 	char* err_msg = NULL;
 	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
@@ -294,7 +294,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_query_set(
 		char* err_msg = NULL;
 
 		ov_string_setvalue(&pobj->v_query,value);
-		ov_logfile_info("%s", pobj->v_query);
+		//ov_logfile_info("%s", pobj->v_query);
 		rc = sqlite3_exec(SQLITE3_pinst->v_db, pobj->v_query, callback, (void*)data, &err_msg);
 
 		if( rc != SQLITE_DONE ) {
