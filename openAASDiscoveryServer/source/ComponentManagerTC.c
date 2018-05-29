@@ -147,7 +147,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 	}
 	OV_INSTPTR_openAASDiscoveryServer_TestClient pTC = NULL;
 	pTC = Ov_DynamicPtrCast(openAASDiscoveryServer_TestClient, pinst->v_pouterobject);
-	if (pTC->v_state != 2 && pTC->v_state != 3 && pTC->v_state != 4 && pTC->v_state != 5){
+	if (pTC->v_State != 2 && pTC->v_State != 3 && pTC->v_State != 4 && pTC->v_State != 5){
 		while(TRUE){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 			message = getNextMessage(pinst);
@@ -188,7 +188,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 	OV_STRING_VEC values;
 	values.value = NULL;
 	values.veclen = 0;
-	switch(pTC->v_state){
+	switch(pTC->v_State){
 		case 2: // WaitingForSecurityResponse
 			if (responseData.header.messageType != 2){
 				// delete all used memory
@@ -196,9 +196,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				return;
 			}
 			if (responseData.header.errorFlag == TRUE){
-				pTC->v_errorFlag = TRUE;
-				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
-				pTC->v_state = 6;
+				pTC->v_ErrorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_ErrorMessage, responseData.header.errorMessage);
+				pTC->v_State = 6;
 				// delete all used memory
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 				return;
@@ -212,8 +212,8 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 			ov_string_setvalue(&tags.value[1], "securityKey");
 
 			jsonGetValuesByTags(tags, responseData.body, 1, &values);
-			ov_string_setvalue(&pTC->v_certificateDS, values.value[0]);
-			ov_string_setvalue(&pTC->v_securityKey, values.value[1]);
+			ov_string_setvalue(&pTC->v_CertificateDS, values.value[0]);
+			ov_string_setvalue(&pTC->v_SecurityKey, values.value[1]);
 			Ov_SetDynamicVectorLength(&tags, 0, STRING);
 			Ov_SetDynamicVectorLength(&values, 0, STRING);
 		break;
@@ -224,9 +224,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				return;
 			}
 			if (responseData.header.errorFlag == TRUE){
-				pTC->v_errorFlag = TRUE;
-				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
-				pTC->v_state = 6;
+				pTC->v_ErrorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_ErrorMessage, responseData.header.errorMessage);
+				pTC->v_State = 6;
 				// delete all used memory
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 				return;
@@ -239,9 +239,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				return;
 			}
 			if (responseData.header.errorFlag == TRUE){
-				pTC->v_errorFlag = TRUE;
-				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
-				pTC->v_state = 6;
+				pTC->v_ErrorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_ErrorMessage, responseData.header.errorMessage);
+				pTC->v_State = 6;
 				// delete all used memory
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 				return;
@@ -254,9 +254,9 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 				return;
 			}
 			if (responseData.header.errorFlag == TRUE){
-				pTC->v_errorFlag = TRUE;
-				ov_string_setvalue(&pTC->v_errorMessage, responseData.header.errorMessage);
-				pTC->v_state = 6;
+				pTC->v_ErrorFlag = TRUE;
+				ov_string_setvalue(&pTC->v_ErrorMessage, responseData.header.errorMessage);
+				pTC->v_State = 6;
 				// delete all used memory
 				Ov_DeleteObject((OV_INSTPTR_ov_object) message);
 				return;
@@ -269,7 +269,7 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_ComponentManagerTC_typemethod(
 
 	// delete all used memory
 	Ov_DeleteObject((OV_INSTPTR_ov_object) message);
-	pTC->v_state = 6;
+	pTC->v_State = 6;
 
 	return;
 }

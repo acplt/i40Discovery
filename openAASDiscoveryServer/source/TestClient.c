@@ -33,11 +33,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 
     pobj->v_SendSecurityMessage = value;
     if (pobj->v_SendSecurityMessage == TRUE){
-    	ov_string_setvalue(&pobj->v_errorMessage, NULL);
-		pobj->v_errorFlag = FALSE;
-    	if (pobj->v_state != 1){
-        	ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
-    		pobj->v_errorFlag = TRUE;
+    	ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
+		pobj->v_ErrorFlag = FALSE;
+    	if (pobj->v_State != 1){
+        	ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+    		pobj->v_ErrorFlag = TRUE;
     		return OV_ERR_GENERIC;
     	}
 
@@ -51,8 +51,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		pListExtern = ov_string_split(pobj->v_EndpointDS, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointExtern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointExtern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointExtern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -61,23 +61,23 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		pListIntern = ov_string_split(pobj->v_EndpointTestClient, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointIntern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointIntern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointIntern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
 		// Create MessageObject in Outbox
 		OV_RESULT resultOV = 0;
-		ov_string_print(&tmpString, "%i", (pobj->v_messageCount + 1));
+		ov_string_print(&tmpString, "%i", (pobj->v_MessageCount + 1));
 		resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pobj->p_ComponentManager.p_OUTBOX, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		if(Ov_Fail(resultOV)){
 			ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			ov_string_print(&pobj->v_errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_messageCount = pobj->v_messageCount + 1;
+		pobj->v_MessageCount = pobj->v_MessageCount + 1;
 
 		// Sender = Endpoint of Discovery-Server (IP, MANAGER-Name, Path)
 		MessageSys_Message_senderAddress_set(panswerMessage, pListIntern[0]);
@@ -95,7 +95,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"1\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"certificate\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_CertificateTC);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"1\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"certificate\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_MessageCount, pobj->v_ComponentID, pobj->v_CertificateTC);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");
@@ -115,8 +115,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		if (!pmsgDelivery){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not find MessageSys");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not find MessageSys");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not find MessageSys");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -124,11 +124,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		if (MessageSys_MsgDelivery_sendMessage(pmsgDelivery, panswerMessage) == FALSE){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not send Message");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not send Message");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not send Message");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_state = 2;
+		pobj->v_State = 2;
     }
     pobj->v_SendSecurityMessage = FALSE;
     return OV_ERR_OK;
@@ -139,12 +139,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
     const OV_BOOL  value
 ) {
     pobj->v_SendRegistrationMessage = value;
-    if (pobj->v_SendRegistrationMessage == TRUE && pobj->v_securityKey){
-		ov_string_setvalue(&pobj->v_errorMessage, NULL);
-		pobj->v_errorFlag = FALSE;
-		if (pobj->v_state != 1){
-			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
-			pobj->v_errorFlag = TRUE;
+    if (pobj->v_SendRegistrationMessage == TRUE && pobj->v_SecurityKey){
+		ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
+		pobj->v_ErrorFlag = FALSE;
+		if (pobj->v_State != 1){
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -158,8 +158,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		pListExtern = ov_string_split(pobj->v_EndpointDS, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointExtern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointExtern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointExtern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -168,23 +168,23 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		pListIntern = ov_string_split(pobj->v_EndpointTestClient, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointIntern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointIntern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointIntern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
 		// Create MessageObject in Outbox
 		OV_RESULT resultOV = 0;
-		ov_string_print(&tmpString, "%i", pobj->v_messageCount + 1);
+		ov_string_print(&tmpString, "%i", pobj->v_MessageCount + 1);
 		resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pobj->p_ComponentManager.p_OUTBOX, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		if(Ov_Fail(resultOV)){
 			ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			ov_string_print(&pobj->v_errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_messageCount = pobj->v_messageCount + 1;
+		pobj->v_MessageCount = pobj->v_MessageCount + 1;
 
 		// Sender = Endpoint of Discovery-Server (IP, MANAGER-Name, Path)
 		MessageSys_Message_senderAddress_set(panswerMessage, pListIntern[0]);
@@ -202,7 +202,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"3\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", %s}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_ComponentContent);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"3\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", %s}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_MessageCount, pobj->v_ComponentID, pobj->v_SecurityKey, pobj->v_ComponentContent);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");
@@ -222,8 +222,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		if (!pmsgDelivery){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not find MessageSys");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not find MessageSys");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not find MessageSys");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -231,11 +231,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendRegistrationMess
 		if (MessageSys_MsgDelivery_sendMessage(pmsgDelivery, panswerMessage) == FALSE){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not send Message");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not send Message");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not send Message");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_state = 3;
+		pobj->v_State = 3;
 	}
 	pobj->v_SendRegistrationMessage = FALSE;
     return OV_ERR_OK;
@@ -246,12 +246,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
     const OV_BOOL  value
 ) {
     pobj->v_SendUnregistrationMessage = value;
-    if (pobj->v_SendUnregistrationMessage == TRUE && pobj->v_securityKey){
-   		ov_string_setvalue(&pobj->v_errorMessage, NULL);
-   		pobj->v_errorFlag = FALSE;
-		if (pobj->v_state != 1){
-			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
-			pobj->v_errorFlag = TRUE;
+    if (pobj->v_SendUnregistrationMessage == TRUE && pobj->v_SecurityKey){
+   		ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
+   		pobj->v_ErrorFlag = FALSE;
+		if (pobj->v_State != 1){
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -265,8 +265,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		pListExtern = ov_string_split(pobj->v_EndpointDS, ":", &len);
    		if (len != 3){
    			ov_logfile_error("EndpointExtern is not of correct format");
-   			ov_string_print(&pobj->v_errorMessage, "EndpointExtern is not of correct format");
-   			pobj->v_errorFlag = TRUE;
+   			ov_string_print(&pobj->v_ErrorMessage, "EndpointExtern is not of correct format");
+   			pobj->v_ErrorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
 
@@ -275,23 +275,23 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		pListIntern = ov_string_split(pobj->v_EndpointTestClient, ":", &len);
    		if (len != 3){
    			ov_logfile_error("EndpointIntern is not of correct format");
-   			ov_string_print(&pobj->v_errorMessage, "EndpointIntern is not of correct format");
-   			pobj->v_errorFlag = TRUE;
+   			ov_string_print(&pobj->v_ErrorMessage, "EndpointIntern is not of correct format");
+   			pobj->v_ErrorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
 
    		// Create MessageObject in Outbox
    		OV_RESULT resultOV = 0;
-   		ov_string_print(&tmpString, "%i", pobj->v_messageCount + 1);
+   		ov_string_print(&tmpString, "%i", pobj->v_MessageCount + 1);
    		resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pobj->p_ComponentManager.p_OUTBOX, tmpString);
    		ov_string_setvalue(&tmpString, NULL);
    		if(Ov_Fail(resultOV)){
    			ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-   			ov_string_print(&pobj->v_errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-   			pobj->v_errorFlag = TRUE;
+   			ov_string_print(&pobj->v_ErrorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+   			pobj->v_ErrorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
-   		pobj->v_messageCount = pobj->v_messageCount + 1;
+   		pobj->v_MessageCount = pobj->v_MessageCount + 1;
 
    		// Sender = Endpoint of Discovery-Server (IP, MANAGER-Name, Path)
    		MessageSys_Message_senderAddress_set(panswerMessage, pListIntern[0]);
@@ -309,7 +309,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		// XML Encoding
    		OV_STRING answerBody = NULL;
    		ov_string_setvalue(&answerBody, "<bdy>");
-   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"5\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey);
+   		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"5\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\"}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_MessageCount, pobj->v_ComponentID, pobj->v_SecurityKey);
    		ov_string_append(&answerBody, tmpString);
    		ov_string_setvalue(&tmpString, NULL);
    		ov_string_append(&answerBody, "</bdy>");
@@ -329,8 +329,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		if (!pmsgDelivery){
    			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
    			ov_logfile_error("Could not find MessageSys");
-   			ov_string_setvalue(&pobj->v_errorMessage, "Could not find MessageSys");
-   			pobj->v_errorFlag = TRUE;
+   			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not find MessageSys");
+   			pobj->v_ErrorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
 
@@ -338,11 +338,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendUnregistrationMe
    		if (MessageSys_MsgDelivery_sendMessage(pmsgDelivery, panswerMessage) == FALSE){
    			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
    			ov_logfile_error("Could not send Message");
-   			ov_string_setvalue(&pobj->v_errorMessage, "Could not send Message");
-   			pobj->v_errorFlag = TRUE;
+   			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not send Message");
+   			pobj->v_ErrorFlag = TRUE;
    			return OV_ERR_GENERIC;
    		}
-   		pobj->v_state = 4;
+   		pobj->v_State = 4;
    	}
    	pobj->v_SendUnregistrationMessage = FALSE;
     return OV_ERR_OK;
@@ -353,12 +353,12 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
     const OV_BOOL  value
 ) {
     pobj->v_SendSearchMessage = value;
-    if (pobj->v_SendSearchMessage == TRUE && pobj->v_securityKey){
-		ov_string_setvalue(&pobj->v_errorMessage, NULL);
-		pobj->v_errorFlag = FALSE;
-		if (pobj->v_state != 1){
-			ov_string_setvalue(&pobj->v_errorMessage, "Client ist not in state 1");
-			pobj->v_errorFlag = TRUE;
+    if (pobj->v_SendSearchMessage == TRUE && pobj->v_SecurityKey){
+		ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
+		pobj->v_ErrorFlag = FALSE;
+		if (pobj->v_State != 1){
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -372,8 +372,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		pListExtern = ov_string_split(pobj->v_EndpointDS, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointExtern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointExtern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointExtern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -382,23 +382,23 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		pListIntern = ov_string_split(pobj->v_EndpointTestClient, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointIntern is not of correct format");
-			ov_string_print(&pobj->v_errorMessage, "EndpointIntern is not of correct format");
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "EndpointIntern is not of correct format");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
 		// Create MessageObject in Outbox
 		OV_RESULT resultOV = 0;
-		ov_string_print(&tmpString, "%i", pobj->v_messageCount + 1);
+		ov_string_print(&tmpString, "%i", pobj->v_MessageCount + 1);
 		resultOV = Ov_CreateObject(MessageSys_Message, panswerMessage, &pobj->p_ComponentManager.p_OUTBOX, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		if(Ov_Fail(resultOV)){
 			ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			ov_string_print(&pobj->v_errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
-			pobj->v_errorFlag = TRUE;
+			ov_string_print(&pobj->v_ErrorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_messageCount = pobj->v_messageCount + 1;
+		pobj->v_MessageCount = pobj->v_MessageCount + 1;
 
 		// Sender = Endpoint of Discovery-Server (IP, MANAGER-Name, Path)
 		MessageSys_Message_senderAddress_set(panswerMessage, pListIntern[0]);
@@ -416,7 +416,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		// XML Encoding
 		OV_STRING answerBody = NULL;
 		ov_string_setvalue(&answerBody, "<bdy>");
-		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"7\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", \"tags\":[%s]}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_messageCount, pobj->v_ComponentID, pobj->v_securityKey, pobj->v_Tags);
+		ov_string_print(&tmpString, "{ \"header\":{\"endpointSender\":\"%s\", \"endpointReceiver\":\"%s\", \"messageID\":\"%i\", \"messageType\":\"7\", \"protocolType\":\"1\"},\"body\":{\"componentID\":\"%s\", \"securityKey\":\"%s\", \"tags\":[%s]}}", pobj->v_EndpointTestClient, pobj->v_EndpointDS, pobj->v_MessageCount, pobj->v_ComponentID, pobj->v_SecurityKey, pobj->v_Tags);
 		ov_string_append(&answerBody, tmpString);
 		ov_string_setvalue(&tmpString, NULL);
 		ov_string_append(&answerBody, "</bdy>");
@@ -436,8 +436,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		if (!pmsgDelivery){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not find MessageSys");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not find MessageSys");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not find MessageSys");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
 
@@ -445,11 +445,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		if (MessageSys_MsgDelivery_sendMessage(pmsgDelivery, panswerMessage) == FALSE){
 			Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 			ov_logfile_error("Could not send Message");
-			ov_string_setvalue(&pobj->v_errorMessage, "Could not send Message");
-			pobj->v_errorFlag = TRUE;
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Could not send Message");
+			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
-		pobj->v_state = 5;
+		pobj->v_State = 5;
 	}
 	pobj->v_SendSearchMessage = FALSE;
     return OV_ERR_OK;
@@ -488,15 +488,15 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_TestClient_getaccess(
 	return ov_object_getaccess(pobj, pelem, pticket);
 }
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_prepairForNextMessage_set(
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_PrepareForNextMessage_set(
     OV_INSTPTR_openAASDiscoveryServer_TestClient          pobj,
     const OV_BOOL  value
 ) {
-    pobj->v_prepairForNextMessage = value;
-    if (pobj->v_prepairForNextMessage == TRUE && pobj->v_state == 6){
-    	pobj->v_state = 1;
+    pobj->v_PrepareForNextMessage = value;
+    if (pobj->v_PrepareForNextMessage == TRUE && pobj->v_State == 6){
+    	pobj->v_State = 1;
     }
-    pobj->v_prepairForNextMessage = FALSE;
+    pobj->v_PrepareForNextMessage = FALSE;
     return OV_ERR_OK;
 }
 
@@ -505,11 +505,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_reset_set(
     OV_INSTPTR_openAASDiscoveryServer_TestClient          pobj,
     const OV_BOOL  value
 ) {
-    pobj->v_reset = value;
-    if (pobj->v_reset == TRUE){
-    	pobj->v_state = 0;
+    pobj->v_Reset = value;
+    if (pobj->v_Reset == TRUE){
+    	pobj->v_State = 0;
     }
-    pobj->v_reset = FALSE;
+    pobj->v_Reset = FALSE;
     return OV_ERR_OK;
 }
 
@@ -524,14 +524,14 @@ OV_DLLFNCEXPORT void openAASDiscoveryServer_TestClient_typemethod(
     */
     OV_INSTPTR_openAASDiscoveryServer_TestClient pinst = Ov_StaticPtrCast(openAASDiscoveryServer_TestClient, pfb);
 
-    switch (pinst->v_state){
+    switch (pinst->v_State){
     	case 0: // Initializing
-    		ov_string_setvalue(&pinst->v_securityKey, NULL);
-    		pinst->v_errorFlag = FALSE;
-    		ov_string_setvalue(&pinst->v_errorMessage, NULL);
-    		ov_string_setvalue(&pinst->v_certificateDS, NULL);
+    		ov_string_setvalue(&pinst->v_SecurityKey, NULL);
+    		pinst->v_ErrorFlag = FALSE;
+    		ov_string_setvalue(&pinst->v_ErrorMessage, NULL);
+    		ov_string_setvalue(&pinst->v_CertificateDS, NULL);
     		ov_string_setvalue(&pinst->v_AASFound, NULL);
-    		pinst->v_state = 1;
+    		pinst->v_State = 1;
 		break;
     	case 1: // ReadyForSendingRequest
     		// DoNothing

@@ -309,14 +309,14 @@ LIBRARY openAASDiscoveryServer
         	ComponentID         : STRING FLAGS = "i" COMMENT = "ID of this component, FORMAT IP:MANAGERNAME:PATH" INITIALVALUE = "";
         	
         	// error details
-        	errorFlag           : BOOL FLAGS = "o" INITIALVALUE = FALSE;
-        	errorMessage        : STRING FLAGS = "o" INITIALVALUE = "";
+        	ErrorFlag           : BOOL FLAGS = "o" INITIALVALUE = FALSE;
+        	ErrorMessage        : STRING FLAGS = "o" INITIALVALUE = "";
         	
         	// security details 
             CertificateTC       : STRING FLAGS = "i" INITIALVALUE = "";            
             SendSecurityMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
-            certificateDS       : STRING FLAGS = "o" INITIALVALUE = "";
-            securityKey         : STRING FLAGS = "o" INITIALVALUE = "";
+            CertificateDS       : STRING FLAGS = "o" INITIALVALUE = "";
+            SecurityKey         : STRING FLAGS = "o" INITIALVALUE = "";
                         
             // registration
             ComponentContent    : STRING FLAGS = "i" COMMENT = "Content of Component in JSON" INITIALVALUE = "";
@@ -331,10 +331,10 @@ LIBRARY openAASDiscoveryServer
             AASFound          : STRING FLAGS = "o" COMMENT = "" INITIALVALUE = "";            
 
             // 
-            reset             : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
-            prepairForNextMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
-            messageCount      : UINT FLAGS = "n" INITIALVALUE = 0;
-            state             : UINT FLAGS = "o" COMMENT = "0:Initializing; 1:ReadyForSendingRequest; 2:WaitingForSecurityResponse; 3:WaitingForRegistrationResponse; 4:WaitingForUnregistrationResponse; 5:WaitingForSearchResponse; 6:ProcessedResponse; 7:Error" INITIALVALUE = 0;
+            Reset             : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            PrepareForNextMessage : BOOL HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = FALSE;
+            MessageCount      : UINT FLAGS = "n" INITIALVALUE = 0;
+            State             : UINT FLAGS = "o" COMMENT = "0:Initializing; 1:ReadyForSendingRequest; 2:WaitingForSecurityResponse; 3:WaitingForRegistrationResponse; 4:WaitingForUnregistrationResponse; 5:WaitingForSearchResponse; 6:ProcessedResponse; 7:Error" INITIALVALUE = 0;
         END_VARIABLES;
         PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerTC;
