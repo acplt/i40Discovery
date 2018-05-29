@@ -501,7 +501,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_PrepareForNextMessag
 }
 
 
-OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_reset_set(
+OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_Reset_set(
     OV_INSTPTR_openAASDiscoveryServer_TestClient          pobj,
     const OV_BOOL  value
 ) {
