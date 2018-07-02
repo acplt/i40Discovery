@@ -2,10 +2,12 @@
 #define Databases_OVT_INCLUDED
 
 #include "sqlite3.h"
+#include "mysql/mysql.h"
 
 /* 
 	Define your data types here. 
 */
 typedef sqlite3* SQLITE3_DB_HANDLE;
+typedef MYSQL* MYSQL_DB_HANDLE;
 
 #endif

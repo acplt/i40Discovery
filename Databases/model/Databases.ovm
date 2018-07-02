@@ -30,4 +30,27 @@ LIBRARY Databases
 		END_OPERATIONS;
 	END_CLASS;
 	
+CLASS MySQL : CLASS openAASDiscoveryServer/DBWrapper
+		IS_INSTANTIABLE;
+		VARIABLES
+			database : STRING FLAGS = "i" INITIALVALUE = "";
+			ip	  : STRING FLAGS = "i" INITIALVALUE = "";
+			cert  : STRING FLAGS = "i" INITIALVALUE = "";
+			query : STRING HAS_SET_ACCESSOR FLAGS = "i" INITIALVALUE = "";
+			io	  : BOOL HAS_SET_ACCESSOR FLAGS = "i"   INITIALVALUE = FALSE;
+			db    : C_TYPE <MYSQL_DB_HANDLE>;
+		END_VARIABLES; 
+		OPERATIONS
+            constructor : C_FUNCTION <OV_FNC_CONSTRUCTOR>;
+            connect     : C_FUNCTION <DS_FNC_CONNECT>;
+            disconnect  : C_FUNCTION <DS_FNC_DISCONNECT>;
+            insertData  : C_FUNCTION <DS_FNC_INSERTDATA>;
+            selectData  : C_FUNCTION <DS_FNC_SELECTDATA>;
+            deleteData	: C_FUNCTION <DS_FNC_DELETEDATA>;
+            updateData  : C_FUNCTION <DS_FNC_UPDATEDATA>;
+            getComponentID : C_FUNCTION <DS_FNC_GETCOMPONENTID>;
+            execQuery   : C_FUNCTION <DS_FNC_EXECQUERY>;
+		END_OPERATIONS;
+	END_CLASS;
+	
 END_LIBRARY;

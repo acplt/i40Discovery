@@ -3,11 +3,11 @@
 *
 *   FILE
 *   ----
-*   SQLite3.c
+*   MySQL.c
 *
 *   History
 *   -------
-*   2018-04-25   File created
+*   2018-07-02   File created
 *
 *******************************************************************************
 *
@@ -23,48 +23,39 @@
 
 #include "Databases.h"
 #include "libov/ov_macros.h"
-#include "sqlite3.h"
-#include "libov/ov_logfile.h"
-#include <stdio.h>
 
+OV_INSTPTR_Databases_MySQL MYSQL_pinst = NULL;
 
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_connect(void) {
 
-// global variables, access to object members and db handler
-OV_INSTPTR_Databases_SQLite3 SQLITE3_pinst = NULL;
-int rc;
+	// allocate and initialise MYSQL handler
+	MYSQL_pinst->v_db = mysql_init(NULL);
 
-// callback function
-static int callback(void* data, int argc, char **argv, char **col_name) {
-
-	Ov_SetDynamicVectorLength((OV_STRING_VEC*)data, ((OV_STRING_VEC*)data)->veclen + argc, STRING);
-
-	for(int i = 0; i<argc; i++) {
-		ov_string_setvalue(&(((OV_STRING_VEC*)data)->value[((OV_STRING_VEC*)data)->veclen - argc + i]), argv[i]);
-		//ov_logfile_info("%-10s : %-s", col_name[i], argv[i] ? argv[i] : "NULL");
-	}
-	return 0;
-}
-
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
-	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
-	//ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
-	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &SQLITE3_pinst->v_db);
-	if( rc != SQLITE_OK) {
-		ov_logfile_info("failed to open db!");
-		sqlite3_close(SQLITE3_pinst->v_db);
+	if(MYSQL_pinst->v_db == NULL) {
 		return OV_ERR_GENERIC;
 	}
-    return OV_ERR_OK;
+
+	// connect to database. Arguments:
+	// 1. mysql db handle
+	// 2. host name
+	// 3. user name
+	// 4. password
+	if(mysql_real_connect(MYSQL_pinst->v_db, MYSQL_pinst->v_Endpoint, MYSQL_pinst->v_User, MYSQL_pinst->v_Password, MYSQL_pinst->v_database, 0, NULL, 0) == NULL) {
+		mysql_close(MYSQL_pinst->v_db);
+		return OV_ERR_GENERIC;
+	}
+
+	return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_disconnect(void) {
-	sqlite3_close(SQLITE3_pinst->v_db);
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_disconnect(void) {
+	mysql_close(MYSQL_pinst->v_db);
 
-    return OV_ERR_OK;
+	return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen,
-													   const OV_STRING* values, OV_UINT valuesLen) {
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_insertData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen,
+													 const OV_STRING* values, OV_UINT valuesLen) {
 	if(fieldsLen != valuesLen) {
 		return OV_ERR_BADPARAM;
 	}
@@ -88,24 +79,13 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 			ov_string_print(&query, "%s%s, ", query, values[i]);
 		}
 	}
-	//ov_logfile_info("%s", query);
 
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
-
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		ov_string_setvalue(&query, NULL);
-		return OV_ERR_BADPARAM;
-	}
-
-	ov_string_setvalue(&query, NULL);
-    return OV_ERR_OK;
+	OV_RESULT res = Databases_MySQL_execQuery(query);
+	return res;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* whereFields,
-													   OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen, OV_STRING_VEC* result) {
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_selectData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* whereFields,
+													 OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen, OV_STRING_VEC* result) {
 	if(whereFieldsLen != whereValuesLen) {
 		return OV_ERR_BADPARAM;
 	}
@@ -146,23 +126,31 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_selectData(const OV_STRING table, co
 	}
 	ov_string_print(&query, "%s%s", query, ";");
 
-	//ov_logfile_info("%s", query);
+	OV_RESULT res = Databases_MySQL_execQuery(query);
 
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
-
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		ov_string_setvalue(&query, NULL);
-		return OV_ERR_BADPARAM;
+	if(res != OV_ERR_OK) {
+		return res;
 	}
 
-	ov_string_setvalue(&query, NULL);
-    return OV_ERR_OK;
+	MYSQL_RES* query_result = mysql_store_result(MYSQL_pinst->v_db);
+
+	if(query_result == NULL) {
+		mysql_close(MYSQL_pinst->v_db);
+		return OV_ERR_GENERIC;
+	}
+
+	int num_fields = mysql_num_fields(result);
+	MYSQL_ROW row;
+
+	// do smth here with the data
+
+	mysql_free_result(query_result);
+
+	return res;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* values, OV_UINT valuesLen) {
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_deleteData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* values, OV_UINT valuesLen) {
+
 	// build up DELETE query
 	OV_STRING query = NULL;
 	ov_string_setvalue(&query, "DELETE FROM ");
@@ -180,21 +168,11 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_deleteData(const OV_STRING table, co
 
 	//ov_logfile_info("%s", query);
 
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
-
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		ov_string_setvalue(&query, NULL);
-		return OV_ERR_BADPARAM;
-	}
-
-	ov_string_setvalue(&query, NULL);
-	return OV_ERR_OK;
+	OV_RESULT res = Databases_MySQL_execQuery(query);
+	return res;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* fieldValues, OV_UINT fieldValuesLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_updateData(const OV_STRING table, const OV_STRING* fields, OV_UINT fieldsLen, const OV_STRING* fieldValues, OV_UINT fieldValuesLen, const OV_STRING* whereFields, OV_UINT whereFieldsLen, OV_STRING* whereValues, OV_UINT whereValuesLen) {
 	// build up UPDATE query
 	OV_STRING query = NULL;
 	ov_string_setvalue(&query, "UPDATE");
@@ -223,23 +201,11 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_updateData(const OV_STRING table, co
 
 	//ov_logfile_info("%s", query);
 
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, NULL, NULL, &err_msg);
-
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		ov_string_setvalue(&query,NULL);
-		return OV_ERR_BADPARAM;
-	}
-
-	ov_string_setvalue(&query,NULL);
-	return OV_ERR_OK;
+	OV_RESULT res = Databases_MySQL_execQuery(query);
+	return res;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table, const DB_QUERY* db_query, OV_UINT querySize, OV_STRING_VEC* result) {
-	// TODO: Check Veclen => Errorhandling
-
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_getComponentID(const OV_STRING table, const DB_QUERY* db_query, OV_UINT querySize, OV_STRING_VEC* result) {
 	OV_STRING query = NULL;
     ov_string_setvalue(&query, "SELECT DISTINCT ComponentID0 FROM");
 
@@ -266,12 +232,13 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table
 
 	//ov_logfile_info("%s", query);
 
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, result, &err_msg);
+	OV_RESULT res = Databases_MySQL_execQuery(query);
+	return res;
+}
 
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_execQuery(OV_STRING query) {
+	if(mysql_query(MYSQL_pinst->v_db, query)) {
+		ov_logfile_info("SQL Error: %s", mysql_error(MYSQL_pinst->v_db));
 		ov_string_setvalue(&query, NULL);
 		return OV_ERR_BADPARAM;
 	}
@@ -280,58 +247,28 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_getComponentID(const OV_STRING table
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_execQuery(OV_STRING query) {
-	char* err_msg = NULL;
-	rc = sqlite3_exec(SQLITE3_pinst->v_db, query, callback, NULL, &err_msg);
-	if(rc != SQLITE_OK) {
-		ov_logfile_info("SQL Error: %s", err_msg);
-		sqlite3_free(err_msg);
-		ov_string_setvalue(&query, NULL);
-		return OV_ERR_BADPARAM;
-	}
-
-	ov_string_setvalue(&query, NULL);
-    return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_query_set(
-    OV_INSTPTR_Databases_SQLite3          pobj,
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_query_set(
+    OV_INSTPTR_Databases_MySQL          pobj,
     const OV_STRING  value
 ) {
-	if(!value) {
-		const char* data = "Callback funtion called";
-		char* err_msg = NULL;
+    return ov_string_setvalue(&pobj->v_query,value);
+}
 
-		ov_string_setvalue(&pobj->v_query,value);
-		//ov_logfile_info("%s", pobj->v_query);
-		rc = sqlite3_exec(SQLITE3_pinst->v_db, pobj->v_query, callback, (void*)data, &err_msg);
-
-		if( rc != SQLITE_DONE ) {
-			ov_logfile_info("SQL error: %s", err_msg);
-			return OV_ERR_GENERIC;
-		}
-	}
-
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_io_set(
+    OV_INSTPTR_Databases_MySQL          pobj,
+    const OV_BOOL  value
+) {
+    pobj->v_io = value;
     return OV_ERR_OK;
 }
 
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_io_set(
-    OV_INSTPTR_Databases_SQLite3          pobj,
-    const OV_BOOL  value
-) {
-	pobj->v_io = value;
-
-
-	return OV_ERR_OK;
-}
-
-OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_constructor(
+OV_DLLFNCEXPORT OV_RESULT Databases_MySQL_constructor(
 	OV_INSTPTR_ov_object 	pobj
 ) {
     /*    
     *   local variables
     */
-    OV_INSTPTR_Databases_SQLite3 pinst = Ov_StaticPtrCast(Databases_SQLite3, pobj);
+    OV_INSTPTR_Databases_MySQL pinst = Ov_StaticPtrCast(Databases_MySQL, pobj);
     OV_RESULT    result;
 
     /* do what the base class does first */
@@ -339,8 +276,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_constructor(
     if(Ov_Fail(result))
          return result;
 
-    /* do what */
-    SQLITE3_pinst = pinst;
+    MYSQL_pinst = pinst;
+
     return OV_ERR_OK;
 }
-
