@@ -84,6 +84,7 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 
 	// get tags
 	searchtagsSize = JsonInput.token[tokenIndex.value[2]+1].size;
+	// TODO check if malloc failed!
 	searchtags = malloc(sizeof(struct searchtag)*searchtagsSize);
 	for (OV_UINT i = 0; i < searchtagsSize; i++){
 		searchtags[i].tag = NULL;

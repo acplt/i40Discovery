@@ -46,14 +46,35 @@ static int callback(void* data, int argc, char **argv, char **col_name) {
 }
 
 OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_connect(void) {
-	//if(SQLITE3_pinst->v_Endpoint == NULL) return OV_ERR_BADPARAM;
-	//ov_logfile_info("connecting to : %s", SQLITE3_pinst->v_Endpoint);
+	OV_STRING err_msg = NULL;
+
+	// open database
 	rc = sqlite3_open(SQLITE3_pinst->v_Endpoint , &SQLITE3_pinst->v_db);
+
+	// check first if db handle allocated
+	if(SQLITE3_pinst->v_db == NULL) {
+		ov_string_setvalue(&SQLITE3_pinst->v_ErrorMessage, "Could not allocate memory for DB handle!");
+		SQLITE3_pinst->v_ErrorFlag = TRUE;
+		return OV_ERR_GENERIC;
+	}
+	// check then if error occured
 	if( rc != SQLITE_OK) {
-		ov_logfile_info("failed to open db!");
+		// since v_db is not null we can retrieve sqlite3_errmsg()
+		ov_string_setvalue(&err_msg,  (OV_STRING)sqlite3_errmsg(SQLITE3_pinst->v_db));
+		ov_string_setvalue(&SQLITE3_pinst->v_ErrorMessage, err_msg);
+		SQLITE3_pinst->v_ErrorFlag = TRUE;
 		sqlite3_close(SQLITE3_pinst->v_db);
 		return OV_ERR_GENERIC;
 	}
+	err_msg = NULL;
+
+	// reset error message
+	// TODO: what if db is already in bad state?
+	if(!SQLITE3_pinst->v_ErrorFlag) {
+		SQLITE3_pinst->v_ErrorFlag = FALSE;
+		ov_string_setvalue(&SQLITE3_pinst->v_ErrorMessage, NULL);
+	}
+
     return OV_ERR_OK;
 }
 
@@ -98,6 +119,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_insertData(const OV_STRING table, co
 		sqlite3_free(err_msg);
 		ov_string_setvalue(&query, NULL);
 		return OV_ERR_BADPARAM;
+		ov_string_setvalue(&err_msg, "Could not connect to DB. Closing connection!");
 	}
 
 	ov_string_setvalue(&query, NULL);
@@ -338,6 +360,7 @@ OV_DLLFNCEXPORT OV_RESULT Databases_SQLite3_constructor(
 
     /* do what */
     SQLITE3_pinst = pinst;
+
     return OV_ERR_OK;
 }
 

@@ -82,9 +82,15 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
 			ov_logfile_error("Could not find DBWrapper Object");
 			goto FINALIZE;
 		}
-
+		// TODO check return value from selectData(...). If table is wrong DSService has a bad configuration or/and DBWrapper has a wrong config
 		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-		pDBWrapperVTable->m_selectData(table, fields, 1, whereFields, 1, wherevalues, 1, &result);
+		OV_RESULT res = pDBWrapperVTable->m_selectData(table, fields, 1, whereFields, 1, wherevalues, 1, &result);
+		if(res != OV_ERR_OK) {
+			ov_string_setvalue(errorMessage, "Internal Error: SQL error");
+			ov_logfile_error("Internal Error: SQL error");
+			goto FINALIZE;
+		}
+
 		for (OV_UINT j = 0; j < result.veclen; j++){
 			if (ov_string_compare(result.value[j], certificate) == OV_STRCMP_EQUAL){
 				certificateCheckSuccessful = TRUE;

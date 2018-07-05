@@ -36,7 +36,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
     	ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
 		pobj->v_ErrorFlag = FALSE;
     	if (pobj->v_State != 1){
-        	ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+        	ov_string_setvalue(&pobj->v_ErrorMessage, "Client is not in state 1");
     		pobj->v_ErrorFlag = TRUE;
     		return OV_ERR_GENERIC;
     	}
@@ -48,6 +48,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 		OV_STRING *pListExtern = NULL;
 		OV_UINT len = 0;
 		// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
+		// TODO here ip could not be in right format. Maybe check for xx.xx.xx.xx format?
+		// TODO here path could not be in right format. Can i check in advance if correct format? -> DS entlasten
 		pListExtern = ov_string_split(pobj->v_EndpointDS, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointExtern is not of correct format");
@@ -58,6 +60,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 
 		OV_STRING *pListIntern = NULL;
 		// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
+		// TODO here ip could not be in right format. Maybe check for xx.xx.xx.xx format?
+		// TODO here path could not be in right format. Can i check in advance if correct format? -> DS entlasten
 		pListIntern = ov_string_split(pobj->v_EndpointTestClient, ":", &len);
 		if (len != 3){
 			ov_logfile_error("EndpointIntern is not of correct format");
@@ -357,7 +361,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
 		pobj->v_ErrorFlag = FALSE;
 		if (pobj->v_State != 1){
-			ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Client is not in state 1");
 			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
@@ -493,6 +497,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_PrepareForNextMessag
     const OV_BOOL  value
 ) {
     pobj->v_PrepareForNextMessage = value;
+    // TODO check also error flag?
     if (pobj->v_PrepareForNextMessage == TRUE && pobj->v_State == 6){
     	pobj->v_State = 1;
     }
