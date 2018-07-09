@@ -375,7 +375,11 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_Security_getSecurityMessage(OV_
 			pvtable->m_executeService(Ov_DynamicPtrCast(openAASDiscoveryServer_DSService, pService), body, &tmpJsonOutput, errorMessage);
 	}
 	if (!*JsonOutput){
-		ov_string_setvalue(errorMessage, "Internal Error");
+		if (pinst->v_UsedDSServicePaths.veclen == 0){
+			ov_string_setvalue(errorMessage, "DSServices not configured");
+		}else{
+			ov_string_setvalue(errorMessage, "Internal Error");
+		}
 		ov_string_setvalue(JsonOutput, "\"body\"{}");
 		return OV_ERR_GENERIC;
 	}

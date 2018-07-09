@@ -99,20 +99,6 @@ static void* thread_fcn(void*ptr){
 		break;
 	}
 
-
-
-	// freeMemory and delete thread from list
-	for (OV_UINT i = 0; i < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen; i++){
-		if ((OV_UINT)pthreadData == pthreadData->pDiscoveryServer->v_threadDataHndl.value[i]){
-			pthreadData->pDiscoveryServer->v_threadDataHndl.value[i] = 0;
-			// Copy each value to the index before
-			for (OV_UINT j = i; j < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1; j++){
-				pthreadData->pDiscoveryServer->v_threadDataHndl.value[j] = pthreadData->pDiscoveryServer->v_threadDataHndl.value[j+1];
-			}
-			Ov_SetDynamicVectorLength(&pthreadData->pDiscoveryServer->v_threadDataHndl, pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1, INT);
-		}
-	}
-
 	// create response-message
 	response_header responseHeader;
 	responseHeader.endpointReceiver = requestData.header.endpointReceiver;
@@ -146,7 +132,18 @@ static void* thread_fcn(void*ptr){
 		ov_string_print(&pthreadData->pDiscoveryServer->v_ErrorMessage, "Error in sendMessage: %s", errorMessage);
 	}
 
-	// freeMemory
+	// freeMemory and delete thread from list
+	for (OV_UINT i = 0; i < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen; i++){
+		if ((OV_UINT)pthreadData == pthreadData->pDiscoveryServer->v_threadDataHndl.value[i]){
+			pthreadData->pDiscoveryServer->v_threadDataHndl.value[i] = 0;
+			// Copy each value to the index before
+			for (OV_UINT j = i; j < pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1; j++){
+				pthreadData->pDiscoveryServer->v_threadDataHndl.value[j] = pthreadData->pDiscoveryServer->v_threadDataHndl.value[j+1];
+			}
+			Ov_SetDynamicVectorLength(&pthreadData->pDiscoveryServer->v_threadDataHndl, pthreadData->pDiscoveryServer->v_threadDataHndl.veclen-1, INT);
+		}
+	}
+
 	request_data_deleteMembers(&requestData);
 	ov_string_setvalue(&responseHeader.messageID, NULL);
 	ov_string_setvalue(&responseHeader.errorMessage, NULL);
