@@ -57,7 +57,6 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 	endpointStruct.veclen = 0;
 	struct component *components = NULL;
 	struct searchtag *searchtags = NULL;
-	OV_UINT componentSize = 0;
 	OV_UINT searchtagsSize = 0;
 	Ov_SetDynamicVectorLength(&tags, 3, STRING);
 	ov_string_setvalue(&tags.value[0], "componentID");
@@ -85,6 +84,10 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSearchServiceType1_executeService(OV_INST
 	// get tags
 	searchtagsSize = JsonInput.token[tokenIndex.value[2]+1].size;
 	searchtags = malloc(sizeof(struct searchtag)*searchtagsSize);
+	if (!searchtags){
+		ov_string_setvalue(errorMessage, "Fault in malloc");
+		goto FINALIZE;
+	}
 	for (OV_UINT i = 0; i < searchtagsSize; i++){
 		searchtags[i].tag = NULL;
 		// value + 2 start of objects + i*5 next object + 2/4 values of tag and value

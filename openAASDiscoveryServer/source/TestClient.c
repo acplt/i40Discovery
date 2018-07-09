@@ -36,7 +36,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
     	ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
 		pobj->v_ErrorFlag = FALSE;
     	if (pobj->v_State != 1){
-        	ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+        	ov_string_setvalue(&pobj->v_ErrorMessage, "Client is not in state 1");
     		pobj->v_ErrorFlag = TRUE;
     		return OV_ERR_GENERIC;
     	}
@@ -55,6 +55,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
+		// TODO: Check if IP is in right format and path is in right format
+
 
 		OV_STRING *pListIntern = NULL;
 		// endpoint have to be of format IP:MANAGERNAME:PathToKSEndpoint
@@ -65,6 +67,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSecurityMessage_
 			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}
+		// TODO: Check if IP is in right format and path is in right format
 
 		// Create MessageObject in Outbox
 		OV_RESULT resultOV = 0;
@@ -357,7 +360,7 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_TestClient_SendSearchMessage_se
 		ov_string_setvalue(&pobj->v_ErrorMessage, NULL);
 		pobj->v_ErrorFlag = FALSE;
 		if (pobj->v_State != 1){
-			ov_string_setvalue(&pobj->v_ErrorMessage, "Client ist not in state 1");
+			ov_string_setvalue(&pobj->v_ErrorMessage, "Client is not in state 1");
 			pobj->v_ErrorFlag = TRUE;
 			return OV_ERR_GENERIC;
 		}

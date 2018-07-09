@@ -120,6 +120,8 @@ static void* thread_fcn(void*ptr){
 	responseHeader.errorMessage = NULL;
 	// Check ErrorMessage
 	if (errorMessage){
+		pthreadData->pDiscoveryServer->v_ErrorFlag = TRUE;
+		ov_string_print(&pthreadData->pDiscoveryServer->v_ErrorMessage, "Error in part-function: %s", errorMessage);
 		ov_logfile_error("Error in part-function: %s", errorMessage);
 		responseHeader.errorFlag = TRUE;
 		ov_string_setvalue(&responseHeader.errorMessage, errorMessage);
@@ -140,6 +142,8 @@ static void* thread_fcn(void*ptr){
 	if (resultOV){
 		ov_logfile_error("Error in sendMessage: %s", errorMessage);
 		ov_string_setvalue(&errorMessage, NULL);
+		pthreadData->pDiscoveryServer->v_ErrorFlag = TRUE;
+		ov_string_print(&pthreadData->pDiscoveryServer->v_ErrorMessage, "Error in sendMessage: %s", errorMessage);
 	}
 
 	// freeMemory
@@ -187,9 +191,14 @@ OV_DLLFNCEXPORT OV_ACCESS openAASDiscoveryServer_DiscoveryServer_getaccess(
 
 OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_INSTPTR_openAASDiscoveryServer_DiscoveryServer pinst, const OV_STRING JsonInput, OV_STRING *errorMessage) {
 
+	if (!JsonInput){
+		return OV_ERR_BADPARAM;
+	}
 	thread_data *pthreadData = NULL;
 	pthreadData = Ov_HeapMalloc(sizeof(thread_data));
 	if(!pthreadData){
+		pinst->v_ErrorFlag = TRUE;
+		ov_string_setvalue(&pinst->v_ErrorMessage, "Data for thread could not be allocated");
 		return OV_ERR_GENERIC;
 	}
 	pthreadData->thread = 0;
@@ -205,11 +214,14 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_getMessage(OV_I
 	thread_fcn((void*)pthreadData);
 
 	if (threadResult){
-		ov_logfile_error("Could not create a thread for getting Message. ErrorCode: %i", threadResult);
-		ov_string_print(errorMessage, "Could not create a thread for getting Message. ErrorCode: %i", threadResult);
+		ov_logfile_error("Could not create a thread for receiving Message. ErrorCode: %i", threadResult);
+		ov_string_print(errorMessage, "Could not create a thread for receiving Message. ErrorCode: %i", threadResult);
 		Ov_SetDynamicVectorLength(&pinst->v_threadDataHndl, pinst->v_threadDataHndl.veclen-1, INT);
+		pinst->v_ErrorFlag = TRUE;
+		ov_string_setvalue(&pinst->v_ErrorMessage, "Could not create a thread for receiving Message");
 		ov_string_setvalue(&pthreadData->message, NULL);
 		Ov_HeapFree(pthreadData);
+
 		return OV_ERR_GENERIC;
 	}
 
@@ -221,6 +233,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 	OV_RESULT resultOV = 0;
 	if (!JsonInput){
 		ov_string_print(errorMessage, "empty JSON-String");
+		ov_string_setvalue(&pinst->v_ErrorMessage, "Sending empty JSON-String");
+		pinst->v_ErrorFlag = TRUE;
 		return OV_ERR_GENERIC;
 	}
 
@@ -251,6 +265,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 			if(Ov_Fail(resultOV)){
 				ov_logfile_error("Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
 				ov_string_print(errorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+				ov_string_print(&pinst->v_ErrorMessage, "Could not create an answerMessage. Reason: %s", ov_result_getresulttext(resultOV));
+				pinst->v_ErrorFlag = TRUE;
 				return OV_ERR_GENERIC;
 			}
 
@@ -309,6 +325,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 				Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 				ov_logfile_error("Could not find MessageSys");
 				ov_string_setvalue(errorMessage, "Could not find MessageSys");
+				ov_string_setvalue(&pinst->v_ErrorMessage, "Could not find MessageSys");
+				pinst->v_ErrorFlag = TRUE;
 				return OV_ERR_GENERIC;
 			}
 
@@ -317,6 +335,8 @@ OV_DLLFNCEXPORT OV_RESULT openAASDiscoveryServer_DiscoveryServer_sendMessage(OV_
 				Ov_DeleteObject((OV_INSTPTR_ov_object) panswerMessage);
 				ov_logfile_error("Could not send Message");
 				ov_string_setvalue(errorMessage, "Could not send Message");
+				ov_string_setvalue(&pinst->v_ErrorMessage, "Could not send Message");
+				pinst->v_ErrorFlag = TRUE;
 				return OV_ERR_GENERIC;
 			}
 		}

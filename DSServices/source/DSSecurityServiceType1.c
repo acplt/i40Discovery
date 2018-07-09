@@ -84,7 +84,11 @@ OV_DLLFNCEXPORT OV_RESULT DSServices_DSSecurityServiceType1_executeService(OV_IN
 		}
 
 		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-		pDBWrapperVTable->m_selectData(table, fields, 1, whereFields, 1, wherevalues, 1, &result);
+		resultOV = pDBWrapperVTable->m_selectData(table, fields, 1, whereFields, 1, wherevalues, 1, &result);
+		if (resultOV != OV_ERR_OK){
+			ov_string_setvalue(errorMessage, "Internal Error: SQL error");
+			goto FINALIZE;
+		}
 		for (OV_UINT j = 0; j < result.veclen; j++){
 			if (ov_string_compare(result.value[j], certificate) == OV_STRCMP_EQUAL){
 				certificateCheckSuccessful = TRUE;

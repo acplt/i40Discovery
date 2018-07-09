@@ -9,6 +9,7 @@
 
 OV_RESULT checkSecurityKey(OV_STRING_VEC DBWrapperPath, OV_STRING componentID, OV_STRING securityKey){
 	// check SecurityKey in Database
+	OV_RESULT resultOV = OV_ERR_OK;
 	OV_STRING table  = "SecurityData";
 	OV_STRING fields = "SecurityKey";
 	OV_STRING whereFields = "ComponentID";
@@ -27,7 +28,13 @@ OV_RESULT checkSecurityKey(OV_STRING_VEC DBWrapperPath, OV_STRING componentID, O
 			break;
 
 		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
-		pDBWrapperVTable->m_selectData(table, &fields, 1, &whereFields, 1, &whereValues, 1, &result);
+		resultOV = pDBWrapperVTable->m_selectData(table, &fields, 1, &whereFields, 1, &whereValues, 1, &result);
+		if (resultOV != OV_ERR_OK){
+			pDBWrapper->v_ErrorFlag = TRUE;
+			ov_string_setvalue(&pDBWrapper->v_ErrorMessage, "Internal Error: SQL error");
+			ov_logfile_error("Internal Error: SQL error");
+			return OV_ERR_GENERIC;
+		}
 		for (OV_UINT j = 0; j < result.veclen; j++){
 			if (ov_string_compare(result.value[j], securityKey) == OV_STRCMP_EQUAL){
 				securityCheckSuccessful = TRUE;
