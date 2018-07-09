@@ -27,6 +27,7 @@ OV_RESULT checkSecurityKey(OV_STRING_VEC DBWrapperPath, OV_STRING componentID, O
 			break;
 
 		Ov_GetVTablePtr(openAASDiscoveryServer_DBWrapper,pDBWrapperVTable, pDBWrapper);
+		// TODO check return val from m_selectData();
 		pDBWrapperVTable->m_selectData(table, &fields, 1, &whereFields, 1, &whereValues, 1, &result);
 		for (OV_UINT j = 0; j < result.veclen; j++){
 			if (ov_string_compare(result.value[j], securityKey) == OV_STRCMP_EQUAL){

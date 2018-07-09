@@ -152,6 +152,7 @@ OV_DLLFNCEXPORT OV_RESULT jsonRequestParse(request_data* requestData, const OV_S
 	tmpString = NULL;
 	jsonData_header.num_token = tokenSizeHeader;
 	jsonData_header.token = malloc(sizeof(jsmntok_t)*jsonData_header.num_token);
+	// TODO check if malloc worked -> if num_token huge -> problem
 	for (OV_UINT i = 0; i < jsonData_header.num_token; i++){
 		memcpy(&jsonData_header.token[i], &jsonData.token[tokenIndex.value[0]+i], sizeof(jsmntok_t));
 		jsonData_header.token[i].start = jsonData_header.token[i].start - jsonData.token[tokenIndex.value[0]].start + 1;

@@ -19,6 +19,10 @@ LIBRARY openAASDiscoveryServer
             User     :  STRING FLAGS = "i" INITIALVALUE = "";
             Password :  STRING FLAGS = "i" INITIALVALUE = "";
             StartConnect  :  BOOL HAS_SET_ACCESSOR FLAGS="i" INITIALVALUE = FALSE;
+        	
+        	// error details
+        	ErrorFlag    : BOOL FLAGS = "o" INITIALVALUE = FALSE;
+        	ErrorMessage : STRING FLAGS = "o" INITIALVALUE = "";
         END_VARIABLES;  
         OPERATIONS  
             getaccess   : C_FUNCTION <OV_FNC_GETACCESS>;
@@ -267,6 +271,10 @@ LIBRARY openAASDiscoveryServer
 			/* handle thread variables */
             threadDataHndl[] : INT FLAGS = "n";
             messageCount     : UINT FLAGS = "n" INITIALVALUE = 0;
+            
+            // error details
+        	ErrorFlag           : BOOL FLAGS = "o" INITIALVALUE = FALSE;
+        	ErrorMessage        : STRING FLAGS = "o" INITIALVALUE = "";
 		END_VARIABLES;
 		PARTS 
             ComponentManager : CLASS openAASDiscoveryServer/ComponentManagerDS;
