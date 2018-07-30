@@ -26,6 +26,7 @@ LIBRARY Databases
             deleteData	: C_FUNCTION <DS_FNC_DELETEDATA>;
             updateData  : C_FUNCTION <DS_FNC_UPDATEDATA>;
             getComponentID : C_FUNCTION <DS_FNC_GETCOMPONENTID>;
+            getFittingStatements : C_FUNCTION <DS_FNC_GETFITTINGSTATEMENTS>;
             execQuery   : C_FUNCTION <DS_FNC_EXECQUERY>;
 		END_OPERATIONS;
 	END_CLASS;

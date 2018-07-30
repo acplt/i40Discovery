@@ -13,7 +13,7 @@
 
 OV_RESULT decodeMSG(const SRV_String* str, SRV_msgHeader** header, void** srvStruct, SRV_service_t* srvType, SRV_encoding_t *encoding){
 
-	if (strncmp(str->data, "JSON", 4) == 0){ // JSON Encoding
+	//if (strncmp(str->data, "JSON", 4) == 0){ // JSON Encoding
 		SRV_String *tmpStr = SRV_String_new();
 		tmpStr->data = malloc((str->length-4+1)*sizeof(char));
 		tmpStr->length = str->length-4;
@@ -25,15 +25,15 @@ OV_RESULT decodeMSG(const SRV_String* str, SRV_msgHeader** header, void** srvStr
 			return resultJSON;
 		}
 		SRV_String_delete(tmpStr);
-	}else if (strncmp(str->data, "OPCB", 4) == 0){ // OPC UA binary Encoding
-		return OV_ERR_NOTIMPLEMENTED;
-	}else if (strncmp(str->data, "XMLT", 4) == 0){ // XML text Encoding
-		return OV_ERR_NOTIMPLEMENTED;
-	}else if (strncmp(str->data, "XMLB", 4) == 0){ // XML binary Encoding
-		return OV_ERR_NOTIMPLEMENTED;
-	}else{
-		return OV_ERR_NOTIMPLEMENTED;
-	}
+//	}else if (strncmp(str->data, "OPCB", 4) == 0){ // OPC UA binary Encoding
+		//return OV_ERR_NOTIMPLEMENTED;
+	//}else if (strncmp(str->data, "XMLT", 4) == 0){ // XML text Encoding
+//		return OV_ERR_NOTIMPLEMENTED;
+//	}else if (strncmp(str->data, "XMLB", 4) == 0){ // XML binary Encoding
+		//return OV_ERR_NOTIMPLEMENTED;
+	//}else{
+//		return OV_ERR_NOTIMPLEMENTED;
+//	}
 	return OV_ERR_OK;
 }
 
